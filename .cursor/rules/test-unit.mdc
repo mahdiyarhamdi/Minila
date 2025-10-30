@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+ تست و کیفیت
+- pytest + httpx + pytest-asyncio.
+- برای هر روتر اصلی حداقل 1 تست happy path + 1 تست خطا.
+- تست‌های واحد برای service و repository بدون hit بیرونی (mock).
+- حداقل پوشش 70% (قابل افزایش بعداً).
+- Black/Ruff/Isort/Mypy — اگر فایل‌های تنظیم نبودند، پیشنهاد ساخت pyproject.toml بده.
