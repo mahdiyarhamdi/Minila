@@ -1,0 +1,393 @@
+# Backend - Minila MVP
+
+> Backend API برای پلتفرم هماهنگی مسافر-بار
+
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)](https://www.postgresql.org/)
+
+---
+
+## 📖 معرفی
+
+Backend پروژه Minila یک REST API است که با FastAPI ساخته شده و وظایف زیر را انجام می‌دهد:
+
+- 🔐 احراز هویت کاربران با OTP و JWT
+- 👥 مدیریت کامیونیتی‌ها و درخواست‌های عضویت
+- 🚗 ایجاد و جست‌وجوی کارت‌های سفر/بار
+- 💬 پیام‌رسانی بین کاربران (با شرط کامیونیتی مشترک)
+- 🔔 ارسال نوتیفیکیشن با ایمیل
+- 🛡️ محدودسازی نرخ (rate limiting)
+- 📊 ثبت لاگ‌های رویدادها
+
+---
+
+## 🎯 پیش‌نیازها
+
+قبل از شروع، اطمینان حاصل کنید که این‌ها نصب هستند:
+
+- **Python 3.12+** ([دانلود](https://www.python.org/downloads/))
+- **Docker & Docker Compose** ([دانلود](https://www.docker.com/))
+- **Git** ([دانلود](https://git-scm.com/))
+
+برای توسعه محلی (بدون Docker):
+- **PostgreSQL 15+**
+- **Redis 7+**
+
+---
+
+## 🚀 نصب و راه‌اندازی
+
+### روش 1: با Docker Compose (توصیه می‌شود)
+
+```bash
+# 1. Clone کردن repository
+git clone https://github.com/mahdiyarhamdi/Minila.git
+cd Minila/backend
+
+# 2. ساخت فایل .env
+cp .env.example .env
+# فایل .env را ویرایش کنید
+
+# 3. راه‌اندازی با Docker Compose
+docker-compose up -d
+
+# 4. اجرای مایگریشن‌ها
+docker-compose exec backend alembic upgrade head
+
+# 5. بررسی سلامت
+curl http://localhost:8000/health
+# پاسخ: {"ok": true}
+```
+
+سرور در `http://localhost:8000` در دسترس است.  
+مستندات API: `http://localhost:8000/docs`
+
+---
+
+### روش 2: اجرای محلی (بدون Docker)
+
+```bash
+# 1. ایجاد virtual environment
+cd backend
+python3.12 -m venv venv
+source venv/bin/activate  # در Windows: venv\Scripts\activate
+
+# 2. نصب dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# 3. راه‌اندازی PostgreSQL و Redis
+# (فرض می‌کنیم از قبل نصب هستند)
+
+# 4. تنظیم .env
+cp .env.example .env
+# DATABASE_URL و REDIS_URL را به localhost تغییر دهید
+
+# 5. اجرای مایگریشن
+alembic upgrade head
+
+# 6. اجرای سرور
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+---
+
+## ⚙️ متغیرهای محیطی
+
+فایل `.env` را بسازید و این متغیرها را تنظیم کنید:
+
+| متغیر | توضیح | مقدار پیش‌فرض | الزامی |
+|-------|-------|---------------|--------|
+| `APP_NAME` | نام اپلیکیشن | `Passenger Freight MVP` | ❌ |
+| `DEBUG` | حالت debug | `False` | ❌ |
+| `SECRET_KEY` | کلید مخفی JWT (32+ کاراکتر) | - | ✅ |
+| `DATABASE_URL` | آدرس PostgreSQL | `postgresql+psycopg://...` | ✅ |
+| `REDIS_URL` | آدرس Redis | `redis://redis:6379/0` | ✅ |
+| `SMTP_HOST` | سرور SMTP | `mailhog` | ✅ |
+| `SMTP_PORT` | پورت SMTP | `1025` | ✅ |
+| `EMAIL_FROM` | ایمیل فرستنده | `no-reply@example.local` | ✅ |
+| `CORS_ORIGINS` | لیست domainهای مجاز | `["http://localhost:3000"]` | ❌ |
+| `OTP_EXPIRY_MINUTES` | زمان اعتبار OTP (دقیقه) | `10` | ❌ |
+| `MESSAGES_PER_DAY` | محدودیت پیام روزانه | `5` | ❌ |
+
+### نمونه فایل `.env`
+
+```env
+APP_NAME=Minila MVP
+DEBUG=True
+SECRET_KEY=your-super-secret-key-min-32-chars-change-in-production
+
+# Database
+DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/minila
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# Email (MailHog for dev)
+SMTP_HOST=mailhog
+SMTP_PORT=1025
+EMAIL_FROM=no-reply@minila.local
+
+# Security
+OTP_EXPIRY_MINUTES=10
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+
+# Rate Limiting
+MESSAGES_PER_DAY=5
+API_RATE_LIMIT_PER_MINUTE=100
+
+# CORS
+CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
+```
+
+---
+
+## 📡 API Endpoints
+
+### فعلی (مستند شده)
+
+| Method | Endpoint | توضیح |
+|--------|----------|-------|
+| `GET` | `/` | اطلاعات API |
+| `GET` | `/health` | بررسی سلامت سرور |
+| `GET` | `/docs` | مستندات Swagger UI |
+| `GET` | `/redoc` | مستندات ReDoc |
+
+### آینده (در حال توسعه)
+
+```
+POST   /api/v1/auth/signup           # ثبت‌نام
+POST   /api/v1/auth/login            # درخواست OTP
+POST   /api/v1/auth/verify           # تایید OTP و دریافت JWT
+
+GET    /api/v1/users/me              # پروفایل کاربر
+PATCH  /api/v1/users/me              # ویرایش پروفایل
+
+GET    /api/v1/communities           # لیست کامیونیتی‌ها
+POST   /api/v1/communities           # ساخت کامیونیتی
+POST   /api/v1/communities/{id}/join # درخواست عضویت
+
+GET    /api/v1/cards                 # لیست کارت‌ها + فیلتر
+POST   /api/v1/cards                 # ایجاد کارت
+GET    /api/v1/cards/{id}            # جزئیات کارت
+
+POST   /api/v1/messages              # ارسال پیام
+GET    /api/v1/messages              # لیست پیام‌های من
+```
+
+### مثال استفاده
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# مشاهده مستندات
+open http://localhost:8000/docs
+
+# (آینده) ورود با OTP
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'
+```
+
+---
+
+## 🛠️ Development
+
+### اجرای تست‌ها
+
+```bash
+# تمام تست‌ها
+pytest
+
+# با coverage
+pytest --cov=app --cov-report=html
+
+# فقط یک فایل
+pytest tests/services/test_auth_service.py
+
+# با verbose
+pytest -v
+```
+
+### Linting و Formatting
+
+```bash
+# Format با Black
+black app/
+
+# Sort imports با isort
+isort app/
+
+# Lint با Ruff
+ruff check app/
+
+# Type check با Mypy
+mypy app/
+
+# همه با یکبار
+black app/ && isort app/ && ruff check app/ && mypy app/
+```
+
+### مایگریشن دیتابیس
+
+```bash
+# ساخت migration جدید
+alembic revision --autogenerate -m "add user table"
+
+# اجرای مایگریشن‌ها
+alembic upgrade head
+
+# بازگشت به نسخه قبل
+alembic downgrade -1
+
+# مشاهده تاریخچه
+alembic history
+
+# بررسی وضعیت فعلی
+alembic current
+```
+
+### ساخت وابستگی جدید
+
+```bash
+# نصب پکیج جدید
+pip install package-name
+
+# به‌روزرسانی requirements.txt
+pip freeze > requirements.txt
+
+# یا با uv (سریع‌تر)
+uv pip install package-name
+uv pip freeze > requirements.txt
+```
+
+### دیدن لاگ‌ها
+
+```bash
+# لاگ‌های Docker Compose
+docker-compose logs -f backend
+
+# لاگ‌های محلی
+# خروجی در console نمایش داده می‌شود
+```
+
+---
+
+## 📁 ساختار پروژه
+
+```
+backend/
+├── app/
+│   ├── main.py              # نقطه ورود FastAPI
+│   ├── api/                 # لایه API
+│   │   ├── deps.py          # Dependencies
+│   │   └── routers/         # Endpoints
+│   ├── core/                # تنظیمات و امنیت
+│   │   ├── config.py
+│   │   ├── security.py
+│   │   └── rate_limit.py
+│   ├── models/              # ORM models
+│   ├── schemas/             # Pydantic schemas
+│   ├── services/            # Business logic
+│   ├── repositories/        # Data access
+│   └── utils/               # Helpers
+├── alembic/                 # مایگریشن‌ها
+├── tests/                   # تست‌ها
+├── requirements.txt         # وابستگی‌ها
+├── .env.example             # نمونه تنظیمات
+├── docker-compose.yml       # Docker setup
+├── Dockerfile               # تصویر Docker
+├── README.md                # این فایل
+└── ARCHITECTURE.md          # مستندات معماری
+```
+
+برای توضیحات جامع معماری، [ARCHITECTURE.md](./ARCHITECTURE.md) را ببینید.
+
+---
+
+## 🐛 عیب‌یابی (Troubleshooting)
+
+### مشکل: پورت 8000 در حال استفاده است
+
+```bash
+# پیدا کردن process
+lsof -i :8000
+
+# کشتن process
+kill -9 <PID>
+```
+
+### مشکل: دیتابیس اتصال ندارد
+
+```bash
+# بررسی Docker containers
+docker-compose ps
+
+# راه‌اندازی مجدد
+docker-compose restart db
+
+# مشاهده لاگ‌های PostgreSQL
+docker-compose logs db
+```
+
+### مشکل: مایگریشن خطا می‌دهد
+
+```bash
+# حذف دیتابیس و شروع مجدد
+docker-compose down -v
+docker-compose up -d
+docker-compose exec backend alembic upgrade head
+```
+
+### مشکل: Import error
+
+```bash
+# اطمینان از فعال بودن venv
+source venv/bin/activate
+
+# نصب مجدد dependencies
+pip install -r requirements.txt
+```
+
+---
+
+## 📚 منابع مرتبط
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - معماری جامع backend
+- **[SCOPE.md](../SCOPE.md)** - اسکوپ MVP پروژه
+- **[ADR-20251030](../docs/ADR-20251030-layered-architecture.md)** - تصمیم معماری
+- **[FastAPI Docs](https://fastapi.tiangolo.com/)** - مستندات FastAPI
+- **[SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/)** - مستندات SQLAlchemy
+
+---
+
+## 🤝 مشارکت
+
+برای مشارکت در پروژه:
+
+1. این قوانین را رعایت کنید: `.cursor/rules/`
+2. از معماری لایه‌ای پیروی کنید
+3. تست بنویسید
+4. کامیت‌ها را با [Conventional Commits](https://www.conventionalcommits.org/) بنویسید
+5. Pull request بسازید
+
+---
+
+## 📝 License
+
+این پروژه تحت لایسنس MIT است.
+
+---
+
+## 📧 تماس
+
+- **Repository**: [github.com/mahdiyarhamdi/Minila](https://github.com/mahdiyarhamdi/Minila)
+- **Issues**: [github.com/mahdiyarhamdi/Minila/issues](https://github.com/mahdiyarhamdi/Minila/issues)
+
+---
+
+**نسخه**: 0.1.0  
+**آخرین به‌روزرسانی**: 2025-10-30
+
