@@ -1,7 +1,6 @@
 """Base models for SQLAlchemy with common fields."""
 from datetime import datetime
-from uuid import uuid4
-from sqlalchemy import DateTime, String
+from sqlalchemy import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -27,18 +26,17 @@ class TimestampMixin:
     )
 
 
-class UUIDMixin:
-    """Mixin برای primary key با UUID."""
+class IntegerIDMixin:
+    """Mixin برای primary key با Integer autoincrement."""
     
-    id: Mapped[str] = mapped_column(
-        String(36),
+    id: Mapped[int] = mapped_column(
         primary_key=True,
-        default=lambda: str(uuid4()),
+        autoincrement=True,
         nullable=False,
     )
 
 
-class BaseModel(Base, UUIDMixin, TimestampMixin):
+class BaseModel(Base, IntegerIDMixin, TimestampMixin):
     """Base model با id، created_at و updated_at."""
     
     __abstract__ = True

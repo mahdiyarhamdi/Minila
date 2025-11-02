@@ -68,12 +68,19 @@ backend/app/
 │
 ├── models/                    # لایه دیتا (ORM)
 │   ├── __init__.py
-│   ├── base.py               # Base class با UUID و timestamp
+│   ├── base.py               # Base class با Integer ID و timestamp
+│   ├── location.py           # مدل Country و City
+│   ├── avatar.py             # مدل Avatar
+│   ├── product.py            # مدل ProductClassification
 │   ├── user.py               # مدل User
+│   ├── role.py               # مدل Role، Access و RoleAccess
 │   ├── community.py          # مدل Community
-│   ├── membership.py         # مدل Membership
-│   ├── card.py               # مدل Card
-│   └── message.py            # مدل Message
+│   ├── membership.py         # مدل Membership و Request
+│   ├── card.py               # مدل Card و CardCommunity
+│   ├── message.py            # مدل Message
+│   ├── user_block.py         # مدل UserBlock
+│   ├── report.py             # مدل Report
+│   └── log.py                # مدل Log
 │
 ├── schemas/                   # لایه انتقال داده (DTO)
 │   ├── __init__.py
@@ -175,8 +182,25 @@ async def create_card(...):
 #### `models/`
 - تعریف جداول دیتابیس با SQLAlchemy
 - روابط بین جداول
-- فیلدهای مشترک: `id`, `created_at`, `updated_at`
+- فیلدهای مشترک: `id` (Integer autoincrement), `created_at`, `updated_at`
 - **ممنوع**: منطق کسب‌وکار در مدل‌ها
+
+**مدل‌های موجود (18 جدول)**:
+- **Location**: `Country`, `City`
+- **Media**: `Avatar`
+- **Product**: `ProductClassification`
+- **User**: `User`
+- **Role & Access**: `Role`, `Access`, `RoleAccess`
+- **Community**: `Community`, `Membership`, `Request`
+- **Card**: `Card`, `CardCommunity`
+- **Communication**: `Message`
+- **Security**: `UserBlock`, `Report`, `Log`
+
+**نکات کلیدی**:
+- تمام ID‌ها Integer با autoincrement
+- Foreign Keys با ondelete مناسب (CASCADE/RESTRICT/SET NULL)
+- Index‌های مناسب برای queryهای پرتکرار
+- Check Constraints برای validate کردن داده در سطح DB
 
 #### `schemas/`
 - Pydantic models برای validation
@@ -597,6 +621,169 @@ async def test_do_business_logic():
     
     # Assert
     assert result.id == expected_id
+```
+
+---
+
+## 🗄️ مدل‌های دیتابیس و روابط
+
+### نمای کلی
+
+سیستم شامل **18 جدول** است که در 8 گروه منطقی دسته‌بندی می‌شوند:
+
+### 1. Location Models
+
+#### Country
+- `id`, `name` (unique), `created_at`, `updated_at`
+- روابط: `cities` (one-to-many → City)
+
+#### City
+- `id`, `name`, `country_id` (FK), `created_at`, `updated_at`
+- روابط: `country` (many-to-one → Country)
+- Index: `(country_id, name)`
+
+### 2. Media Models
+
+#### Avatar
+- `id`, `url`, `mime_type`, `size_bytes`, `created_at`, `updated_at`
+- استفاده: تصاویر پروفایل User و Community
+- Index: `created_at`
+
+### 3. Product Models
+
+#### ProductClassification
+- `id`, `name` (unique), `created_at`, `updated_at`
+- مثال: پوشاک، الکترونیک، خوراکی
+
+### 4. User Models
+
+#### User
+- فیلدها: `id`, `email` (unique), `first_name`, `last_name`, `password`, `otp_code`
+- اطلاعات شخصی: `national_id`, `gender`, `birthday`, `postal_code`
+- وضعیت: `is_active`, `is_admin`
+- Foreign Keys: `avatar_id`, `country_id`, `city_id`
+- Index: `email` (unique), `created_at`
+
+**نکته امنیتی**: `password` و `otp_code` فعلاً خام هستند → باید hash شوند (مشاهده `MUSTTODO.md`)
+
+### 5. Role & Access Models
+
+#### Role
+- `id`, `name` (unique), `created_at`, `updated_at`
+- مقادیر: "member", "manager", "owner"
+
+#### Access
+- `id`, `name` (unique), `created_at`, `updated_at`
+- مقادیر: "read", "write", "delete", "manage_members", etc.
+
+#### RoleAccess (جدول واسط)
+- `id`, `role_id` (FK), `access_id` (FK), `created_at`, `updated_at`
+- Unique: `(role_id, access_id)`
+- Index: `role_id`, `access_id`
+
+### 6. Community Models
+
+#### Community
+- `id`, `name` (unique), `bio`, `avatar_id` (FK), `owner_id` (FK), `created_at`, `updated_at`
+- روابط: `owner` (many-to-one → User), `avatar` (many-to-one → Avatar)
+- Index: `owner_id`
+
+#### Membership
+- `id`, `user_id` (FK), `community_id` (FK), `role_id` (FK), `is_active`, timestamps
+- Unique: `(user_id, community_id)` - هر کاربر حداکثر یک عضویت در هر کامیونیتی
+- Index: `(community_id, is_active)`
+- روابط: `user`, `community`, `role`
+
+#### Request
+- `id`, `user_id` (FK), `community_id` (FK), `is_approved`, timestamps
+- `is_approved`: `NULL` = pending, `TRUE` = approved, `FALSE` = rejected
+- Unique: `(user_id, community_id)` - جلوگیری از درخواست تکراری
+- Index: `(community_id, is_approved, created_at)`
+
+### 7. Card Models
+
+#### Card
+- فیلدها: `id`, `owner_id` (FK), `is_sender` (Boolean)
+- مبدأ/مقصد: `origin_country_id`, `origin_city_id`, `destination_country_id`, `destination_city_id`
+- زمان: `start_time_frame`, `end_time_frame`, `ticket_date_time`
+- جزئیات: `weight`, `is_packed`, `price_aed`, `description`, `product_classification_id`
+- Check: `end_time_frame >= start_time_frame` (if both not null)
+- Index‌ها: `origin_city_id`, `destination_city_id`, `start_time_frame`, `end_time_frame`, `product_classification_id`, `is_packed`
+
+**منطق**:
+- `is_sender=1` → کارت فرستنده کالا (از `start_time_frame` تا `end_time_frame`)
+- `is_sender=0` → کارت مسافر (زمان دقیق: `ticket_date_time`)
+
+#### CardCommunity (جدول واسط)
+- `id`, `card_id` (FK), `community_id` (FK), timestamps
+- Unique: `(card_id, community_id)`
+- Index: `community_id`
+- **منطق**: اگر کارت در این جدول نباشد → نمایش سراسری؛ اگر باشد → فقط در کامیونیتی‌های مشخص
+
+### 8. Communication & Security Models
+
+#### Message
+- `id`, `sender_id` (FK), `receiver_id` (FK), `body`, timestamps
+- Check: `sender_id != receiver_id`
+- Index: `(receiver_id, created_at)`, `(sender_id, created_at)`
+
+**قید مهم**: پیام فقط اگر sender و receiver حداقل یک کامیونیتی مشترک داشته باشند → check در service layer
+
+#### UserBlock
+- `id`, `blocker_id` (FK), `blocked_id` (FK), timestamps
+- Unique: `(blocker_id, blocked_id)`
+- Index: `blocker_id`
+
+**تفاوت UserBlock و Ban**:
+- **UserBlock (بلاک شخصی)**: توسط خود کاربر انجام می‌شود. کاربر بلاک‌شده نمی‌تواند به blocker پیام بفرستد. تأثیر محدود به تعامل دو کاربر.
+- **Ban (بن سیستمی)**: توسط مدیران انجام می‌شود. فیلد `User.is_active=False` می‌شود. کاربر banned نمی‌تواند به سیستم دسترسی داشته باشد.
+
+#### Report
+- `id`, `reporter_id` (FK), `reported_id` (FK), `card_id` (FK, nullable), `body`, timestamps
+- Index: `(card_id, created_at)`, `(reporter_id, created_at)`
+- گزارش کاربر یا کارت توسط کاربران دیگر
+
+#### Log
+- `id`, `event_type`, `ip`, `user_agent`, `payload`, timestamps
+- Foreign Keys (همه nullable): `actor_user_id`, `target_user_id`, `card_id`, `community_id`
+- Index: `(event_type, created_at)`, `(actor_user_id, created_at)`
+- Event Types: `signup`, `login`, `join_request`, `join_approve`, `card_create`, `message_send`, `ban`, `unban`
+
+---
+
+## 🔗 نمودار روابط اصلی
+
+```
+User
+ ├─→ Avatar (optional)
+ ├─→ Country (optional)
+ ├─→ City (optional)
+ ├─→ Membership (many) → Community + Role
+ ├─→ Request (many) → Community
+ ├─→ Card (many)
+ ├─→ Message (as sender/receiver)
+ ├─→ UserBlock (as blocker/blocked)
+ ├─→ Report (as reporter/reported)
+ └─→ Log (as actor/target)
+
+Community
+ ├─→ Owner (User)
+ ├─→ Avatar (optional)
+ ├─→ Membership (many) → User + Role
+ ├─→ Request (many) → User
+ ├─→ CardCommunity (many) → Card
+ └─→ Log
+
+Card
+ ├─→ Owner (User)
+ ├─→ Origin Country/City
+ ├─→ Destination Country/City
+ ├─→ ProductClassification (optional)
+ ├─→ CardCommunity (many) → Community
+ ├─→ Report (many)
+ └─→ Log
+
+Role ←→ Access (many-to-many via RoleAccess)
 ```
 
 ---
