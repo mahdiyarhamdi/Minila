@@ -120,6 +120,34 @@ def create_token(data: dict[str, Any], secret: str, expires_minutes: int = 60) -
     return f"{payload_b64}.{signature}"
 
 
+def create_access_token(data: dict[str, Any], secret: str, expires_minutes: int = 1440) -> str:
+    """تولید Access Token.
+    
+    Args:
+        data: دیتای payload
+        secret: کلید مخفی
+        expires_minutes: زمان انقضا (پیش‌فرض 24 ساعت)
+        
+    Returns:
+        access token
+    """
+    return create_token(data, secret, expires_minutes)
+
+
+def create_refresh_token(data: dict[str, Any], secret: str, expires_minutes: int = 10080) -> str:
+    """تولید Refresh Token.
+    
+    Args:
+        data: دیتای payload
+        secret: کلید مخفی
+        expires_minutes: زمان انقضا (پیش‌فرض 7 روز)
+        
+    Returns:
+        refresh token
+    """
+    return create_token(data, secret, expires_minutes)
+
+
 def decode_token(token: str, secret: str) -> dict[str, Any] | None:
     """Decode و تایید token.
     

@@ -14,25 +14,17 @@ settings = get_settings()
 async def get_db() -> AsyncGenerator:
     """دریافت database session.
     
-    TODO: پیاده‌سازی واقعی با SQLAlchemy async session
-    
     Yields:
         DB session
     """
-    # Placeholder - زمانی که SQLAlchemy setup شد پیاده‌سازی می‌شود
-    # from ..db.session import AsyncSessionLocal
-    # async with AsyncSessionLocal() as session:
-    #     try:
-    #         yield session
-    #         await session.commit()
-    #     except Exception:
-    #         await session.rollback()
-    #         raise
-    yield None  # فعلاً None
+    from ..core.database import get_db as _get_db
+    async for session in _get_db():
+        yield session
 
 
 # Type alias برای استفاده راحت‌تر
-DBSession = Annotated[None, Depends(get_db)]
+from sqlalchemy.ext.asyncio import AsyncSession
+DBSession = Annotated[AsyncSession, Depends(get_db)]
 
 
 # ==================== Redis Dependencies ====================

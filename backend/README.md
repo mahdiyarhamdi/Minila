@@ -145,38 +145,76 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 
 ## 📡 API Endpoints
 
-### فعلی (مستند شده)
+### System
 
-| Method | Endpoint | توضیح |
-|--------|----------|-------|
-| `GET` | `/` | اطلاعات API |
-| `GET` | `/health` | بررسی سلامت سرور |
-| `GET` | `/docs` | مستندات Swagger UI |
-| `GET` | `/redoc` | مستندات ReDoc |
+| Method | Endpoint | توضیح | Auth |
+|--------|----------|-------|------|
+| `GET` | `/` | اطلاعات API | ❌ |
+| `GET` | `/health` | بررسی سلامت سرور | ❌ |
+| `GET` | `/docs` | مستندات Swagger UI | ❌ |
+| `GET` | `/redoc` | مستندات ReDoc | ❌ |
 
-### آینده (در حال توسعه)
+### Authentication (`/api/v1/auth`)
 
-```
-POST   /api/v1/auth/signup           # ثبت‌نام
-POST   /api/v1/auth/login            # درخواست OTP
-POST   /api/v1/auth/verify           # تایید OTP و دریافت JWT
+| Method | Endpoint | توضیح | Auth |
+|--------|----------|-------|------|
+| `POST` | `/signup` | ثبت‌نام کاربر جدید | ❌ |
+| `POST` | `/request-otp` | درخواست OTP برای ورود | ❌ |
+| `POST` | `/verify-otp` | تایید OTP و دریافت JWT | ❌ |
+| `POST` | `/refresh` | تازه‌سازی access token | ❌ |
 
-GET    /api/v1/users/me              # پروفایل کاربر
-PATCH  /api/v1/users/me              # ویرایش پروفایل
+### Users (`/api/v1/users`)
 
-GET    /api/v1/communities           # لیست کامیونیتی‌ها
-POST   /api/v1/communities           # ساخت کامیونیتی
-POST   /api/v1/communities/{id}/join # درخواست عضویت
+| Method | Endpoint | توضیح | Auth |
+|--------|----------|-------|------|
+| `GET` | `/me` | دریافت پروفایل کاربر جاری | ✅ |
+| `PATCH` | `/me` | ویرایش پروفایل | ✅ |
 
-GET    /api/v1/cards                 # لیست کارت‌ها + فیلتر
-POST   /api/v1/cards                 # ایجاد کارت
-GET    /api/v1/cards/{id}            # جزئیات کارت
+### Communities (`/api/v1/communities`)
 
-POST   /api/v1/messages              # ارسال پیام
-GET    /api/v1/messages              # لیست پیام‌های من
-```
+| Method | Endpoint | توضیح | Auth |
+|--------|----------|-------|------|
+| `GET` | `/` | لیست کامیونیتی‌ها (paginated) | ❌ |
+| `POST` | `/` | ایجاد کامیونیتی جدید | ✅ |
+| `GET` | `/{id}` | جزئیات کامیونیتی | ❌ |
+| `PATCH` | `/{id}` | ویرایش کامیونیتی (owner/manager) | ✅ |
+| `POST` | `/{id}/join` | درخواست عضویت | ✅ |
+| `GET` | `/{id}/requests` | لیست درخواست‌های عضویت (manager) | ✅ |
+| `POST` | `/{id}/requests/{req_id}/approve` | تایید درخواست (manager) | ✅ |
+| `POST` | `/{id}/requests/{req_id}/reject` | رد درخواست (manager) | ✅ |
+| `GET` | `/{id}/members` | لیست اعضا (paginated) | ❌ |
 
-### مثال استفاده
+### Cards (`/api/v1/cards`)
+
+| Method | Endpoint | توضیح | Auth |
+|--------|----------|-------|------|
+| `GET` | `/` | جست‌وجوی کارت‌ها با فیلتر (paginated) | ❌ |
+| `POST` | `/` | ایجاد کارت جدید | ✅ |
+| `GET` | `/{id}` | جزئیات کارت | ❌ |
+| `PATCH` | `/{id}` | ویرایش کارت (owner only) | ✅ |
+| `DELETE` | `/{id}` | حذف کارت (owner only) | ✅ |
+
+**فیلترهای Cards**:
+- `origin_city_id`, `destination_city_id`
+- `is_sender` (true=فرستنده، false=مسافر)
+- `product_classification_id`
+- `is_packed` (وضعیت بسته‌بندی)
+- `community_id`
+- `min_weight`, `max_weight`
+
+### Messages (`/api/v1/messages`)
+
+| Method | Endpoint | توضیح | Auth | Rate Limit |
+|--------|----------|-------|------|------------|
+| `POST` | `/` | ارسال پیام | ✅ | 5/day |
+| `GET` | `/inbox` | پیام‌های دریافتی (paginated) | ✅ | - |
+| `GET` | `/sent` | پیام‌های ارسالی (paginated) | ✅ | - |
+
+**نکته مهم**: ارسال پیام فقط با شرط کامیونیتی مشترک امکان‌پذیر است.
+
+---
+
+### مثال‌های استفاده
 
 ```bash
 # Health check
@@ -185,10 +223,50 @@ curl http://localhost:8000/health
 # مشاهده مستندات
 open http://localhost:8000/docs
 
-# (آینده) ورود با OTP
-curl -X POST http://localhost:8000/api/v1/auth/login \
+# ثبت‌نام
+curl -X POST http://localhost:8000/api/v1/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!",
+    "first_name": "John",
+    "last_name": "Doe"
+  }'
+
+# درخواست OTP
+curl -X POST http://localhost:8000/api/v1/auth/request-otp \
   -H "Content-Type: application/json" \
   -d '{"email": "user@example.com"}'
+
+# تایید OTP و دریافت JWT
+curl -X POST http://localhost:8000/api/v1/auth/verify-otp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "otp_code": "123456"
+  }'
+
+# دریافت پروفایل (با JWT)
+curl http://localhost:8000/api/v1/users/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# جست‌وجوی کارت‌ها
+curl "http://localhost:8000/api/v1/cards/?origin_city_id=1&destination_city_id=2&is_sender=false"
+
+# ایجاد کارت
+curl -X POST http://localhost:8000/api/v1/cards/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "is_sender": false,
+    "origin_country_id": 1,
+    "origin_city_id": 1,
+    "destination_country_id": 2,
+    "destination_city_id": 10,
+    "ticket_date_time": "2024-12-15T10:00:00",
+    "weight": 5.0,
+    "description": "می‌توانم بسته کوچک حمل کنم"
+  }'
 ```
 
 ---
@@ -389,5 +467,5 @@ pip install -r requirements.txt
 ---
 
 **نسخه**: 0.1.0  
-**آخرین به‌روزرسانی**: 2025-10-30
+**آخرین به‌روزرسانی**: 2025-11-02
 

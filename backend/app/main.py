@@ -1,18 +1,85 @@
 """FastAPI application entry point."""
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from .core.config import get_settings
 from .core.rate_limit import init_rate_limiter
+from .core.database import close_db
+from .utils.logger import logger
 
 settings = get_settings()
 
-# ایجاد FastAPI app
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """مدیریت lifecycle اپلیکیشن.
+    
+    Startup و shutdown events را مدیریت می‌کند.
+    """
+    # Startup
+    logger.info("Starting up Minila API...")
+    init_rate_limiter(settings.REDIS_URL)
+    logger.info("Rate limiter initialized")
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down Minila API...")
+    await close_db()
+    logger.info("Database connections closed")
+
+
+# ایجاد FastAPI app با metadata کامل
 app = FastAPI(
-    title=settings.APP_NAME,
-    description="MVP platform for passenger-freight coordination",
+    title="Minila API",
+    description="""
+# API پلتفرم هماهنگی مسافر-ارسال کننده بار
+
+این API امکانات زیر را فراهم می‌کند:
+
+## ویژگی‌های اصلی
+- **احراز هویت**: ثبت‌نام و ورود با OTP
+- **مدیریت کاربران**: پروفایل کاربری
+- **کامیونیتی**: ساخت و مدیریت کامیونیتی‌ها و عضویت‌ها
+- **کارت‌های سفر/بار**: ایجاد و جست‌وجوی کارت‌ها
+- **پیام‌رسانی**: ارتباط بین کاربران با قید کامیونیتی مشترک
+
+## امنیت
+- JWT Authentication
+- Rate Limiting
+- CORS محدود به domainهای مجاز
+
+## نسخه
+MVP v0.1.0
+    """,
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
+    openapi_tags=[
+        {
+            "name": "auth",
+            "description": "احراز هویت و ثبت‌نام - ورود با OTP، دریافت JWT"
+        },
+        {
+            "name": "users",
+            "description": "مدیریت کاربران - پروفایل و ویرایش اطلاعات"
+        },
+        {
+            "name": "communities",
+            "description": "کامیونیتی‌ها - ساخت، عضویت، مدیریت درخواست‌ها"
+        },
+        {
+            "name": "cards",
+            "description": "کارت‌های سفر و بار - ایجاد، جست‌وجو، مدیریت"
+        },
+        {
+            "name": "messages",
+            "description": "پیام‌رسانی - ارسال و دریافت پیام با rate limit"
+        },
+    ]
 )
 
 # CORS middleware
@@ -25,18 +92,53 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
-    """رویدادهای startup."""
-    # مقداردهی اولیه rate limiter
-    init_rate_limiter(settings.REDIS_URL)
+# ==================== Exception Handlers ====================
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+) -> JSONResponse:
+    """Handler برای خطاهای validation.
+    
+    Args:
+        request: درخواست FastAPI
+        exc: خطای validation
+        
+    Returns:
+        پاسخ JSON با جزئیات خطا
+    """
+    logger.warning(f"Validation error: {exc.errors()}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "detail": exc.errors(),
+            "body": exc.body
+        }
+    )
 
 
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    """رویدادهای shutdown."""
-    # بستن اتصالات (DB, Redis, ...)
-    pass
+@app.exception_handler(Exception)
+async def general_exception_handler(
+    request: Request,
+    exc: Exception
+) -> JSONResponse:
+    """Handler برای خطاهای عمومی.
+    
+    Args:
+        request: درخواست FastAPI
+        exc: خطا
+        
+    Returns:
+        پاسخ JSON با پیام خطا
+    """
+    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "detail": "Internal server error"
+        }
+    )
 
 
 @app.get("/health", tags=["Health"])
@@ -57,7 +159,8 @@ def root() -> dict[str, str]:
         پیام خوش‌آمدگویی و لینک docs
     """
     return {
-        "message": "Backend is running.",
+        "message": "Minila API is running.",
+        "version": "0.1.0",
         "docs": "/docs",
         "redoc": "/redoc",
         "health": "/health"
@@ -65,11 +168,14 @@ def root() -> dict[str, str]:
 
 
 # ==================== Router Registration ====================
-# TODO: ثبت روترها در اینجا
-# from .api.routers import auth, users, communities, cards, messages
-# app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
-# app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
-# app.include_router(communities.router, prefix="/api/v1/communities", tags=["Communities"])
-# app.include_router(cards.router, prefix="/api/v1/cards", tags=["Cards"])
-# app.include_router(messages.router, prefix="/api/v1/messages", tags=["Messages"])
+
+from .api.routers import auth, users, communities, cards, messages
+
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(communities.router)
+app.include_router(cards.router)
+app.include_router(messages.router)
+
+logger.info("All routers registered successfully")
 
