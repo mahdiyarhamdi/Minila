@@ -32,9 +32,9 @@ class Membership(BaseModel):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     
     # Relationships
-    user: Mapped["User"] = relationship("User", lazy="selectinload")
-    community: Mapped["Community"] = relationship("Community", lazy="selectinload")
-    role: Mapped["Role"] = relationship("Role", lazy="selectinload")
+    user: Mapped["User"] = relationship("User", lazy="select")
+    community: Mapped["Community"] = relationship("Community", lazy="select")
+    role: Mapped["Role"] = relationship("Role", lazy="select")
     
     def __repr__(self) -> str:
         return f"<Membership(user_id={self.user_id}, community_id={self.community_id})>"
@@ -64,8 +64,8 @@ class Request(BaseModel):
     is_approved: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, default=None)
     
     # Relationships
-    user: Mapped["User"] = relationship("User", lazy="selectinload")
-    community: Mapped["Community"] = relationship("Community", lazy="selectinload")
+    user: Mapped["User"] = relationship("User", lazy="select")
+    community: Mapped["Community"] = relationship("Community", lazy="select")
     
     def __repr__(self) -> str:
         status = "pending" if self.is_approved is None else ("approved" if self.is_approved else "rejected")

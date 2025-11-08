@@ -80,30 +80,30 @@ class Card(BaseModel):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     # Relationships
-    owner: Mapped["User"] = relationship("User", lazy="selectinload")
+    owner: Mapped["User"] = relationship("User", lazy="select")
     origin_country: Mapped["Country"] = relationship(
         "Country",
         foreign_keys=[origin_country_id],
-        lazy="selectinload"
+        lazy="select"
     )
     origin_city: Mapped["City"] = relationship(
         "City",
         foreign_keys=[origin_city_id],
-        lazy="selectinload"
+        lazy="select"
     )
     destination_country: Mapped["Country"] = relationship(
         "Country",
         foreign_keys=[destination_country_id],
-        lazy="selectinload"
+        lazy="select"
     )
     destination_city: Mapped["City"] = relationship(
         "City",
         foreign_keys=[destination_city_id],
-        lazy="selectinload"
+        lazy="select"
     )
     product_classification: Mapped[Optional["ProductClassification"]] = relationship(
         "ProductClassification",
-        lazy="selectinload"
+        lazy="select"
     )
     
     def __repr__(self) -> str:
@@ -131,8 +131,8 @@ class CardCommunity(BaseModel):
     )
     
     # Relationships
-    card: Mapped["Card"] = relationship("Card", lazy="selectinload")
-    community: Mapped["Community"] = relationship("Community", lazy="selectinload")
+    card: Mapped["Card"] = relationship("Card", lazy="select")
+    community: Mapped["Community"] = relationship("Community", lazy="select")
     
     def __repr__(self) -> str:
         return f"<CardCommunity(card_id={self.card_id}, community_id={self.community_id})>"

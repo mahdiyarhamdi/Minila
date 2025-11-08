@@ -27,12 +27,12 @@ class UserBlock(BaseModel):
     blocker: Mapped["User"] = relationship(
         "User",
         foreign_keys=[blocker_id],
-        lazy="selectinload"
+        lazy="select"
     )
     blocked: Mapped["User"] = relationship(
         "User",
         foreign_keys=[blocked_id],
-        lazy="selectinload"
+        lazy="select"
     )
     
     def __repr__(self) -> str:

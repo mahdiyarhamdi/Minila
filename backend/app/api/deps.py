@@ -1,5 +1,5 @@
 """FastAPI dependencies for DB, auth, and rate limiting."""
-from typing import AsyncGenerator, Annotated
+from typing import AsyncGenerator, Annotated, Optional, Dict
 from fastapi import Depends, HTTPException, status, Request, Header
 from ..core.config import get_settings
 from ..core.security import decode_token
@@ -11,19 +11,11 @@ settings = get_settings()
 
 # ==================== Database Dependencies ====================
 
-async def get_db() -> AsyncGenerator:
-    """دریافت database session.
-    
-    Yields:
-        DB session
-    """
-    from ..core.database import get_db as _get_db
-    async for session in _get_db():
-        yield session
-
+# استفاده مستقیم از core.database.get_db برای اینکه dependency override در تست‌ها کار کند
+from ..core.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 
 # Type alias برای استفاده راحت‌تر
-from sqlalchemy.ext.asyncio import AsyncSession
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 
 
@@ -49,20 +41,24 @@ RedisClient = Annotated[None, Depends(get_redis)]
 # ==================== Authentication Dependencies ====================
 
 async def get_current_user_optional(
-    authorization: str | None = Header(None)
-) -> dict | None:
+    request: Request,
+    authorization: Optional[str] = Header(None)
+) -> Optional[Dict]:
     """دریافت کاربر فعلی از JWT token (اختیاری).
     
     Args:
+        request: درخواست FastAPI
         authorization: هدر Authorization
         
     Returns:
         اطلاعات کاربر یا None
     """
     if not authorization:
+        request.state.user = None
         return None
     
     if not authorization.startswith("Bearer "):
+        request.state.user = None
         return None
     
     token = authorization.removeprefix("Bearer ")
@@ -72,12 +68,16 @@ async def get_current_user_optional(
     secret = getattr(settings, "SECRET_KEY", "dev-secret-key-change-in-production")
     
     payload = decode_token(token, secret)
+    
+    # ذخیره user در request state برای rate limiting
+    request.state.user = payload
+    
     return payload
 
 
 async def get_current_user(
-    user: dict | None = Depends(get_current_user_optional)
-) -> dict:
+    user: Optional[Dict] = Depends(get_current_user_optional)
+) -> Dict:
     """دریافت کاربر فعلی (الزامی).
     
     Args:
@@ -99,8 +99,8 @@ async def get_current_user(
 
 
 # Type aliases
-CurrentUser = Annotated[dict, Depends(get_current_user)]
-CurrentUserOptional = Annotated[dict | None, Depends(get_current_user_optional)]
+CurrentUser = Annotated[Dict, Depends(get_current_user)]
+CurrentUserOptional = Annotated[Optional[Dict], Depends(get_current_user_optional)]
 
 
 # ==================== Rate Limiting Dependencies ====================

@@ -1,5 +1,5 @@
 """Rate limiting utilities with Redis support (placeholder for slowapi)."""
-from typing import Callable
+from typing import Callable, Optional, Dict, List
 from fastapi import Request, HTTPException, status
 
 
@@ -16,7 +16,7 @@ class RedisRateLimiter:
         """
         self.redis_url = redis_url
         # TODO: اتصال به Redis زمانی که redis-py نصب شد
-        self._store: dict[str, list[float]] = {}  # In-memory برای الان
+        self._store: Dict[str, List[float]] = {}  # In-memory برای الان
     
     async def check_limit(
         self,
@@ -84,7 +84,7 @@ class RedisRateLimiter:
 
 
 # Instance سراسری (در main.py مقداردهی می‌شود)
-rate_limiter: RedisRateLimiter | None = None
+rate_limiter: Optional[RedisRateLimiter] = None
 
 
 def init_rate_limiter(redis_url: str) -> RedisRateLimiter:
@@ -134,9 +134,14 @@ async def check_rate_limit(
     """
     limiter = get_rate_limiter()
     
-    # استفاده از IP به عنوان کلید (در آینده می‌تواند user_id باشد)
-    client_ip = request.client.host if request.client else "unknown"
-    key = f"{key_prefix}:{client_ip}"
+    # استفاده از user_id اگر authenticated باشد، وگرنه IP
+    identifier = "unknown"
+    if hasattr(request.state, "user") and request.state.user:
+        identifier = str(request.state.user.get("user_id", "unknown"))
+    elif request.client:
+        identifier = request.client.host
+    
+    key = f"{key_prefix}:{identifier}"
     
     allowed = await limiter.check_limit(key, limit, window_seconds)
     

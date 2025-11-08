@@ -21,7 +21,7 @@ async def create(
         body: متن پیام
         
     Returns:
-        Message ایجادشده
+        Message ایجادشده با relationshipهای load شده
     """
     message = Message(
         sender_id=sender_id,
@@ -33,7 +33,17 @@ async def create(
     await db.flush()
     await db.refresh(message)
     
-    return message
+    # بازگرفتن پیام با relationshipها
+    query = (
+        select(Message)
+        .where(Message.id == message.id)
+        .options(
+            selectinload(Message.sender),
+            selectinload(Message.receiver)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one()
 
 
 async def get_inbox(

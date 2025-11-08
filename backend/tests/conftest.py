@@ -1,19 +1,25 @@
-"""Pytest configuration and fixtures."""
-import pytest
+"""Pytest configuration and fixtures for comprehensive testing."""
 import asyncio
+import pytest
+import pytest_asyncio
 from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
+import redis.asyncio as aioredis
 
 from app.main import app
-from app.core.database import get_db
+from app.core.config import get_settings
 from app.models.base import BaseModel
+from app.core.security import create_access_token
 
 
-# Test database URL (in-memory SQLite for faster tests)
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+# Test database URL (PostgreSQL test container)
+# استفاده از localhost:5433 برای اجرای تست‌ها خارج از Docker
+TEST_DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost:5433/minila_test"
+TEST_REDIS_URL = "redis://localhost:6380/0"
 
+settings = get_settings()
 
 # Create test engine
 test_engine = create_async_engine(
@@ -30,9 +36,12 @@ TestSessionLocal = async_sessionmaker(
 )
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def test_db() -> AsyncGenerator[AsyncSession, None]:
-    """Create a fresh database for each test.
+    """Create a fresh database for each test with real commits.
+    
+    استراتژی: استفاده از real commits به جای transaction rollback
+    تا data برای همه sessions visible باشد.
     
     Yields:
         AsyncSession: Test database session
@@ -41,90 +50,481 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
     async with test_engine.begin() as conn:
         await conn.run_sync(BaseModel.metadata.create_all)
     
-    # Create session
-    async with TestSessionLocal() as session:
-        yield session
+    # ایجاد session معمولی بدون transaction wrapper
+    session = TestSessionLocal()
     
-    # Drop tables
-    async with test_engine.begin() as conn:
-        await conn.run_sync(BaseModel.metadata.drop_all)
+    try:
+        yield session
+    finally:
+        # Close session
+        await session.close()
+        
+        # Drop tables after test (cleanup)
+        async with test_engine.begin() as conn:
+            await conn.run_sync(BaseModel.metadata.drop_all)
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
+async def seed_roles(test_db: AsyncSession) -> dict:
+    """Create minimal Role data for membership tests."""
+    from app.models.role import Role
+    
+    # Create standard roles
+    member_role = Role(id=1, name="member")
+    manager_role = Role(id=2, name="manager")
+    owner_role = Role(id=3, name="owner")
+    
+    test_db.add_all([member_role, manager_role, owner_role])
+    await test_db.commit()
+    
+    return {
+        "member": member_role.id,
+        "manager": manager_role.id,
+        "owner": owner_role.id
+    }
+
+
+@pytest_asyncio.fixture(scope="function")
+async def seed_locations(test_db: AsyncSession) -> dict:
+    """Create minimal Country and City data for card tests."""
+    from app.models.location import Country, City
+    
+    # Create countries
+    country1 = Country(id=1, name="Test Country 1")
+    country2 = Country(id=2, name="Test Country 2")
+    test_db.add_all([country1, country2])
+    await test_db.flush()
+    
+    # Create cities
+    city1 = City(id=1, name="Test City 1", country_id=1)
+    city2 = City(id=2, name="Test City 2", country_id=2)
+    test_db.add_all([city1, city2])
+    await test_db.commit()
+    
+    return {
+        "countries": [country1, country2],
+        "cities": [city1, city2]
+    }
+
+
+@pytest_asyncio.fixture(scope="function")
+async def redis_client() -> AsyncGenerator[aioredis.Redis, None]:
+    """Create Redis client for rate limiting tests.
+    
+    Yields:
+        Redis client connected to test instance
+    """
+    from app.api import deps
+    from app.core import rate_limit
+    
+    # Remove rate limiter overrides to enable real rate limiting
+    overrides_backup = {}
+    if deps.verify_message_rate_limit in app.dependency_overrides:
+        overrides_backup['message'] = app.dependency_overrides[deps.verify_message_rate_limit]
+        del app.dependency_overrides[deps.verify_message_rate_limit]
+    if deps.verify_api_rate_limit in app.dependency_overrides:
+        overrides_backup['api'] = app.dependency_overrides[deps.verify_api_rate_limit]
+        del app.dependency_overrides[deps.verify_api_rate_limit]
+    
+    client = aioredis.from_url(TEST_REDIS_URL, decode_responses=True)
+    
+    # Initialize rate limiter for this test
+    rate_limit.init_rate_limiter(TEST_REDIS_URL)
+    
+    yield client
+    
+    # Cleanup: remove all test keys
+    keys = await client.keys("*")
+    if keys:
+        await client.delete(*keys)
+    
+    await client.close()
+    
+    # Restore overrides
+    if 'message' in overrides_backup:
+        app.dependency_overrides[deps.verify_message_rate_limit] = overrides_backup['message']
+    if 'api' in overrides_backup:
+        app.dependency_overrides[deps.verify_api_rate_limit] = overrides_backup['api']
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_rate_limiter():
+    """Mock rate limiter برای تست‌ها تا از initialize کردن Redis واقعی اجتناب شود.
+    
+    این fixture به صورت خودکار برای همه تست‌ها اجرا می‌شود و
+    rate limit dependencies را override می‌کند.
+    
+    Yields:
+        None
+    """
+    from app.api import deps
+    from fastapi import Request
+    
+    # Mock rate limit dependencies - همیشه pass می‌کنند
+    async def mock_message_rate_limit(request: Request) -> None:
+        pass
+    
+    async def mock_api_rate_limit(request: Request) -> None:
+        pass
+    
+    # Override dependencies
+    app.dependency_overrides[deps.verify_message_rate_limit] = mock_message_rate_limit
+    app.dependency_overrides[deps.verify_api_rate_limit] = mock_api_rate_limit
+    
+    yield
+    
+    # Cleanup
+    if deps.verify_message_rate_limit in app.dependency_overrides:
+        del app.dependency_overrides[deps.verify_message_rate_limit]
+    if deps.verify_api_rate_limit in app.dependency_overrides:
+        del app.dependency_overrides[deps.verify_api_rate_limit]
+
+
+@pytest_asyncio.fixture(scope="function")
 async def client(test_db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
-    """Create test client with database override.
+    """Create test client with monkey-patched database engine.
     
     Args:
-        test_db: Test database session
+        test_db: Test database session (فقط برای dependency resolution)
         
     Yields:
         AsyncClient: Test HTTP client
     """
-    async def override_get_db():
-        yield test_db
+    # Monkey-patch استراتژی: production engine را با test engine جایگزین می‌کنیم
+    from app.core import database
+    from app.api import deps
     
-    app.dependency_overrides[get_db] = override_get_db
+    # ذخیره production engine
+    original_engine = database.engine
+    original_session_factory = database.AsyncSessionLocal
     
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
-    ) as ac:
-        yield ac
+    # جایگزینی با test engine
+    database.engine = test_engine
+    database.AsyncSessionLocal = TestSessionLocal
     
-    app.dependency_overrides.clear()
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as ac:
+            yield ac
+    finally:
+        # بازگرداندن production engine
+        database.engine = original_engine
+        database.AsyncSessionLocal = original_session_factory
+        
+        # Don't clear dependency overrides - mock_rate_limiter باید باقی بماند
 
 
-@pytest.fixture
-def event_loop():
-    """Create an instance of the event loop for each test."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+# ==================== User Fixtures ====================
 
-
-@pytest.fixture
-async def test_user_data() -> dict:
-    """Sample user data for testing.
+@pytest_asyncio.fixture
+async def test_user(test_db: AsyncSession) -> dict:
+    """Create a test user with JWT token.
     
+    Args:
+        test_db: Test database session
+        
     Returns:
-        dict: User data
+        dict: User data with token
     """
+    from app.models.user import User
+    
+    user = User(
+        email="testuser@example.com",
+        password="TestPass123!",
+        first_name="Test",
+        last_name="User",
+        is_active=True,
+        is_admin=False
+    )
+    test_db.add(user)
+    await test_db.commit()
+    await test_db.refresh(user)
+    
+    # Generate token
+    token = create_access_token(
+        {"user_id": user.id, "email": user.email},
+        settings.SECRET_KEY,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    
     return {
-        "email": "test@example.com",
-        "password": "TestPass123!",
-        "first_name": "Test",
-        "last_name": "User"
+        "user_id": user.id,
+        "email": user.email,
+        "token": token,
+        "first_name": user.first_name,
+        "last_name": user.last_name
     }
 
 
-@pytest.fixture
-async def test_community_data() -> dict:
-    """Sample community data for testing.
+@pytest_asyncio.fixture
+async def test_user2(test_db: AsyncSession) -> dict:
+    """Create a second test user for messaging tests.
     
+    Args:
+        test_db: Test database session
+        
+    Returns:
+        dict: User data with token
+    """
+    from app.models.user import User
+    
+    user = User(
+        email="testuser2@example.com",
+        password="TestPass123!",
+        first_name="Test2",
+        last_name="User2",
+        is_active=True,
+        is_admin=False
+    )
+    test_db.add(user)
+    await test_db.commit()
+    await test_db.refresh(user)
+    
+    # Generate token
+    token = create_access_token(
+        {"user_id": user.id, "email": user.email},
+        settings.SECRET_KEY,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    
+    return {
+        "user_id": user.id,
+        "email": user.email,
+        "token": token,
+        "first_name": user.first_name,
+        "last_name": user.last_name
+    }
+
+
+@pytest_asyncio.fixture
+async def test_admin(test_db: AsyncSession) -> dict:
+    """Create an admin user with JWT token.
+    
+    Args:
+        test_db: Test database session
+        
+    Returns:
+        dict: Admin user data with token
+    """
+    from app.models.user import User
+    
+    user = User(
+        email="admin@example.com",
+        password="AdminPass123!",
+        first_name="Admin",
+        last_name="User",
+        is_active=True,
+        is_admin=True
+    )
+    test_db.add(user)
+    await test_db.commit()
+    await test_db.refresh(user)
+    
+    # Generate token
+    token = create_access_token(
+        {"user_id": user.id, "email": user.email},
+        settings.SECRET_KEY,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    
+    return {
+        "user_id": user.id,
+        "email": user.email,
+        "token": token,
+        "is_admin": True
+    }
+
+
+# ==================== Community Fixtures ====================
+
+@pytest_asyncio.fixture
+async def test_community(test_db: AsyncSession, test_user: dict, seed_roles: dict) -> dict:
+    """Create a test community with owner.
+    
+    Args:
+        test_db: Test database session
+        test_user: Test user (will be owner)
+        seed_roles: Seeded role data
+        
     Returns:
         dict: Community data
     """
+    from app.models.community import Community
+    from app.models.membership import Membership
+    
+    community = Community(
+        name="Test Community",
+        bio="A test community for unit tests",
+        owner_id=test_user["user_id"]
+    )
+    test_db.add(community)
+    await test_db.commit()
+    await test_db.refresh(community)
+    
+    # Create membership for owner
+    membership = Membership(
+        user_id=test_user["user_id"],
+        community_id=community.id,
+        role_id=seed_roles["owner"],
+        is_active=True
+    )
+    test_db.add(membership)
+    await test_db.commit()
+    
     return {
-        "name": "Test Community",
-        "bio": "A test community for unit tests"
+        "id": community.id,
+        "name": community.name,
+        "bio": community.bio,
+        "owner_id": community.owner_id
     }
 
 
-@pytest.fixture
-async def test_card_data() -> dict:
-    """Sample card data for testing.
+@pytest_asyncio.fixture
+async def test_community2(test_db: AsyncSession, test_user2: dict, seed_roles: dict) -> dict:
+    """Create a second test community with different owner.
     
+    Args:
+        test_db: Test database session
+        test_user2: Second test user (will be owner)
+        seed_roles: Seeded role data
+        
+    Returns:
+        dict: Community data
+    """
+    from app.models.community import Community
+    from app.models.membership import Membership
+    
+    community = Community(
+        name="Test Community 2",
+        bio="A second test community",
+        owner_id=test_user2["user_id"]
+    )
+    test_db.add(community)
+    await test_db.commit()
+    await test_db.refresh(community)
+    
+    # Create membership for owner
+    membership = Membership(
+        user_id=test_user2["user_id"],
+        community_id=community.id,
+        role_id=seed_roles["owner"],
+        is_active=True
+    )
+    test_db.add(membership)
+    await test_db.commit()
+    
+    return {
+        "id": community.id,
+        "name": community.name,
+        "bio": community.bio,
+        "owner_id": community.owner_id
+    }
+
+
+@pytest_asyncio.fixture
+async def test_membership(
+    test_db: AsyncSession, 
+    test_user2: dict, 
+    test_community: dict,
+    seed_roles: dict
+) -> dict:
+    """Create a test membership (user2 as member in community1).
+    
+    Args:
+        test_db: Test database session
+        test_user2: Second test user
+        test_community: First test community
+        seed_roles: Seeded role data
+        
+    Returns:
+        dict: Membership data
+    """
+    from app.models.membership import Membership
+    
+    membership = Membership(
+        user_id=test_user2["user_id"],
+        community_id=test_community["id"],
+        role_id=seed_roles["member"],
+        is_active=True
+    )
+    test_db.add(membership)
+    await test_db.commit()
+    await test_db.refresh(membership)
+    
+    return {
+        "id": membership.id,
+        "user_id": membership.user_id,
+        "community_id": membership.community_id,
+        "role_id": membership.role_id
+    }
+
+
+# ==================== Card Fixtures ====================
+
+@pytest_asyncio.fixture
+async def test_card(test_db: AsyncSession, test_user: dict, seed_locations: dict) -> dict:
+    """Create a test card.
+    
+    Args:
+        test_db: Test database session
+        test_user: Card owner
+        seed_locations: Seeded location data
+        
     Returns:
         dict: Card data
     """
+    from app.models.card import Card
+    from datetime import datetime, timedelta
+    
+    card = Card(
+        owner_id=test_user["user_id"],
+        is_sender=False,
+        origin_country_id=1,
+        origin_city_id=1,
+        destination_country_id=2,
+        destination_city_id=2,
+        ticket_date_time=datetime.utcnow() + timedelta(days=7),
+        weight=5.0,
+        description="Test card for unit tests"
+    )
+    test_db.add(card)
+    await test_db.commit()
+    await test_db.refresh(card)
+    
     return {
-        "is_sender": False,
-        "origin_country_id": 1,
-        "origin_city_id": 1,
-        "destination_country_id": 2,
-        "destination_city_id": 2,
-        "ticket_date_time": "2024-12-01T10:00:00",
-        "weight": 5.0,
-        "description": "Test card for unit tests"
+        "id": card.id,
+        "owner_id": card.owner_id,
+        "is_sender": card.is_sender,
+        "weight": card.weight,
+        "description": card.description
     }
 
+
+# ==================== Helper Fixtures ====================
+
+@pytest.fixture
+def auth_headers(test_user: dict) -> dict:
+    """Generate authorization headers for test user.
+    
+    Args:
+        test_user: Test user with token
+        
+    Returns:
+        dict: Authorization headers
+    """
+    return {"Authorization": f"Bearer {test_user['token']}"}
+
+
+@pytest.fixture
+def auth_headers_user2(test_user2: dict) -> dict:
+    """Generate authorization headers for second test user.
+    
+    Args:
+        test_user2: Second test user with token
+        
+    Returns:
+        dict: Authorization headers
+    """
+    return {"Authorization": f"Bearer {test_user2['token']}"}

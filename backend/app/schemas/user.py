@@ -1,6 +1,6 @@
 """User schemas برای کاربران."""
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
@@ -104,7 +104,7 @@ class UserOut(BaseModel):
     last_name: Optional[str] = None
     is_active: bool
     is_admin: bool
-    created_at: str
+    created_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -138,8 +138,8 @@ class UserMeOut(BaseModel):
     avatar: Optional[AvatarOut] = None
     country: Optional[CountryOut] = None
     city: Optional[CityOut] = None
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,

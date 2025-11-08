@@ -236,16 +236,16 @@ async def delete_card(
     if card.owner_id != user_id:
         raise PermissionError("شما مجاز به حذف این کارت نیستید")
     
-    # حذف (hard delete در MVP)
-    success = await card_repo.delete_card(db, card_id)
-    
-    # ثبت لاگ
+    # ثبت لاگ قبل از حذف (به خاطر foreign key constraint)
     await log_service.log_event(
         db,
         event_type="card_delete",
         actor_user_id=user_id,
         card_id=card_id
     )
+    
+    # حذف (hard delete در MVP)
+    success = await card_repo.delete_card(db, card_id)
     
     await db.commit()
     

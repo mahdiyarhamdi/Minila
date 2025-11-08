@@ -1,5 +1,6 @@
 """Log schemas برای رویدادهای سیستمی."""
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from .user import UserBasicOut
 
@@ -16,7 +17,7 @@ class LogOut(BaseModel):
     ip: Optional[str] = None
     user_agent: Optional[str] = None
     payload: Optional[str] = Field(None, description="داده‌های اضافی به صورت JSON")
-    created_at: str
+    created_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,

@@ -29,7 +29,7 @@ class Community(BaseModel):
     
     # Relationships
     avatar: Mapped[Optional["Avatar"]] = relationship("Avatar", lazy="joined")
-    owner: Mapped["User"] = relationship("User", lazy="selectinload")
+    owner: Mapped["User"] = relationship("User", lazy="select")
     
     def __repr__(self) -> str:
         return f"<Community(id={self.id}, name={self.name})>"

@@ -1,5 +1,5 @@
 """Authentication endpoints."""
-from typing import Annotated
+from typing import Annotated, Tuple, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from ...api.deps import DBSession
@@ -16,7 +16,7 @@ from ...services import auth_service
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
-def get_client_info(request: Request) -> tuple[str | None, str | None]:
+def get_client_info(request: Request) -> Tuple[Optional[str], Optional[str]]:
     """دریافت اطلاعات کلاینت (IP و User-Agent).
     
     Args:

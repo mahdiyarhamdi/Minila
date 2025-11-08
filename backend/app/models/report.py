@@ -35,14 +35,14 @@ class Report(BaseModel):
     reporter: Mapped[Optional["User"]] = relationship(
         "User",
         foreign_keys=[reporter_id],
-        lazy="selectinload"
+        lazy="select"
     )
     reported: Mapped[Optional["User"]] = relationship(
         "User",
         foreign_keys=[reported_id],
-        lazy="selectinload"
+        lazy="select"
     )
-    card: Mapped[Optional["Card"]] = relationship("Card", lazy="selectinload")
+    card: Mapped[Optional["Card"]] = relationship("Card", lazy="select")
     
     def __repr__(self) -> str:
         return f"<Report(id={self.id}, reporter_id={self.reporter_id}, reported_id={self.reported_id})>"

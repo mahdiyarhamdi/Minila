@@ -2,7 +2,7 @@
 import secrets
 import string
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Optional, Dict
 import hashlib
 import hmac
 import json
@@ -88,7 +88,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
         return False
 
 
-def create_token(data: dict[str, Any], secret: str, expires_minutes: int = 60) -> str:
+def create_token(data: Dict[str, Any], secret: str, expires_minutes: int = 60) -> str:
     """تولید JWT-like token ساده.
     
     Note: برای production از python-jose یا pyjwt استفاده کنید.
@@ -120,7 +120,7 @@ def create_token(data: dict[str, Any], secret: str, expires_minutes: int = 60) -
     return f"{payload_b64}.{signature}"
 
 
-def create_access_token(data: dict[str, Any], secret: str, expires_minutes: int = 1440) -> str:
+def create_access_token(data: Dict[str, Any], secret: str, expires_minutes: int = 1440) -> str:
     """تولید Access Token.
     
     Args:
@@ -134,7 +134,7 @@ def create_access_token(data: dict[str, Any], secret: str, expires_minutes: int 
     return create_token(data, secret, expires_minutes)
 
 
-def create_refresh_token(data: dict[str, Any], secret: str, expires_minutes: int = 10080) -> str:
+def create_refresh_token(data: Dict[str, Any], secret: str, expires_minutes: int = 10080) -> str:
     """تولید Refresh Token.
     
     Args:
@@ -148,7 +148,7 @@ def create_refresh_token(data: dict[str, Any], secret: str, expires_minutes: int
     return create_token(data, secret, expires_minutes)
 
 
-def decode_token(token: str, secret: str) -> dict[str, Any] | None:
+def decode_token(token: str, secret: str) -> Optional[Dict[str, Any]]:
     """Decode و تایید token.
     
     Args:

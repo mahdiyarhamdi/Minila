@@ -1,5 +1,6 @@
 """Community schemas برای کامیونیتی‌ها."""
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from .user import UserBasicOut, AvatarOut
 
@@ -47,8 +48,8 @@ class CommunityOut(BaseModel):
     bio: Optional[str] = None
     avatar: Optional[AvatarOut] = None
     owner: UserBasicOut
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -85,8 +86,8 @@ class CommunityDetailOut(BaseModel):
     avatar: Optional[AvatarOut] = None
     owner: UserBasicOut
     member_count: int = Field(..., description="تعداد اعضای فعال")
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,

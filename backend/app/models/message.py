@@ -31,12 +31,12 @@ class Message(BaseModel):
     sender: Mapped["User"] = relationship(
         "User",
         foreign_keys=[sender_id],
-        lazy="selectinload"
+        lazy="select"
     )
     receiver: Mapped["User"] = relationship(
         "User",
         foreign_keys=[receiver_id],
-        lazy="selectinload"
+        lazy="select"
     )
     
     def __repr__(self) -> str:

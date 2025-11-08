@@ -1,6 +1,6 @@
 """Authentication service برای منطق احراز هویت."""
 import secrets
-from typing import Optional
+from typing import Optional, Dict, Union
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.config import get_settings
@@ -191,7 +191,7 @@ async def verify_otp(
     return user
 
 
-def create_tokens(user_id: int, email: str) -> dict[str, str | int]:
+def create_tokens(user_id: int, email: str) -> Dict[str, Union[str, int]]:
     """تولید JWT tokens برای کاربر.
     
     Args:
@@ -202,28 +202,28 @@ def create_tokens(user_id: int, email: str) -> dict[str, str | int]:
         dict حاوی access_token, refresh_token و expires_in
     """
     # تولید access token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"user_id": user_id, "email": email},
-        expires_delta=access_token_expires
+        secret=settings.SECRET_KEY,
+        expires_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     
     # تولید refresh token
-    refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     refresh_token = create_refresh_token(
         data={"user_id": user_id, "email": email},
-        expires_delta=refresh_token_expires
+        secret=settings.SECRET_KEY,
+        expires_minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
     )
     
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
         "token_type": "bearer",
-        "expires_in": int(access_token_expires.total_seconds())
+        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     }
 
 
-def refresh_access_token(refresh_token: str) -> dict[str, str | int]:
+def refresh_access_token(refresh_token: str) -> Dict[str, Union[str, int]]:
     """تازه‌سازی access token با refresh token.
     
     Args:
@@ -248,17 +248,25 @@ def refresh_access_token(refresh_token: str) -> dict[str, str | int]:
         if not user_id or not email:
             raise ValueError("Refresh token نامعتبر است")
         
-        # تولید access token جدید
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        # تولید access token و refresh token جدید
         access_token = create_access_token(
             data={"user_id": user_id, "email": email},
-            expires_delta=access_token_expires
+            secret=settings.SECRET_KEY,
+            expires_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        
+        # تولید refresh token جدید برای token rotation
+        new_refresh_token = create_refresh_token(
+            data={"user_id": user_id, "email": email},
+            secret=settings.SECRET_KEY,
+            expires_minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
         )
         
         return {
             "access_token": access_token,
+            "refresh_token": new_refresh_token,
             "token_type": "bearer",
-            "expires_in": int(access_token_expires.total_seconds())
+            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         }
         
     except Exception as e:

@@ -184,6 +184,11 @@ async def join_request(
     Raises:
         ValueError: اگر قبلاً عضو باشد یا درخواست داشته باشد
     """
+    # بررسی وجود کامیونیتی
+    community = await community_repo.get_by_id(db, community_id)
+    if not community:
+        raise ValueError("کامیونیتی مورد نظر یافت نشد")
+    
     # بررسی عضویت فعلی
     membership = await membership_repo.get_membership(db, user_id, community_id)
     if membership and membership.is_active:
@@ -336,7 +341,15 @@ async def get_members(
         
     Returns:
         PaginatedResponse از Membership
+        
+    Raises:
+        ValueError: اگر کامیونیتی یافت نشود
     """
+    # بررسی وجود کامیونیتی
+    community = await community_repo.get_by_id(db, community_id)
+    if not community:
+        raise ValueError("کامیونیتی مورد نظر یافت نشد")
+    
     members, total = await community_repo.get_members(db, community_id, page, page_size)
     
     return PaginatedResponse.create(

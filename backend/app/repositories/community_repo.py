@@ -107,7 +107,7 @@ async def create(
         avatar_id: شناسه آواتار (اختیاری)
         
     Returns:
-        کامیونیتی ایجادشده
+        کامیونیتی ایجادشده با relationshipهای load شده
     """
     community = Community(
         owner_id=owner_id,
@@ -120,7 +120,17 @@ async def create(
     await db.flush()
     await db.refresh(community)
     
-    return community
+    # بازگرفتن کامیونیتی با relationshipها
+    query = (
+        select(Community)
+        .where(Community.id == community.id)
+        .options(
+            selectinload(Community.owner),
+            selectinload(Community.avatar)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one()
 
 
 async def update_community(
@@ -218,6 +228,7 @@ async def get_members(
         .where(Membership.is_active == True)
         .options(
             selectinload(Membership.user),
+            selectinload(Membership.community),
             selectinload(Membership.role)
         )
         .order_by(Membership.created_at.desc())

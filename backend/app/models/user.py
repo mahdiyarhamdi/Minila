@@ -50,8 +50,8 @@ class User(BaseModel):
     
     # Relationships
     avatar: Mapped[Optional["Avatar"]] = relationship("Avatar", lazy="joined")
-    country: Mapped[Optional["Country"]] = relationship("Country", lazy="selectinload")
-    city: Mapped[Optional["City"]] = relationship("City", lazy="selectinload")
+    country: Mapped[Optional["Country"]] = relationship("Country", lazy="select")
+    city: Mapped[Optional["City"]] = relationship("City", lazy="select")
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email})>"

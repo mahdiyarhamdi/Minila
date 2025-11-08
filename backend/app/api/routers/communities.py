@@ -328,6 +328,12 @@ async def get_community_members(
     page_size: Annotated[int, Query(ge=1, le=100)] = 20
 ) -> PaginatedResponse[MembershipOut]:
     """دریافت اعضای کامیونیتی."""
-    result = await community_service.get_members(db, community_id, page, page_size)
-    return result
+    try:
+        result = await community_service.get_members(db, community_id, page, page_size)
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
 

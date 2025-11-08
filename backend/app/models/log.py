@@ -48,15 +48,15 @@ class Log(BaseModel):
     actor: Mapped[Optional["User"]] = relationship(
         "User",
         foreign_keys=[actor_user_id],
-        lazy="selectinload"
+        lazy="select"
     )
     target_user: Mapped[Optional["User"]] = relationship(
         "User",
         foreign_keys=[target_user_id],
-        lazy="selectinload"
+        lazy="select"
     )
-    card: Mapped[Optional["Card"]] = relationship("Card", lazy="selectinload")
-    community: Mapped[Optional["Community"]] = relationship("Community", lazy="selectinload")
+    card: Mapped[Optional["Card"]] = relationship("Card", lazy="select")
+    community: Mapped[Optional["Community"]] = relationship("Community", lazy="select")
     
     def __repr__(self) -> str:
         return f"<Log(id={self.id}, event_type={self.event_type}, actor_id={self.actor_user_id})>"

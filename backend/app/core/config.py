@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Optional, List, Union
 from pydantic_settings import BaseSettings
 from pydantic import EmailStr, Field
 
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     OTP_LENGTH: int = 6
 
     # CORS
-    CORS_ORIGINS: list[str] = Field(
+    CORS_ORIGINS: List[str] = Field(
         default=["http://localhost:3000", "http://localhost:3001"],
         description="لیست domainهای مجاز برای CORS"
     )
@@ -36,9 +37,9 @@ class Settings(BaseSettings):
     # Email (dev با MailHog)
     SMTP_HOST: str = "mailhog"
     SMTP_PORT: int = 1025
-    SMTP_USER: str | None = None
-    SMTP_PASS: str | None = None
-    EMAIL_FROM: EmailStr | str = "no-reply@example.local"
+    SMTP_USER: Optional[str] = None
+    SMTP_PASS: Optional[str] = None
+    EMAIL_FROM: Union[EmailStr, str] = "no-reply@example.local"
 
     # Rate limit
     MESSAGES_PER_DAY: int = 5

@@ -1,5 +1,6 @@
 """Membership و Request schemas برای مدیریت عضویت در کامیونیتی‌ها."""
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from .user import UserBasicOut
 from .community import CommunityBasicOut
@@ -26,7 +27,7 @@ class MembershipOut(BaseModel):
     community: CommunityBasicOut
     role: RoleOut
     is_active: bool
-    created_at: str
+    created_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -80,8 +81,8 @@ class RequestOut(BaseModel):
     user: UserBasicOut
     community: CommunityBasicOut
     is_approved: Optional[bool] = Field(None, description="وضعیت تأیید: null=pending, true=approved, false=rejected")
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
     
     model_config = ConfigDict(
         from_attributes=True,

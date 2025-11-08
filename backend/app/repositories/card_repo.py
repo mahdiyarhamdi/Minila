@@ -176,7 +176,7 @@ async def create(
         **card_data: داده‌های کارت
         
     Returns:
-        کارت ایجادشده
+        کارت ایجادشده با relationshipهای load شده
     """
     card = Card(owner_id=owner_id, **card_data)
     
@@ -184,7 +184,21 @@ async def create(
     await db.flush()
     await db.refresh(card)
     
-    return card
+    # بازگرفتن کارت با relationshipها
+    query = (
+        select(Card)
+        .where(Card.id == card.id)
+        .options(
+            selectinload(Card.owner),
+            selectinload(Card.origin_country),
+            selectinload(Card.origin_city),
+            selectinload(Card.destination_country),
+            selectinload(Card.destination_city),
+            selectinload(Card.product_classification)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one()
 
 
 async def update_card(

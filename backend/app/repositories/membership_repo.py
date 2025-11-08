@@ -89,7 +89,7 @@ async def create_membership(
     
     db.add(membership)
     await db.flush()
-    await db.refresh(membership)
+    await db.refresh(membership, attribute_names=["user", "community", "role"])
     
     return membership
 
@@ -117,7 +117,7 @@ async def create_request(
     
     db.add(request)
     await db.flush()
-    await db.refresh(request)
+    await db.refresh(request, attribute_names=["user", "community"])
     
     return request
 
@@ -139,7 +139,10 @@ async def get_pending_requests(
         select(Request)
         .where(Request.community_id == community_id)
         .where(Request.is_approved.is_(None))
-        .options(selectinload(Request.user))
+        .options(
+            selectinload(Request.user),
+            selectinload(Request.community)
+        )
         .order_by(Request.created_at.asc())
     )
     result = await db.execute(query)

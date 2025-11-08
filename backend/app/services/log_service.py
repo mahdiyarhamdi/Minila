@@ -1,4 +1,5 @@
 """Service برای ثبت رویدادها در جدول Log."""
+import json
 from typing import Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -52,7 +53,7 @@ async def log_event(
             community_id=community_id,
             ip=ip,
             user_agent=user_agent,
-            payload=payload or {}
+            payload=json.dumps(payload) if payload else None
         )
         
         db.add(log_entry)
