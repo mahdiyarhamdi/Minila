@@ -1,14 +1,24 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
+import Input from '@/components/Input'
+import { apiService } from '@/lib/api'
 
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading, isAuthenticated, logout } = useAuth()
+
+  // State برای فرم تغییر رمز عبور
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -19,6 +29,53 @@ export default function DashboardPage() {
   const handleLogout = () => {
     logout()
     router.push('/auth/login')
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    // Validation
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setPasswordError('لطفاً همه فیلدها را پر کنید')
+      return
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('رمز عبور جدید باید حداقل 8 کاراکتر باشد')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('رمز عبور جدید و تکرار آن یکسان نیستند')
+      return
+    }
+
+    if (oldPassword === newPassword) {
+      setPasswordError('رمز عبور جدید نباید با رمز عبور فعلی یکسان باشد')
+      return
+    }
+
+    setPasswordLoading(true)
+
+    try {
+      await apiService.changePassword({
+        old_password: oldPassword,
+        new_password: newPassword,
+      })
+
+      setPasswordSuccess('رمز عبور با موفقیت تغییر کرد')
+      // پاک کردن فیلدها
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || 'خطا در تغییر رمز عبور'
+      setPasswordError(errorMessage)
+    } finally {
+      setPasswordLoading(false)
+    }
   }
 
   if (isLoading) {
@@ -144,6 +201,76 @@ export default function DashboardPage() {
               </span>
             </div>
           </div>
+        </Card>
+
+        {/* تغییر رمز عبور */}
+        <Card variant="bordered" className="mt-6 p-6">
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">تغییر رمز عبور</h3>
+          
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label htmlFor="old-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                رمز عبور فعلی
+              </label>
+              <Input
+                id="old-password"
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                placeholder="رمز عبور فعلی خود را وارد کنید"
+                disabled={passwordLoading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="new-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                رمز عبور جدید
+              </label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="حداقل 8 کاراکتر"
+                disabled={passwordLoading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                تکرار رمز عبور جدید
+              </label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="رمز عبور جدید را دوباره وارد کنید"
+                disabled={passwordLoading}
+              />
+            </div>
+
+            {passwordError && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600 font-medium">{passwordError}</p>
+              </div>
+            )}
+
+            {passwordSuccess && (
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                <p className="text-sm text-green-600 font-medium">{passwordSuccess}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={passwordLoading}
+              className="w-full"
+            >
+              {passwordLoading ? 'در حال تغییر...' : 'تغییر رمز عبور'}
+            </Button>
+          </form>
         </Card>
       </main>
     </div>

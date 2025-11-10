@@ -226,13 +226,16 @@ async def test_user(test_db: AsyncSession) -> dict:
         test_db: Test database session
         
     Returns:
-        dict: User data with token
+        dict: User data with token and plain password
     """
     from app.models.user import User
+    from app.core.security import hash_password
+    
+    plain_password = "TestPass123!"
     
     user = User(
         email="testuser@example.com",
-        password="TestPass123!",
+        password=hash_password(plain_password),
         first_name="Test",
         last_name="User",
         email_verified=True,
@@ -255,7 +258,8 @@ async def test_user(test_db: AsyncSession) -> dict:
         "email": user.email,
         "token": token,
         "first_name": user.first_name,
-        "last_name": user.last_name
+        "last_name": user.last_name,
+        "password": plain_password  # For testing password change
     }
 
 
@@ -267,13 +271,16 @@ async def test_user2(test_db: AsyncSession) -> dict:
         test_db: Test database session
         
     Returns:
-        dict: User data with token
+        dict: User data with token and plain password
     """
     from app.models.user import User
+    from app.core.security import hash_password
+    
+    plain_password = "TestPass123!"
     
     user = User(
         email="testuser2@example.com",
-        password="TestPass123!",
+        password=hash_password(plain_password),
         first_name="Test2",
         last_name="User2",
         email_verified=True,
@@ -296,7 +303,8 @@ async def test_user2(test_db: AsyncSession) -> dict:
         "email": user.email,
         "token": token,
         "first_name": user.first_name,
-        "last_name": user.last_name
+        "last_name": user.last_name,
+        "password": plain_password  # For testing password change
     }
 
 
@@ -308,15 +316,19 @@ async def test_admin(test_db: AsyncSession) -> dict:
         test_db: Test database session
         
     Returns:
-        dict: Admin user data with token
+        dict: Admin user data with token and plain password
     """
     from app.models.user import User
+    from app.core.security import hash_password
+    
+    plain_password = "AdminPass123!"
     
     user = User(
         email="admin@example.com",
-        password="AdminPass123!",
+        password=hash_password(plain_password),
         first_name="Admin",
         last_name="User",
+        email_verified=True,
         is_active=True,
         is_admin=True
     )
@@ -335,7 +347,8 @@ async def test_admin(test_db: AsyncSession) -> dict:
         "user_id": user.id,
         "email": user.email,
         "token": token,
-        "is_admin": True
+        "is_admin": True,
+        "password": plain_password  # For testing password change
     }
 
 

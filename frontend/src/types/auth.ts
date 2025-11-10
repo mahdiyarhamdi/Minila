@@ -36,6 +36,11 @@ export interface User {
   updated_at: string
 }
 
+export interface ChangePasswordData {
+  old_password: string
+  new_password: string
+}
+
 export interface APIError {
   detail: string
 }

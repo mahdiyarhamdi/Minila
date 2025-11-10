@@ -239,3 +239,273 @@ class TestUpdateMyProfile:
         # Null values should be accepted for optional fields
         assert data["national_id"] is None
         assert data["gender"] is None
+
+
+# ==================== PUT /api/v1/users/me/password ====================
+
+class TestChangePassword:
+    """Test cases for changing user password."""
+
+    @pytest.mark.asyncio
+    async def test_change_password_success(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict,
+        test_db: AsyncSession
+    ):
+        """Test successful password change with valid credentials."""
+        # Arrange
+        payload = {
+            "old_password": test_user["password"],
+            "new_password": "NewSecurePass123!"
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "message" in data
+        assert "موفقیت" in data["message"]
+        
+        # Verify user can login with new password
+        login_payload = {
+            "email": test_user["email"],
+            "password": "NewSecurePass123!"
+        }
+        login_response = await client.post(
+            "/api/v1/auth/login-password",
+            json=login_payload
+        )
+        assert login_response.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_change_password_wrong_old_password(
+        self, 
+        client: AsyncClient, 
+        auth_headers: dict
+    ):
+        """Test password change with incorrect old password returns 400."""
+        # Arrange
+        payload = {
+            "old_password": "WrongPassword123!",
+            "new_password": "NewSecurePass123!"
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 400
+        assert "نادرست" in response.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_change_password_without_auth(self, client: AsyncClient):
+        """Test password change without authentication returns 401."""
+        # Arrange
+        payload = {
+            "old_password": "OldPass123!",
+            "new_password": "NewPass123!"
+        }
+        
+        # Act
+        response = await client.put("/api/v1/users/me/password", json=payload)
+        
+        # Assert
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_change_password_too_short(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test password change with too short new password returns 422."""
+        # Arrange
+        payload = {
+            "old_password": test_user["password"],
+            "new_password": "Short1!"  # Less than 8 characters
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_change_password_missing_fields(
+        self, 
+        client: AsyncClient, 
+        auth_headers: dict
+    ):
+        """Test password change with missing fields returns 422."""
+        # Arrange - Missing new_password
+        payload = {
+            "old_password": "OldPass123!"
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_change_password_empty_strings(
+        self, 
+        client: AsyncClient, 
+        auth_headers: dict
+    ):
+        """Test password change with empty strings returns 422."""
+        # Arrange
+        payload = {
+            "old_password": "",
+            "new_password": ""
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_change_password_logs_event(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict,
+        test_db: AsyncSession
+    ):
+        """Test that password change creates a log entry."""
+        # Arrange
+        from app.models.log import Log
+        from sqlalchemy import select, func
+        
+        # Count logs before
+        result = await test_db.execute(
+            select(func.count(Log.id)).where(
+                Log.event_type == "password_changed",
+                Log.actor_user_id == test_user["user_id"]
+            )
+        )
+        logs_before = result.scalar()
+        
+        payload = {
+            "old_password": test_user["password"],
+            "new_password": "NewSecurePass123!"
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        
+        # Verify log was created
+        result = await test_db.execute(
+            select(func.count(Log.id)).where(
+                Log.event_type == "password_changed",
+                Log.actor_user_id == test_user["user_id"]
+            )
+        )
+        logs_after = result.scalar()
+        assert logs_after == logs_before + 1
+
+    @pytest.mark.asyncio
+    async def test_change_password_old_password_no_longer_works(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test that old password no longer works after change."""
+        # Arrange
+        payload = {
+            "old_password": test_user["password"],
+            "new_password": "NewSecurePass123!"
+        }
+        
+        # Act - Change password
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        assert response.status_code == 200
+        
+        # Try to login with old password
+        login_payload = {
+            "email": test_user["email"],
+            "password": test_user["password"]  # Old password
+        }
+        login_response = await client.post(
+            "/api/v1/auth/login-password",
+            json=login_payload
+        )
+        
+        # Assert - Old password should not work
+        assert login_response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_change_password_with_special_characters(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test password change with special characters in password."""
+        # Arrange
+        payload = {
+            "old_password": test_user["password"],
+            "new_password": "P@ssw0rd!#$%^&*()"
+        }
+        
+        # Act
+        response = await client.put(
+            "/api/v1/users/me/password", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        
+        # Verify login with new password containing special chars
+        login_payload = {
+            "email": test_user["email"],
+            "password": "P@ssw0rd!#$%^&*()"
+        }
+        login_response = await client.post(
+            "/api/v1/auth/login-password",
+            json=login_payload
+        )
+        assert login_response.status_code == 200
