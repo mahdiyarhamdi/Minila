@@ -11,20 +11,18 @@ import Card from '@/components/Card'
 import { apiService } from '@/lib/api'
 
 // Schema برای validation
-const signupSchema = z.object({
-  email: z.string().email('لطفاً یک ایمیل معتبر وارد کنید'),
-  password: z.string().min(8, 'رمز عبور باید حداقل 8 کاراکتر باشد'),
+const changePasswordSchema = z.object({
+  old_password: z.string().min(8, 'رمز عبور فعلی باید حداقل 8 کاراکتر باشد'),
+  new_password: z.string().min(8, 'رمز عبور جدید باید حداقل 8 کاراکتر باشد'),
   confirm_password: z.string(),
-  first_name: z.string().min(1, 'نام الزامی است'),
-  last_name: z.string().min(1, 'نام خانوادگی الزامی است'),
-}).refine((data) => data.password === data.confirm_password, {
-  message: 'رمز عبور و تکرار آن یکسان نیستند',
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: 'رمز عبور جدید و تکرار آن یکسان نیستند',
   path: ['confirm_password'],
 })
 
-type SignupFormData = z.infer<typeof signupSchema>
+type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
 
-export default function SignupPage() {
+export default function ChangePasswordPage() {
   const router = useRouter()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -32,26 +30,29 @@ export default function SignupPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+  } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
   })
 
-  const onSubmit = async (data: SignupFormData) => {
+  const onSubmit = async (data: ChangePasswordFormData) => {
     try {
       setError('')
-      await apiService.signup({
-        email: data.email,
-        password: data.password,
-        first_name: data.first_name,
-        last_name: data.last_name,
-      })
-      setSuccess(true)
+      setSuccess(false)
       
-      // هدایت به صفحه تایید ایمیل
+      await apiService.changePassword({
+        old_password: data.old_password,
+        new_password: data.new_password,
+      })
+      
+      setSuccess(true)
+      reset()
+      
+      // بعد از 2 ثانیه به dashboard برگرد
       setTimeout(() => {
-        router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`)
-      }, 1500)
+        router.push('/dashboard')
+      }, 2000)
     } catch (err: any) {
       setError(err.response?.data?.detail || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.')
     }
@@ -67,6 +68,18 @@ export default function SignupPage() {
 
       {/* کارت اصلی */}
       <Card variant="elevated" className="w-full max-w-md p-8">
+        <div className="mb-6">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="text-neutral-600 hover:text-neutral-900 text-sm flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            بازگشت به داشبورد
+          </button>
+        </div>
+
         {success ? (
           <div className="text-center py-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
@@ -74,57 +87,39 @@ export default function SignupPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">ثبت‌نام موفق!</h2>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">تغییر رمز عبور موفق!</h2>
             <p className="text-neutral-600 font-light">
-              کد تایید به ایمیل شما ارسال شد. در حال انتقال به صفحه تایید...
+              رمز عبور شما با موفقیت تغییر کرد. در حال بازگشت به داشبورد...
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">ساخت حساب کاربری</h2>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">تغییر رمز عبور</h2>
             <p className="text-neutral-600 font-light mb-6">
-              برای شروع، اطلاعات خود را وارد کنید.
+              برای تغییر رمز عبور، فرم زیر را تکمیل کنید.
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  {...register('first_name')}
-                  label="نام"
-                  type="text"
-                  placeholder="علی"
-                  error={errors.first_name?.message}
-                />
-                <Input
-                  {...register('last_name')}
-                  label="نام خانوادگی"
-                  type="text"
-                  placeholder="احمدی"
-                  error={errors.last_name?.message}
-                />
-              </div>
-
               <Input
-                {...register('email')}
-                label="آدرس ایمیل"
-                type="email"
-                placeholder="example@gmail.com"
-                error={errors.email?.message}
-                dir="ltr"
+                {...register('old_password')}
+                label="رمز عبور فعلی"
+                type="password"
+                placeholder="••••••••"
+                error={errors.old_password?.message}
               />
 
               <Input
-                {...register('password')}
-                label="رمز عبور"
+                {...register('new_password')}
+                label="رمز عبور جدید"
                 type="password"
                 placeholder="••••••••"
-                error={errors.password?.message}
+                error={errors.new_password?.message}
                 helperText="حداقل 8 کاراکتر"
               />
 
               <Input
                 {...register('confirm_password')}
-                label="تکرار رمز عبور"
+                label="تکرار رمز عبور جدید"
                 type="password"
                 placeholder="••••••••"
                 error={errors.confirm_password?.message}
@@ -143,32 +138,16 @@ export default function SignupPage() {
                 className="w-full"
                 isLoading={isSubmitting}
               >
-                ثبت‌نام
+                تغییر رمز عبور
               </Button>
             </form>
-
-            <div className="mt-6 pt-6 border-t border-neutral-200">
-              <p className="text-center text-sm text-neutral-600 font-normal">
-                قبلاً ثبت‌نام کرده‌اید؟{' '}
-                <a
-                  href="/auth/login"
-                  className="text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  وارد شوید
-                </a>
-              </p>
-            </div>
           </>
         )}
       </Card>
 
       {/* فوتر */}
       <p className="mt-8 text-sm text-neutral-500 text-center font-light">
-        با ثبت‌نام، شما{' '}
-        <a href="#" className="text-primary-600 hover:underline font-normal">
-          قوانین و مقررات
-        </a>{' '}
-        را می‌پذیرید.
+        رمز عبور خود را به صورت امن نگه‌داری کنید.
       </p>
     </div>
   )

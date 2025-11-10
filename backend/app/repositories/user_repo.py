@@ -1,5 +1,6 @@
 """User repository برای دسترسی به دیتابیس."""
 from typing import Optional
+from datetime import datetime
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -118,7 +119,8 @@ async def update_user(
 async def update_otp(
     db: AsyncSession,
     email: str,
-    otp_code: Optional[str]
+    otp_code: Optional[str],
+    otp_expires_at: Optional[datetime] = None
 ) -> bool:
     """آپدیت کد OTP کاربر.
     
@@ -126,6 +128,7 @@ async def update_otp(
         db: Database session
         email: آدرس ایمیل کاربر
         otp_code: کد OTP جدید (یا None برای پاک کردن)
+        otp_expires_at: زمان انقضای OTP
         
     Returns:
         True در صورت موفقیت
@@ -133,7 +136,7 @@ async def update_otp(
     stmt = (
         update(User)
         .where(User.email == email)
-        .values(otp_code=otp_code)
+        .values(otp_code=otp_code, otp_expires_at=otp_expires_at)
     )
     result = await db.execute(stmt)
     await db.flush()
@@ -180,4 +183,56 @@ async def email_exists(db: AsyncSession, email: str) -> bool:
     query = select(User.id).where(User.email == email)
     result = await db.execute(query)
     return result.scalar_one_or_none() is not None
+
+
+async def set_email_verified(
+    db: AsyncSession,
+    email: str,
+    verified: bool = True
+) -> bool:
+    """تنظیم وضعیت تایید ایمیل.
+    
+    Args:
+        db: Database session
+        email: آدرس ایمیل کاربر
+        verified: وضعیت تایید (پیش‌فرض True)
+        
+    Returns:
+        True در صورت موفقیت
+    """
+    stmt = (
+        update(User)
+        .where(User.email == email)
+        .values(email_verified=verified)
+    )
+    result = await db.execute(stmt)
+    await db.flush()
+    
+    return result.rowcount > 0
+
+
+async def update_password(
+    db: AsyncSession,
+    user_id: int,
+    hashed_password: str
+) -> bool:
+    """آپدیت رمز عبور کاربر.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        hashed_password: رمز عبور هش شده
+        
+    Returns:
+        True در صورت موفقیت
+    """
+    stmt = (
+        update(User)
+        .where(User.id == user_id)
+        .values(password=hashed_password)
+    )
+    result = await db.execute(stmt)
+    await db.flush()
+    
+    return result.rowcount > 0
 

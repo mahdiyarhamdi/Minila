@@ -2,8 +2,8 @@
 
 > راهنمای جامع معماری لایه‌ای برای پلتفرم هماهنگی مسافر-بار
 
-**نسخه**: 0.1.0  
-**آخرین به‌روزرسانی**: 2025-10-30
+**نسخه**: 0.2.0  
+**آخرین به‌روزرسانی**: 2025-11-10
 
 ---
 
@@ -409,21 +409,44 @@ async def create(
 
 ### احراز هویت (Authentication)
 
-#### 1. ورود با OTP
+#### 1. ثبت‌نام و تایید ایمیل
 ```
-User → POST /auth/login {"email": "..."}
-     ← OTP sent to email (6 digits, 10 min expiry)
-User → POST /auth/verify {"email": "...", "otp": "123456"}
+User → POST /auth/signup {"email": "...", "password": "...", ...}
+     ← 201 Created + OTP sent to email (6 digits, 10 min expiry)
+User → POST /auth/verify-email {"email": "...", "otp_code": "123456"}
      ← JWT access_token (24h) + refresh_token (7d)
 ```
 
-#### 2. استفاده از JWT
+#### 2. ورود با رمز عبور
+```
+User → POST /auth/login-password {"email": "...", "password": "..."}
+     ← JWT access_token (24h) + refresh_token (7d)
+```
+
+#### 3. ورود با OTP
+```
+User → POST /auth/request-otp {"email": "..."}
+     ← OTP sent to email (6 digits, 10 min expiry)
+User → POST /auth/verify-otp {"email": "...", "otp_code": "123456"}
+     ← JWT access_token (24h) + refresh_token (7d)
+```
+
+#### 4. تغییر رمز عبور
+```
+User → PUT /users/me/password {"old_password": "...", "new_password": "..."}
+     ← 200 OK
+```
+
+#### 5. استفاده از JWT
 ```python
 # در هر درخواست:
 Authorization: Bearer <access_token>
 
 # FastAPI dependency:
 current_user = Depends(get_current_user)
+
+# بررسی email_verified در get_current_user
+# کاربران با ایمیل تایید نشده نمی‌توانند از API استفاده کنند
 ```
 
 ### Rate Limiting

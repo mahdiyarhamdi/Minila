@@ -4,11 +4,17 @@ from typing import Optional, Dict, Union
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.config import get_settings
-from ..core.security import create_access_token, create_refresh_token, decode_token
+from ..core.security import (
+    create_access_token, 
+    create_refresh_token, 
+    decode_token,
+    hash_password,
+    verify_password
+)
 from ..models.user import User
 from ..repositories import user_repo
 from ..services import log_service
-from ..utils.email import send_otp_email, send_welcome_email
+from ..utils.email import send_otp_email
 from ..utils.logger import logger
 
 settings = get_settings()
@@ -53,14 +59,23 @@ async def signup(
     if await user_repo.email_exists(db, email):
         raise ValueError("این ایمیل قبلاً ثبت شده است")
     
-    # ساخت کاربر
-    # نکته: password فعلاً خام ذخیره می‌شود - باید در production hash شود
+    # هش کردن password
+    hashed_password = hash_password(password)
+    
+    # تولید OTP برای تایید ایمیل
+    otp_code = generate_otp()
+    otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+    
+    # ساخت کاربر با email_verified=False
     user = await user_repo.create(
         db,
         email=email,
-        password=password,
+        password=hashed_password,
         first_name=first_name,
-        last_name=last_name
+        last_name=last_name,
+        email_verified=False,
+        otp_code=otp_code,
+        otp_expires_at=otp_expires_at
     )
     
     # ثبت لاگ
@@ -75,13 +90,74 @@ async def signup(
     
     await db.commit()
     
-    # ارسال ایمیل خوش‌آمدگویی
+    # ارسال OTP برای تایید ایمیل
     try:
-        send_welcome_email(email, first_name)
+        send_otp_email(email, otp_code)
     except Exception as e:
-        logger.warning(f"Failed to send welcome email: {e}")
+        logger.warning(f"Failed to send verification OTP: {e}")
     
-    logger.info(f"User signed up: {email}")
+    logger.info(f"User signed up: {email}, verification OTP sent")
+    return user
+
+
+async def verify_email_otp(
+    db: AsyncSession,
+    email: str,
+    otp_code: str,
+    ip: Optional[str] = None,
+    user_agent: Optional[str] = None
+) -> User:
+    """تایید ایمیل با OTP.
+    
+    Args:
+        db: Database session
+        email: آدرس ایمیل
+        otp_code: کد OTP دریافت شده
+        ip: آدرس IP
+        user_agent: User-Agent
+        
+    Returns:
+        کاربر با ایمیل تایید شده
+        
+    Raises:
+        ValueError: اگر OTP نامعتبر یا منقضی شده باشد
+    """
+    user = await user_repo.get_by_email(db, email)
+    if not user:
+        raise ValueError("کاربری با این ایمیل یافت نشد")
+    
+    # بررسی اینکه ایمیل قبلاً تایید نشده باشد
+    if user.email_verified:
+        raise ValueError("ایمیل قبلاً تایید شده است")
+    
+    # بررسی OTP
+    if not user.otp_code or user.otp_code != otp_code:
+        raise ValueError("کد OTP نامعتبر است")
+    
+    # بررسی انقضای OTP
+    if user.otp_expires_at and datetime.utcnow() > user.otp_expires_at:
+        raise ValueError("کد OTP منقضی شده است")
+    
+    # تنظیم email_verified و پاک کردن OTP
+    await user_repo.set_email_verified(db, email, True)
+    await user_repo.update_otp(db, email, None, None)
+    
+    # ثبت لاگ
+    await log_service.log_event(
+        db,
+        event_type="email_verified",
+        actor_user_id=user.id,
+        ip=ip,
+        user_agent=user_agent,
+        payload={"email": email}
+    )
+    
+    await db.commit()
+    
+    # بارگذاری مجدد کاربر
+    user = await user_repo.get_by_email(db, email)
+    
+    logger.info(f"Email verified for: {email}")
     return user
 
 
@@ -103,7 +179,7 @@ async def request_otp(
         True در صورت موفقیت
         
     Raises:
-        ValueError: اگر کاربر پیدا نشود یا غیرفعال باشد
+        ValueError: اگر کاربر پیدا نشود یا غیرفعال باشد یا ایمیل تایید نشده باشد
     """
     # بررسی وجود کاربر
     user = await user_repo.get_by_email(db, email)
@@ -113,12 +189,16 @@ async def request_otp(
     if not user.is_active:
         raise ValueError("حساب کاربری شما غیرفعال شده است")
     
+    # بررسی تایید ایمیل
+    if not user.email_verified:
+        raise ValueError("ابتدا باید ایمیل خود را تایید کنید")
+    
     # تولید OTP
     otp_code = generate_otp()
+    otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
     
     # ذخیره در دیتابیس
-    # نکته: OTP فعلاً خام ذخیره می‌شود - باید در production hash شود
-    await user_repo.update_otp(db, email, otp_code)
+    await user_repo.update_otp(db, email, otp_code, otp_expires_at)
     
     # ثبت لاگ
     await log_service.log_event(
@@ -127,7 +207,7 @@ async def request_otp(
         actor_user_id=user.id,
         ip=ip,
         user_agent=user_agent,
-        payload={"email": email}
+        payload={"email": email, "method": "otp"}
     )
     
     await db.commit()
@@ -159,7 +239,7 @@ async def verify_otp(
         کاربر وارد شده
         
     Raises:
-        ValueError: اگر OTP نامعتبر باشد
+        ValueError: اگر OTP نامعتبر یا منقضی شده باشد
     """
     user = await user_repo.get_by_email(db, email)
     if not user:
@@ -168,12 +248,19 @@ async def verify_otp(
     if not user.is_active:
         raise ValueError("حساب کاربری شما غیرفعال شده است")
     
+    if not user.email_verified:
+        raise ValueError("ابتدا باید ایمیل خود را تایید کنید")
+    
     # بررسی OTP
     if not user.otp_code or user.otp_code != otp_code:
         raise ValueError("کد OTP نامعتبر است")
     
+    # بررسی انقضای OTP
+    if user.otp_expires_at and datetime.utcnow() > user.otp_expires_at:
+        raise ValueError("کد OTP منقضی شده است")
+    
     # پاک کردن OTP بعد از استفاده (single-use)
-    await user_repo.update_otp(db, email, None)
+    await user_repo.update_otp(db, email, None, None)
     
     # ثبت لاگ
     await log_service.log_event(
@@ -182,12 +269,67 @@ async def verify_otp(
         actor_user_id=user.id,
         ip=ip,
         user_agent=user_agent,
-        payload={"email": email}
+        payload={"email": email, "method": "otp"}
     )
     
     await db.commit()
     
-    logger.info(f"User logged in: {email}")
+    logger.info(f"User logged in via OTP: {email}")
+    return user
+
+
+async def login_with_password(
+    db: AsyncSession,
+    email: str,
+    password: str,
+    ip: Optional[str] = None,
+    user_agent: Optional[str] = None
+) -> User:
+    """ورود با رمز عبور.
+    
+    Args:
+        db: Database session
+        email: آدرس ایمیل
+        password: رمز عبور
+        ip: آدرس IP
+        user_agent: User-Agent
+        
+    Returns:
+        کاربر وارد شده
+        
+    Raises:
+        ValueError: اگر اطلاعات نادرست باشد
+    """
+    user = await user_repo.get_by_email(db, email)
+    if not user:
+        raise ValueError("ایمیل یا رمز عبور نادرست است")
+    
+    if not user.is_active:
+        raise ValueError("حساب کاربری شما غیرفعال شده است")
+    
+    if not user.email_verified:
+        raise ValueError("ابتدا باید ایمیل خود را تایید کنید")
+    
+    # بررسی password
+    if not user.password:
+        raise ValueError("رمز عبور تنظیم نشده است")
+    
+    if not verify_password(password, user.password):
+        raise ValueError("ایمیل یا رمز عبور نادرست است")
+    
+    # ثبت لاگ
+    await log_service.log_event(
+        db,
+        event_type="login_success",
+        actor_user_id=user.id,
+        ip=ip,
+        user_agent=user_agent,
+        payload={"email": email, "method": "password"}
+    )
+    
+    await db.commit()
+    
+    logger.info(f"User logged in via password: {email}")
     return user
 
 

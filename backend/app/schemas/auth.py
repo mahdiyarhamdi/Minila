@@ -85,3 +85,51 @@ class AuthSignupIn(BaseModel):
         }
     )
 
+
+class AuthVerifyEmailIn(BaseModel):
+    """تایید ایمیل با OTP."""
+    
+    email: EmailStr = Field(..., description="آدرس ایمیل کاربر")
+    otp_code: str = Field(..., min_length=6, max_length=6, description="کد OTP ارسال شده به ایمیل")
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "email": "user@example.com",
+                "otp_code": "123456"
+            }
+        }
+    )
+
+
+class AuthLoginPasswordIn(BaseModel):
+    """ورود با رمز عبور."""
+    
+    email: EmailStr = Field(..., description="آدرس ایمیل کاربر")
+    password: str = Field(..., min_length=8, max_length=100, description="رمز عبور")
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "email": "user@example.com",
+                "password": "SecurePass123!"
+            }
+        }
+    )
+
+
+class AuthChangePasswordIn(BaseModel):
+    """تغییر رمز عبور."""
+    
+    old_password: str = Field(..., min_length=8, max_length=100, description="رمز عبور فعلی")
+    new_password: str = Field(..., min_length=8, max_length=100, description="رمز عبور جدید")
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "old_password": "OldPass123!",
+                "new_password": "NewPass456!"
+            }
+        }
+    )
+

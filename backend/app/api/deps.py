@@ -76,18 +76,21 @@ async def get_current_user_optional(
 
 
 async def get_current_user(
-    user: Optional[Dict] = Depends(get_current_user_optional)
+    user: Optional[Dict] = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db)
 ) -> Dict:
     """دریافت کاربر فعلی (الزامی).
     
     Args:
         user: کاربر از dependency اختیاری
+        db: Database session
         
     Returns:
         اطلاعات کاربر
         
     Raises:
         HTTPException: 401 اگر توکن نامعتبر یا نداشته باشد
+        HTTPException: 403 اگر ایمیل تایید نشده باشد
     """
     if user is None:
         raise HTTPException(
@@ -95,6 +98,30 @@ async def get_current_user(
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # بررسی email_verified از دیتابیس
+    from ..repositories import user_repo
+    user_obj = await user_repo.get_by_id(db, user["user_id"])
+    
+    if not user_obj:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="کاربر یافت نشد",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    if not user_obj.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="ابتدا باید ایمیل خود را تایید کنید"
+        )
+    
+    if not user_obj.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="حساب کاربری شما غیرفعال شده است"
+        )
+    
     return user
 
 

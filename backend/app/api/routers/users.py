@@ -1,10 +1,26 @@
 """User management endpoints."""
-from fastapi import APIRouter, HTTPException, status, Depends
+from typing import Tuple, Optional
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from ...api.deps import DBSession, CurrentUser
 from ...schemas.user import UserMeOut, UserUpdate
+from ...schemas.auth import AuthChangePasswordIn
 from ...services import user_service
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
+
+
+def get_client_info(request: Request) -> Tuple[Optional[str], Optional[str]]:
+    """دریافت اطلاعات کلاینت (IP و User-Agent).
+    
+    Args:
+        request: درخواست FastAPI
+        
+    Returns:
+        tuple از (ip, user_agent)
+    """
+    ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    return ip, user_agent
 
 
 @router.get(
@@ -81,6 +97,52 @@ async def update_my_profile(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+
+
+@router.put(
+    "/me/password",
+    status_code=status.HTTP_200_OK,
+    summary="تغییر رمز عبور",
+    description="""
+تغییر رمز عبور کاربر جاری.
+
+**احراز هویت**: نیاز به JWT access token در هدر Authorization
+
+برای تغییر رمز عبور باید:
+1. رمز عبور فعلی را وارد کنید (برای تایید هویت)
+2. رمز عبور جدید را وارد کنید (حداقل 8 کاراکتر)
+
+پس از تغییر موفق، رویداد password_changed ثبت می‌شود.
+    """
+)
+async def change_password(
+    data: AuthChangePasswordIn,
+    request: Request,
+    current_user: CurrentUser,
+    db: DBSession
+) -> dict[str, str]:
+    """تغییر رمز عبور کاربر جاری."""
+    try:
+        ip, user_agent = get_client_info(request)
+        
+        await user_service.change_password(
+            db,
+            user_id=current_user["user_id"],
+            old_password=data.old_password,
+            new_password=data.new_password,
+            ip=ip,
+            user_agent=user_agent
+        )
+        
+        return {
+            "message": "رمز عبور با موفقیت تغییر کرد"
+        }
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
 

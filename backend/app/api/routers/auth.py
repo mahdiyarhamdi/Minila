@@ -7,6 +7,8 @@ from ...schemas.auth import (
     AuthSignupIn,
     AuthRequestOTPIn,
     AuthVerifyOTPIn,
+    AuthVerifyEmailIn,
+    AuthLoginPasswordIn,
     AuthTokenOut,
     AuthRefreshIn
 )
@@ -38,10 +40,12 @@ def get_client_info(request: Request) -> Tuple[Optional[str], Optional[str]]:
     description="""
 ثبت‌نام کاربر جدید با ایمیل و رمز عبور.
 
-**نکته امنیتی**: در این نسخه MVP، رمز عبور به صورت خام ذخیره می‌شود.
-در نسخه production باید hash شود.
+پس از ثبت‌نام موفق:
+- رمز عبور به صورت هش شده ذخیره می‌شود
+- email_verified=False تنظیم می‌شود
+- کد OTP برای تایید ایمیل ارسال می‌شود (اعتبار 10 دقیقه)
 
-پس از ثبت‌نام موفق، ایمیل خوش‌آمدگویی ارسال می‌شود.
+کاربر باید ابتدا ایمیل خود را با endpoint /verify-email تایید کند.
     """
 )
 async def signup(
@@ -141,6 +145,94 @@ async def verify_otp(
             db,
             email=data.email,
             otp_code=data.otp_code,
+            ip=ip,
+            user_agent=user_agent
+        )
+        
+        # تولید tokens
+        tokens = auth_service.create_tokens(user.id, user.email)
+        
+        return AuthTokenOut(**tokens)
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e)
+        )
+
+
+@router.post(
+    "/verify-email",
+    status_code=status.HTTP_200_OK,
+    response_model=AuthTokenOut,
+    summary="تایید ایمیل با OTP",
+    description="""
+تایید ایمیل کاربر با کد OTP ارسال شده.
+
+پس از تایید موفق:
+- email_verified=True تنظیم می‌شود
+- کد OTP پاک می‌شود
+- JWT tokens صادر می‌شود
+
+پس از این مرحله کاربر می‌تواند وارد سیستم شود.
+    """
+)
+async def verify_email(
+    data: AuthVerifyEmailIn,
+    request: Request,
+    db: DBSession
+) -> AuthTokenOut:
+    """تایید ایمیل با OTP."""
+    try:
+        ip, user_agent = get_client_info(request)
+        
+        user = await auth_service.verify_email_otp(
+            db,
+            email=data.email,
+            otp_code=data.otp_code,
+            ip=ip,
+            user_agent=user_agent
+        )
+        
+        # تولید tokens
+        tokens = auth_service.create_tokens(user.id, user.email)
+        
+        return AuthTokenOut(**tokens)
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.post(
+    "/login-password",
+    status_code=status.HTTP_200_OK,
+    response_model=AuthTokenOut,
+    summary="ورود با رمز عبور",
+    description="""
+ورود به سیستم با ایمیل و رمز عبور.
+
+پیش‌نیاز:
+- ایمیل باید تایید شده باشد (email_verified=True)
+
+پس از ورود موفق، JWT access token و refresh token صادر می‌شود.
+    """
+)
+async def login_password(
+    data: AuthLoginPasswordIn,
+    request: Request,
+    db: DBSession
+) -> AuthTokenOut:
+    """ورود با رمز عبور."""
+    try:
+        ip, user_agent = get_client_info(request)
+        
+        user = await auth_service.login_with_password(
+            db,
+            email=data.email,
+            password=data.password,
             ip=ip,
             user_agent=user_agent
         )

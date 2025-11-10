@@ -1,7 +1,7 @@
 """User model."""
 from typing import Optional
-from datetime import date
-from sqlalchemy import Boolean, Date, ForeignKey, Index, String
+from datetime import date, datetime
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import BaseModel
 
@@ -20,9 +20,11 @@ class User(BaseModel):
     first_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     last_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     
-    # Authentication (خام - باید hash شود در آینده)
+    # Authentication
     password: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     otp_code: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    otp_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     
     # Personal info
     national_id: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)

@@ -46,10 +46,40 @@ class APIService {
   }
 
   /**
+   * تایید ایمیل با کد OTP
+   */
+  async verifyEmail(data: { email: string; otp_code: string }): Promise<AuthTokens> {
+    const response = await this.client.post<AuthTokens>('/api/v1/auth/verify-email', data)
+    
+    // ذخیره توکن‌ها در localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('access_token', response.data.access_token)
+      localStorage.setItem('refresh_token', response.data.refresh_token)
+    }
+    
+    return response.data
+  }
+
+  /**
    * تایید کد OTP و دریافت توکن
    */
   async verifyOTP(data: VerifyOTPData): Promise<AuthTokens> {
     const response = await this.client.post<AuthTokens>('/api/v1/auth/verify-otp', data)
+    
+    // ذخیره توکن‌ها در localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('access_token', response.data.access_token)
+      localStorage.setItem('refresh_token', response.data.refresh_token)
+    }
+    
+    return response.data
+  }
+
+  /**
+   * ورود با رمز عبور
+   */
+  async loginWithPassword(data: { email: string; password: string }): Promise<AuthTokens> {
+    const response = await this.client.post<AuthTokens>('/api/v1/auth/login-password', data)
     
     // ذخیره توکن‌ها در localStorage
     if (typeof window !== 'undefined') {
@@ -82,6 +112,14 @@ class APIService {
    */
   async getProfile(): Promise<User> {
     const response = await this.client.get<User>('/api/v1/users/me')
+    return response.data
+  }
+
+  /**
+   * تغییر رمز عبور
+   */
+  async changePassword(data: { old_password: string; new_password: string }): Promise<{ message: string }> {
+    const response = await this.client.put('/api/v1/users/me/password', data)
     return response.data
   }
 

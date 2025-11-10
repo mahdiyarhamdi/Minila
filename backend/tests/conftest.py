@@ -235,6 +235,7 @@ async def test_user(test_db: AsyncSession) -> dict:
         password="TestPass123!",
         first_name="Test",
         last_name="User",
+        email_verified=True,
         is_active=True,
         is_admin=False
     )
@@ -275,6 +276,7 @@ async def test_user2(test_db: AsyncSession) -> dict:
         password="TestPass123!",
         first_name="Test2",
         last_name="User2",
+        email_verified=True,
         is_active=True,
         is_admin=False
     )

@@ -102,6 +102,7 @@ class UserOut(BaseModel):
     email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    email_verified: bool
     is_active: bool
     is_admin: bool
     created_at: datetime
