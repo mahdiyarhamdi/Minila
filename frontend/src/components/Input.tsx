@@ -38,11 +38,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         />
         
         {error && (
-          <p className="mt-1.5 text-sm text-red-600">{error}</p>
+          <p className="mt-1.5 text-sm text-red-600 font-normal">{error}</p>
         )}
         
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-neutral-500">{helperText}</p>
+          <p className="mt-1.5 text-sm text-neutral-500 font-light">{helperText}</p>
         )}
       </div>
     )

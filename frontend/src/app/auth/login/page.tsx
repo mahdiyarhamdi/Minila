@@ -76,16 +76,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
       {/* لوگو و عنوان */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-neutral-900 mb-2">Minila</h1>
-        <p className="text-neutral-600">پلتفرم هماهنگی مسافر و بار</p>
+        <h1 className="text-5xl font-black text-neutral-900 mb-2">Minila</h1>
+        <p className="text-neutral-600 font-light text-base">پلتفرم هماهنگی مسافر و بار</p>
       </div>
 
       {/* کارت اصلی */}
       <Card variant="elevated" className="w-full max-w-md p-8">
         {step === 'email' ? (
           <>
-            <h2 className="text-2xl font-semibold text-neutral-900 mb-2">ورود به حساب</h2>
-            <p className="text-neutral-600 mb-6">
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">ورود به حساب</h2>
+            <p className="text-neutral-600 font-light mb-6">
               ایمیل خود را وارد کنید تا کد تایید برای شما ارسال شود.
             </p>
 
@@ -117,7 +117,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 pt-6 border-t border-neutral-200">
-              <p className="text-center text-sm text-neutral-600">
+              <p className="text-center text-sm text-neutral-600 font-normal">
                 حساب کاربری ندارید؟{' '}
                 <a
                   href="/auth/signup"
@@ -142,8 +142,8 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <h2 className="text-2xl font-semibold text-neutral-900 mb-2">کد تایید را وارد کنید</h2>
-            <p className="text-neutral-600 mb-6">
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">کد تایید را وارد کنید</h2>
+            <p className="text-neutral-600 font-light mb-6">
               کد 6 رقمی ارسال شده به <span className="font-medium" dir="ltr">{email}</span> را وارد کنید.
             </p>
 
@@ -190,9 +190,9 @@ export default function LoginPage() {
       </Card>
 
       {/* فوتر */}
-      <p className="mt-8 text-sm text-neutral-500 text-center">
+      <p className="mt-8 text-sm text-neutral-500 text-center font-light">
         با ورود به سیستم، شما{' '}
-        <a href="#" className="text-primary-600 hover:underline">
+        <a href="#" className="text-primary-600 hover:underline font-normal">
           قوانین و مقررات
         </a>{' '}
         را می‌پذیرید.

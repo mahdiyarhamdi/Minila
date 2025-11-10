@@ -2,20 +2,148 @@
 @tailwind components;
 @tailwind utilities;
 
+/* IRANYekan Font Family - تمام وزن‌ها */
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebthin.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanweblight.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebregular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebmedium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebbold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebextrabold.woff') format('woff');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebblack.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html {
     @apply antialiased;
     font-feature-settings: 'cv11', 'ss01';
+    font-family: 'IRANYekan', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   
   body {
     @apply bg-neutral-50 text-neutral-900;
+    font-weight: 400; /* Regular برای متن اصلی */
+  }
+  
+  /* عنوان‌های اصلی - Bold تا Black */
+  h1 {
+    @apply font-bold;
+    font-weight: 700;
+  }
+  
+  h2 {
+    @apply font-bold;
+    font-weight: 700;
+  }
+  
+  h3 {
+    @apply font-semibold;
+    font-weight: 600;
+  }
+  
+  h4, h5, h6 {
+    @apply font-medium;
+    font-weight: 500;
+  }
+  
+  /* دکمه‌ها - Medium */
+  button {
+    font-weight: 500;
+  }
+  
+  /* لیبل‌ها و متن‌های مهم - Medium */
+  label, strong, b {
+    font-weight: 500;
+  }
+  
+  /* متن‌های کمک‌رسان - Light */
+  small, .text-helper {
+    font-weight: 300;
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* کلاس‌های کمکی برای وزن‌ها */
+  .font-thin {
+    font-weight: 100;
+  }
+  
+  .font-light {
+    font-weight: 300;
+  }
+  
+  .font-regular {
+    font-weight: 400;
+  }
+  
+  .font-medium {
+    font-weight: 500;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  .font-bold {
+    font-weight: 700;
+  }
+  
+  .font-extrabold {
+    font-weight: 800;
+  }
+  
+  .font-black {
+    font-weight: 900;
   }
 }
 
