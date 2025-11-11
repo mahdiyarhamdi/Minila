@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Providers from '@/components/Providers'
+import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
   title: 'Minila - پلتفرم هماهنگی مسافر و بار',
@@ -13,7 +15,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }

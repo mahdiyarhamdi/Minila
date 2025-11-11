@@ -1,5 +1,8 @@
 import axios, { AxiosInstance } from 'axios'
 import type { SignupData, RequestOTPData, VerifyOTPData, AuthTokens, User } from '@/types/auth'
+import type { Card, CardCreate, CardUpdate, CardFilter, CardListResponse } from '@/types/card'
+import type { Community, CommunityCreate, CommunityUpdate, CommunityListResponse, JoinRequest, JoinRequestListResponse, Member, MemberListResponse } from '@/types/community'
+import type { Message, MessageCreate, MessageListResponse, Conversation, ConversationListResponse } from '@/types/message'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -131,6 +134,215 @@ class APIService {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
     }
+  }
+
+  // ==================== Cards API ====================
+
+  /**
+   * دریافت لیست کارت‌ها با فیلتر
+   */
+  async getCards(filters?: CardFilter): Promise<CardListResponse> {
+    const params = new URLSearchParams()
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          params.append(key, String(value))
+        }
+      })
+    }
+    const response = await this.client.get<CardListResponse>(`/api/v1/cards?${params.toString()}`)
+    return response.data
+  }
+
+  /**
+   * دریافت جزئیات یک کارت
+   */
+  async getCardById(id: number): Promise<Card> {
+    const response = await this.client.get<Card>(`/api/v1/cards/${id}`)
+    return response.data
+  }
+
+  /**
+   * ایجاد کارت جدید
+   */
+  async createCard(data: CardCreate): Promise<Card> {
+    const response = await this.client.post<Card>('/api/v1/cards', data)
+    return response.data
+  }
+
+  /**
+   * ویرایش کارت
+   */
+  async updateCard(id: number, data: CardUpdate): Promise<Card> {
+    const response = await this.client.put<Card>(`/api/v1/cards/${id}`, data)
+    return response.data
+  }
+
+  /**
+   * حذف کارت
+   */
+  async deleteCard(id: number): Promise<void> {
+    await this.client.delete(`/api/v1/cards/${id}`)
+  }
+
+  /**
+   * دریافت کارت‌های خودم
+   */
+  async getMyCards(): Promise<CardListResponse> {
+    const response = await this.client.get<CardListResponse>('/api/v1/users/me/cards')
+    return response.data
+  }
+
+  // ==================== Communities API ====================
+
+  /**
+   * دریافت لیست کامیونیتی‌ها
+   */
+  async getCommunities(page: number = 1, page_size: number = 20): Promise<CommunityListResponse> {
+    const response = await this.client.get<CommunityListResponse>(`/api/v1/communities?page=${page}&page_size=${page_size}`)
+    return response.data
+  }
+
+  /**
+   * دریافت جزئیات یک کامیونیتی
+   */
+  async getCommunityById(id: number): Promise<Community> {
+    const response = await this.client.get<Community>(`/api/v1/communities/${id}`)
+    return response.data
+  }
+
+  /**
+   * ایجاد کامیونیتی جدید
+   */
+  async createCommunity(data: CommunityCreate): Promise<Community> {
+    const response = await this.client.post<Community>('/api/v1/communities', data)
+    return response.data
+  }
+
+  /**
+   * ویرایش کامیونیتی
+   */
+  async updateCommunity(id: number, data: CommunityUpdate): Promise<Community> {
+    const response = await this.client.put<Community>(`/api/v1/communities/${id}`, data)
+    return response.data
+  }
+
+  /**
+   * درخواست عضویت در کامیونیتی
+   */
+  async joinCommunityRequest(communityId: number): Promise<JoinRequest> {
+    const response = await this.client.post<JoinRequest>(`/api/v1/communities/${communityId}/join`)
+    return response.data
+  }
+
+  /**
+   * دریافت کامیونیتی‌های من
+   */
+  async getMyCommunities(): Promise<CommunityListResponse> {
+    const response = await this.client.get<CommunityListResponse>('/api/v1/users/me/communities')
+    return response.data
+  }
+
+  /**
+   * دریافت درخواست‌های عضویت یک کامیونیتی
+   */
+  async getJoinRequests(communityId: number, page: number = 1): Promise<JoinRequestListResponse> {
+    const response = await this.client.get<JoinRequestListResponse>(`/api/v1/communities/${communityId}/requests?page=${page}`)
+    return response.data
+  }
+
+  /**
+   * تایید درخواست عضویت
+   */
+  async approveJoinRequest(communityId: number, requestId: number): Promise<void> {
+    await this.client.post(`/api/v1/communities/${communityId}/requests/${requestId}/approve`)
+  }
+
+  /**
+   * رد درخواست عضویت
+   */
+  async rejectJoinRequest(communityId: number, requestId: number): Promise<void> {
+    await this.client.post(`/api/v1/communities/${communityId}/requests/${requestId}/reject`)
+  }
+
+  /**
+   * دریافت اعضای یک کامیونیتی
+   */
+  async getCommunityMembers(communityId: number, page: number = 1): Promise<MemberListResponse> {
+    const response = await this.client.get<MemberListResponse>(`/api/v1/communities/${communityId}/members?page=${page}`)
+    return response.data
+  }
+
+  /**
+   * حذف عضو از کامیونیتی (ban)
+   */
+  async removeCommunityMember(communityId: number, userId: number): Promise<void> {
+    await this.client.delete(`/api/v1/communities/${communityId}/members/${userId}`)
+  }
+
+  // ==================== Messages API ====================
+
+  /**
+   * دریافت لیست مکالمات
+   */
+  async getConversations(): Promise<ConversationListResponse> {
+    const response = await this.client.get<ConversationListResponse>('/api/v1/messages/conversations')
+    return response.data
+  }
+
+  /**
+   * دریافت پیام‌ها با یک کاربر
+   */
+  async getMessages(userId: number, page: number = 1): Promise<MessageListResponse> {
+    const response = await this.client.get<MessageListResponse>(`/api/v1/messages/${userId}?page=${page}`)
+    return response.data
+  }
+
+  /**
+   * ارسال پیام
+   */
+  async sendMessage(data: MessageCreate): Promise<Message> {
+    const response = await this.client.post<Message>('/api/v1/messages', data)
+    return response.data
+  }
+
+  /**
+   * علامت‌گذاری پیام به عنوان خوانده شده
+   */
+  async markMessageAsRead(messageId: number): Promise<void> {
+    await this.client.put(`/api/v1/messages/${messageId}/read`)
+  }
+
+  // ==================== Profile & Block API ====================
+
+  /**
+   * ویرایش پروفایل
+   */
+  async updateProfile(data: { first_name?: string; last_name?: string }): Promise<User> {
+    const response = await this.client.put<User>('/api/v1/users/me', data)
+    return response.data
+  }
+
+  /**
+   * دریافت لیست کاربران بلاک شده
+   */
+  async getBlockedUsers(): Promise<User[]> {
+    const response = await this.client.get<User[]>('/api/v1/users/me/blocked')
+    return response.data
+  }
+
+  /**
+   * بلاک کردن کاربر
+   */
+  async blockUser(userId: number): Promise<void> {
+    await this.client.post(`/api/v1/users/block/${userId}`)
+  }
+
+  /**
+   * آنبلاک کردن کاربر
+   */
+  async unblockUser(userId: number): Promise<void> {
+    await this.client.delete(`/api/v1/users/block/${userId}`)
   }
 }
 
