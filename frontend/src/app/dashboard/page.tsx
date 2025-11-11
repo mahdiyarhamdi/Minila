@@ -10,7 +10,7 @@ import { apiService } from '@/lib/api'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, isLoading, isAuthenticated, logout } = useAuth()
+  const { user, isLoading, isAuthenticated } = useAuth()
 
   // State برای فرم تغییر رمز عبور
   const [oldPassword, setOldPassword] = useState('')
@@ -25,11 +25,6 @@ export default function DashboardPage() {
       router.push('/auth/login')
     }
   }, [isLoading, isAuthenticated, router])
-
-  const handleLogout = () => {
-    logout()
-    router.push('/auth/login')
-  }
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,29 +87,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <header className="bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-black text-neutral-900">Minila</h1>
-            
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-neutral-600 font-medium">
-                {user.first_name} {user.last_name}
-              </span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                خروج
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-extrabold text-neutral-900 mb-2">
-            خوش آمدید، {user.first_name}! 👋
+            خوش آمدید، {user.first_name}!
           </h2>
           <p className="text-neutral-600 font-light text-base">
             از داشبورد خود می‌توانید کارت‌ها را مدیریت کنید و پیام‌های خود را مشاهده کنید.

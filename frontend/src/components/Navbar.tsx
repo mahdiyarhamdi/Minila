@@ -28,10 +28,10 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: '/dashboard', label: 'داشبورد', icon: '🏠' },
-    { href: '/cards', label: 'کارت‌ها', icon: '🚗' },
-    { href: '/communities', label: 'کامیونیتی‌ها', icon: '👥' },
-    { href: '/messages', label: 'پیام‌ها', icon: '💬', badge: 0 },
+    { href: '/dashboard', label: 'داشبورد' },
+    { href: '/cards', label: 'کارت‌ها' },
+    { href: '/communities', label: 'کامیونیتی‌ها' },
+    { href: '/messages', label: 'پیام‌ها', badge: 0 },
   ]
 
   return (
@@ -56,7 +56,6 @@ export default function Navbar() {
                     : 'text-neutral-700 hover:bg-neutral-100'
                 )}
               >
-                <span className="ml-2">{link.icon}</span>
                 {link.label}
                 {link.badge !== undefined && link.badge > 0 && (
                   <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -159,7 +158,6 @@ export default function Navbar() {
                       : 'text-neutral-700 hover:bg-neutral-100'
                   )}
                 >
-                  <span className="ml-2">{link.icon}</span>
                   {link.label}
                 </Link>
               ))}
