@@ -257,6 +257,18 @@ curl http://localhost:8000/api/v1/users/me \
 # جست‌وجوی کارت‌ها
 curl "http://localhost:8000/api/v1/cards/?origin_city_id=1&destination_city_id=2&is_sender=false"
 
+# جستجوی کشورها (autocomplete)
+curl "http://localhost:8000/api/v1/locations/countries/search?q=ایران&limit=10"
+
+# جستجوی شهرها در یک کشور (autocomplete)
+curl "http://localhost:8000/api/v1/locations/cities/search?country_id=1&q=تهران&limit=10"
+
+# دریافت اطلاعات یک کشور
+curl "http://localhost:8000/api/v1/locations/countries/1"
+
+# دریافت اطلاعات یک شهر
+curl "http://localhost:8000/api/v1/locations/cities/1"
+
 # ایجاد کارت
 curl -X POST http://localhost:8000/api/v1/cards/ \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -330,6 +342,22 @@ alembic history
 # بررسی وضعیت فعلی
 alembic current
 ```
+
+### Populate کردن داده‌های Location
+
+برای استفاده از سیستم autocomplete کشورها و شهرها، باید ابتدا دیتابیس را populate کنید:
+
+```bash
+# اجرای اسکریپت populate (دانلود از GeoNames و ذخیره در دیتابیس)
+python3 scripts/populate_locations.py
+```
+
+**توجه**: این اسکریپت داده‌های زیر را دانلود و در دیتابیس ذخیره می‌کند:
+- همه کشورهای دنیا با نام‌های سه‌زبانه (فارسی، انگلیسی، عربی)
+- شهرهایی که فرودگاه دارند (با کد IATA)
+- منبع داده: [GeoNames](http://www.geonames.org/)
+
+اجرای این اسکریپت ممکن است چند دقیقه طول بکشد.
 
 ### ساخت وابستگی جدید
 

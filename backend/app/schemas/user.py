@@ -16,23 +16,8 @@ class AvatarOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CountryOut(BaseModel):
-    """خروجی Country."""
-    
-    id: int
-    name: str
-    
-    model_config = ConfigDict(from_attributes=True)
-
-
-class CityOut(BaseModel):
-    """خروجی City."""
-    
-    id: int
-    name: str
-    country_id: int
-    
-    model_config = ConfigDict(from_attributes=True)
+# Import location schemas from location module
+from .location import CountryOut, CityOut
 
 
 # ========== User Schemas ==========

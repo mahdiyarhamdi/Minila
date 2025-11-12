@@ -344,6 +344,77 @@ class APIService {
   async unblockUser(userId: number): Promise<void> {
     await this.client.delete(`/api/v1/users/block/${userId}`)
   }
+
+  // ==================== Location API ====================
+
+  /**
+   * جستجوی کشورها
+   */
+  async searchCountries(
+    query: string,
+    limit: number = 10
+  ): Promise<import('@/types/location').CountrySearchResult> {
+    const response = await this.client.get('/api/v1/locations/countries/search', {
+      params: { q: query, limit },
+    })
+    return response.data
+  }
+
+  /**
+   * جستجوی شهرها در یک کشور
+   */
+  async searchCities(
+    countryId: number,
+    query: string,
+    limit: number = 10
+  ): Promise<import('@/types/location').CitySearchResult> {
+    const response = await this.client.get('/api/v1/locations/cities/search', {
+      params: { country_id: countryId, q: query, limit },
+    })
+    return response.data
+  }
+
+  /**
+   * دریافت اطلاعات یک کشور
+   */
+  async getCountry(countryId: number): Promise<import('@/types/location').Country> {
+    const response = await this.client.get(`/api/v1/locations/countries/${countryId}`)
+    return response.data
+  }
+
+  /**
+   * دریافت اطلاعات یک شهر
+   */
+  async getCity(cityId: number): Promise<import('@/types/location').City> {
+    const response = await this.client.get(`/api/v1/locations/cities/${cityId}`)
+    return response.data
+  }
+
+  /**
+   * دریافت همه کشورها
+   */
+  async getAllCountries(
+    limit: number = 250
+  ): Promise<import('@/types/location').CountrySearchResult> {
+    const response = await this.client.get('/api/v1/locations/countries', {
+      params: { limit },
+    })
+    return response.data
+  }
+
+  /**
+   * دریافت همه شهرهای یک کشور
+   */
+  async getCitiesByCountry(
+    countryId: number,
+    limit: number = 500
+  ): Promise<import('@/types/location').CitySearchResult> {
+    const response = await this.client.get(
+      `/api/v1/locations/countries/${countryId}/cities`,
+      { params: { limit } }
+    )
+    return response.data
+  }
 }
 
 export const apiService = new APIService()

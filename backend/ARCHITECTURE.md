@@ -774,13 +774,95 @@ async def test_do_business_logic():
 
 ---
 
+## 🌍 سیستم Location و Autocomplete
+
+سیستم جستجوی کشورها و شهرها با پشتیبانی چندزبانه (فارسی، انگلیسی، عربی):
+
+### ویژگی‌ها
+
+- **چندزبانه**: نام‌های کشورها و شهرها به سه زبان فارسی، انگلیسی و عربی
+- **فرودگاه‌محور**: فقط شهرهایی که دارای فرودگاه هستند (کد IATA)
+- **Autocomplete**: جستجوی real-time با debounce در frontend
+- **Indexed Search**: استفاده از index های دیتابیس برای جستجوی سریع
+- **منبع داده**: GeoNames (http://www.geonames.org/)
+
+### معماری
+
+```
+Frontend (cards/new page)
+  ↓ کاربر تایپ می‌کند
+Autocomplete Component (300ms debounce)
+  ↓ API call
+Location Router (/api/v1/locations/*)
+  ↓
+Location Repository (search methods)
+  ↓
+PostgreSQL (با index های optimized)
+```
+
+### مدل‌ها
+
+**Country**:
+- `id`: شناسه یکتا
+- `name`: نام اصلی (انگلیسی)
+- `name_en`, `name_fa`, `name_ar`: نام‌های سه‌زبانه
+- `iso_code`: کد ISO دو حرفی (مثل IR, AE)
+
+**City**:
+- `id`: شناسه یکتا
+- `name`: نام اصلی (انگلیسی)
+- `name_en`, `name_fa`, `name_ar`: نام‌های سه‌زبانه
+- `airport_code`: کد IATA فرودگاه (سه حرفی)
+- `country_id`: Foreign key به Country
+
+### Endpoints
+
+```
+GET /api/v1/locations/countries/search?q={query}&limit=10
+  → جستجوی autocomplete کشورها
+
+GET /api/v1/locations/cities/search?country_id={id}&q={query}&limit=10
+  → جستجوی autocomplete شهرها در یک کشور
+
+GET /api/v1/locations/countries/{id}
+  → دریافت اطلاعات یک کشور
+
+GET /api/v1/locations/cities/{id}
+  → دریافت اطلاعات یک شهر
+```
+
+### رفتار UI
+
+1. کاربر وارد صفحه `/cards/new` می‌شود
+2. فیلد "کشور مبدأ" فعال است، کاربر شروع به تایپ می‌کند
+3. فیلد "شهر مبدأ" **قفل** است (disabled) تا کشور انتخاب شود
+4. پس از انتخاب کشور، فیلد شهر **باز** می‌شود (enabled)
+5. جستجوی شهرها فقط در کشور انتخاب شده انجام می‌شود
+6. همین فرآیند برای "مقصد" نیز تکرار می‌شود
+
+### Populate Data
+
+داده‌ها از GeoNames دانلود و در دیتابیس ذخیره می‌شوند:
+
+```bash
+python3 scripts/populate_locations.py
+```
+
+این اسکریپت:
+1. countryInfo.txt را دانلود و پارس می‌کند
+2. allCountries.txt را دانلود و شهرهای دارای فرودگاه را فیلتر می‌کند
+3. alternateNamesV2.txt را دانلود و نام‌های فارسی/عربی را استخراج می‌کند
+4. همه را در دیتابیس ذخیره می‌کند
+
+---
+
 ## 🔗 نمودار روابط اصلی
 
 ```
 User
  ├─→ Avatar (optional)
- ├─→ Country (optional)
- ├─→ City (optional)
+ ├─→ Country (optional, with multilingual names)
+ ├─→ City (optional, with multilingual names)
  ├─→ Membership (many) → Community + Role
  ├─→ Request (many) → Community
  ├─→ Card (many)
@@ -799,12 +881,20 @@ Community
 
 Card
  ├─→ Owner (User)
- ├─→ Origin Country/City
- ├─→ Destination Country/City
+ ├─→ Origin Country/City (with multilingual names)
+ ├─→ Destination Country/City (with multilingual names)
  ├─→ ProductClassification (optional)
  ├─→ CardCommunity (many) → Community
  ├─→ Report (many)
  └─→ Log
+
+Country (new)
+ ├─→ City (many)
+ └─→ User/Card (as location reference)
+
+City (new)
+ ├─→ Country (foreign key)
+ └─→ User/Card (as location reference)
 
 Role ←→ Access (many-to-many via RoleAccess)
 ```
@@ -821,6 +911,6 @@ Role ←→ Access (many-to-many via RoleAccess)
 
 ---
 
-**آخرین به‌روزرسانی**: 2025-10-30  
+**آخرین به‌روزرسانی**: 2025-11-12  
 **نگهدارنده**: تیم Minila
 

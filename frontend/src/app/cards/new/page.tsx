@@ -9,8 +9,33 @@ import Input from '@/components/Input'
 import Select from '@/components/Select'
 import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
+import Autocomplete from '@/components/Autocomplete'
 import { useToast } from '@/components/Toast'
-import type { CardCreate } from '@/types/card'
+import { apiService } from '@/lib/api'
+import type { Country, City } from '@/types/location'
+
+interface AutocompleteOption {
+  id: number
+  label: string
+  value: string
+}
+
+interface CardFormData {
+  is_sender: boolean
+  origin_country_id?: number
+  origin_city_id?: number
+  destination_country_id?: number
+  destination_city_id?: number
+  start_time_frame?: string
+  end_time_frame?: string
+  ticket_date_time?: string
+  weight?: number
+  is_packed?: boolean
+  price_aed?: number
+  description?: string
+  product_classification_id?: number
+  community_ids?: number[]
+}
 
 /**
  * صفحه ایجاد کارت جدید
@@ -21,21 +46,24 @@ export default function NewCardPage() {
   const createCardMutation = useCreateCard()
   const { data: communities } = useMyCommunities()
 
-  const [formData, setFormData] = useState<CardCreate>({
-    origin: '',
-    destination: '',
-    travel_date: '',
-    capacity_kg: undefined,
-    price: undefined,
-    category: 'سایر',
-    packaging_status: 'بدون بسته‌بندی',
+  // State for location selections
+  const [originCountry, setOriginCountry] = useState<AutocompleteOption | null>(null)
+  const [originCity, setOriginCity] = useState<AutocompleteOption | null>(null)
+  const [destinationCountry, setDestinationCountry] = useState<AutocompleteOption | null>(null)
+  const [destinationCity, setDestinationCity] = useState<AutocompleteOption | null>(null)
+
+  const [formData, setFormData] = useState<CardFormData>({
+    is_sender: false,
+    weight: undefined,
+    is_packed: undefined,
+    price_aed: undefined,
     description: '',
     community_ids: [],
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleChange = (field: keyof CardCreate, value: any) => {
+  const handleChange = (field: keyof CardFormData, value: any) => {
     setFormData({ ...formData, [field]: value })
     // Clear error when user starts typing
     if (errors[field]) {
@@ -43,20 +71,68 @@ export default function NewCardPage() {
     }
   }
 
+  // جستجوی کشورها
+  const searchCountries = async (query: string): Promise<AutocompleteOption[]> => {
+    try {
+      const result = await apiService.searchCountries(query, 10)
+      return result.items.map((country: Country) => ({
+        id: country.id,
+        label: country.name_fa,
+        value: String(country.id),
+      }))
+    } catch (error) {
+      console.error('Error searching countries:', error)
+      return []
+    }
+  }
+
+  // جستجوی شهرها
+  const searchCities = (countryId: number) => async (query: string): Promise<AutocompleteOption[]> => {
+    try {
+      const result = await apiService.searchCities(countryId, query, 10)
+      return result.items.map((city: City) => ({
+        id: city.id,
+        label: `${city.name_fa} (${city.airport_code || ''})`,
+        value: String(city.id),
+      }))
+    } catch (error) {
+      console.error('Error searching cities:', error)
+      return []
+    }
+  }
+
+  // هنگامی که کشور مبدأ تغییر می‌کند، شهر را reset کن
+  const handleOriginCountryChange = (option: AutocompleteOption | null) => {
+    setOriginCountry(option)
+    setOriginCity(null)
+    if (errors.origin_country_id) {
+      setErrors({ ...errors, origin_country_id: '' })
+    }
+  }
+
+  // هنگامی که کشور مقصد تغییر می‌کند، شهر را reset کن
+  const handleDestinationCountryChange = (option: AutocompleteOption | null) => {
+    setDestinationCountry(option)
+    setDestinationCity(null)
+    if (errors.destination_country_id) {
+      setErrors({ ...errors, destination_country_id: '' })
+    }
+  }
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.origin.trim()) {
-      newErrors.origin = 'مبدأ الزامی است'
+    if (!originCountry) {
+      newErrors.origin_country = 'کشور مبدأ الزامی است'
     }
-    if (!formData.destination.trim()) {
-      newErrors.destination = 'مقصد الزامی است'
+    if (!originCity) {
+      newErrors.origin_city = 'شهر مبدأ الزامی است'
     }
-    if (!formData.category) {
-      newErrors.category = 'دسته‌بندی الزامی است'
+    if (!destinationCountry) {
+      newErrors.destination_country = 'کشور مقصد الزامی است'
     }
-    if (!formData.packaging_status) {
-      newErrors.packaging_status = 'وضعیت بسته‌بندی الزامی است'
+    if (!destinationCity) {
+      newErrors.destination_city = 'شهر مقصد الزامی است'
     }
 
     setErrors(newErrors)
@@ -72,13 +148,27 @@ export default function NewCardPage() {
     }
 
     try {
-      // تبدیل مقادیر خالی به undefined
-      const submitData = {
-        ...formData,
-        capacity_kg: formData.capacity_kg ? Number(formData.capacity_kg) : undefined,
-        price: formData.price ? Number(formData.price) : undefined,
-        travel_date: formData.travel_date || undefined,
+      // تبدیل مقادیر خالی به undefined و ساخت submitData
+      const submitData: any = {
+        is_sender: formData.is_sender,
+        origin_country_id: originCountry!.id,
+        origin_city_id: originCity!.id,
+        destination_country_id: destinationCountry!.id,
+        destination_city_id: destinationCity!.id,
+        weight: formData.weight ? Number(formData.weight) : undefined,
+        is_packed: formData.is_packed,
+        price_aed: formData.price_aed ? Number(formData.price_aed) : undefined,
+        description: formData.description || undefined,
+        product_classification_id: formData.product_classification_id,
         community_ids: formData.community_ids?.length ? formData.community_ids : undefined,
+      }
+
+      // Add time fields based on card type
+      if (formData.is_sender) {
+        submitData.start_time_frame = formData.start_time_frame || undefined
+        submitData.end_time_frame = formData.end_time_frame || undefined
+      } else {
+        submitData.ticket_date_time = formData.ticket_date_time || undefined
       }
 
       const newCard = await createCardMutation.mutateAsync(submitData)
@@ -121,79 +211,137 @@ export default function NewCardPage() {
         <form onSubmit={handleSubmit}>
           <Card variant="elevated" className="p-6 sm:p-8 mb-6">
             <div className="space-y-6">
-              {/* مبدأ و مقصد */}
+              {/* مبدأ */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="مبدأ *"
-                  placeholder="شهر مبدأ"
-                  value={formData.origin}
-                  onChange={(e) => handleChange('origin', e.target.value)}
-                  error={errors.origin}
+                <Autocomplete
+                  label="کشور مبدأ"
+                  placeholder="جستجوی کشور..."
+                  value={originCountry}
+                  onChange={handleOriginCountryChange}
+                  onSearch={searchCountries}
+                  error={errors.origin_country}
+                  required
                 />
-                <Input
-                  label="مقصد *"
-                  placeholder="شهر مقصد"
-                  value={formData.destination}
-                  onChange={(e) => handleChange('destination', e.target.value)}
-                  error={errors.destination}
+                <Autocomplete
+                  label="شهر مبدأ"
+                  placeholder="جستجوی شهر..."
+                  value={originCity}
+                  onChange={(option) => {
+                    setOriginCity(option)
+                    if (errors.origin_city) {
+                      setErrors({ ...errors, origin_city: '' })
+                    }
+                  }}
+                  onSearch={originCountry ? searchCities(originCountry.id) : async () => []}
+                  disabled={!originCountry}
+                  error={errors.origin_city}
+                  helperText={!originCountry ? 'ابتدا کشور را انتخاب کنید' : undefined}
+                  required
                 />
               </div>
 
-              {/* تاریخ سفر */}
-              <Input
-                label="تاریخ سفر"
-                type="date"
-                value={formData.travel_date}
-                onChange={(e) => handleChange('travel_date', e.target.value)}
-                helperText="اختیاری - تاریخ مورد نظر برای سفر"
+              {/* مقصد */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Autocomplete
+                  label="کشور مقصد"
+                  placeholder="جستجوی کشور..."
+                  value={destinationCountry}
+                  onChange={handleDestinationCountryChange}
+                  onSearch={searchCountries}
+                  error={errors.destination_country}
+                  required
+                />
+                <Autocomplete
+                  label="شهر مقصد"
+                  placeholder="جستجوی شهر..."
+                  value={destinationCity}
+                  onChange={(option) => {
+                    setDestinationCity(option)
+                    if (errors.destination_city) {
+                      setErrors({ ...errors, destination_city: '' })
+                    }
+                  }}
+                  onSearch={destinationCountry ? searchCities(destinationCountry.id) : async () => []}
+                  disabled={!destinationCountry}
+                  error={errors.destination_city}
+                  helperText={!destinationCountry ? 'ابتدا کشور را انتخاب کنید' : undefined}
+                  required
+                />
+              </div>
+
+              {/* نوع کارت */}
+              <Select
+                label="نوع کارت"
+                value={formData.is_sender ? 'sender' : 'traveler'}
+                onChange={(e) => handleChange('is_sender', e.target.value === 'sender')}
+                options={[
+                  { value: 'traveler', label: 'مسافر (حمل بار)' },
+                  { value: 'sender', label: 'فرستنده بار' },
+                ]}
               />
 
-              {/* ظرفیت و قیمت */}
+              {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
+              {formData.is_sender ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="شروع بازه زمانی"
+                    type="datetime-local"
+                    value={formData.start_time_frame || ''}
+                    onChange={(e) => handleChange('start_time_frame', e.target.value)}
+                    helperText="اختیاری"
+                  />
+                  <Input
+                    label="پایان بازه زمانی"
+                    type="datetime-local"
+                    value={formData.end_time_frame || ''}
+                    onChange={(e) => handleChange('end_time_frame', e.target.value)}
+                    helperText="اختیاری"
+                  />
+                </div>
+              ) : (
+                <Input
+                  label="تاریخ دقیق سفر"
+                  type="datetime-local"
+                  value={formData.ticket_date_time || ''}
+                  onChange={(e) => handleChange('ticket_date_time', e.target.value)}
+                  helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
+                />
+              )}
+
+              {/* وزن و قیمت */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="ظرفیت (کیلوگرم)"
+                  label="وزن (کیلوگرم)"
                   type="number"
-                  placeholder="مثال: 20"
-                  value={formData.capacity_kg || ''}
-                  onChange={(e) => handleChange('capacity_kg', e.target.value)}
+                  step="0.1"
+                  placeholder="مثال: 5.5"
+                  value={formData.weight || ''}
+                  onChange={(e) => handleChange('weight', e.target.value)}
                   helperText="اختیاری"
                 />
                 <Input
-                  label="قیمت پیشنهادی (تومان)"
+                  label="قیمت پیشنهادی (درهم امارات)"
                   type="number"
-                  placeholder="مثال: 500000"
-                  value={formData.price || ''}
-                  onChange={(e) => handleChange('price', e.target.value)}
+                  step="0.01"
+                  placeholder="مثال: 50"
+                  value={formData.price_aed || ''}
+                  onChange={(e) => handleChange('price_aed', e.target.value)}
                   helperText="اختیاری"
                 />
               </div>
 
-              {/* دسته‌بندی و بسته‌بندی */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Select
-                  label="دسته‌بندی کالا *"
-                  value={formData.category}
-                  onChange={(e) => handleChange('category', e.target.value)}
-                  error={errors.category}
-                  options={[
-                    { value: 'پوشاک', label: 'پوشاک' },
-                    { value: 'خوراکی', label: 'خوراکی' },
-                    { value: 'الکترونیک', label: 'الکترونیک' },
-                    { value: 'لوازم خانگی', label: 'لوازم خانگی' },
-                    { value: 'سایر', label: 'سایر' },
-                  ]}
-                />
-                <Select
-                  label="وضعیت بسته‌بندی *"
-                  value={formData.packaging_status}
-                  onChange={(e) => handleChange('packaging_status', e.target.value)}
-                  error={errors.packaging_status}
-                  options={[
-                    { value: 'بسته‌بندی شده', label: 'بسته‌بندی شده' },
-                    { value: 'بدون بسته‌بندی', label: 'بدون بسته‌بندی' },
-                  ]}
-                />
-              </div>
+              {/* وضعیت بسته‌بندی */}
+              <Select
+                label="وضعیت بسته‌بندی"
+                value={formData.is_packed === undefined ? '' : formData.is_packed ? 'true' : 'false'}
+                onChange={(e) => handleChange('is_packed', e.target.value === 'true' ? true : e.target.value === 'false' ? false : undefined)}
+                options={[
+                  { value: '', label: 'نامشخص' },
+                  { value: 'true', label: 'بسته‌بندی شده' },
+                  { value: 'false', label: 'بدون بسته‌بندی' },
+                ]}
+              />
+
 
               {/* توضیحات */}
               <Textarea
