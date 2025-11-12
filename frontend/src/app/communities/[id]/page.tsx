@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCommunity, useCommunityMembers, useJoinCommunity } from '@/hooks/useCommunities'
@@ -16,9 +16,8 @@ import { useToast } from '@/components/Toast'
 /**
  * صفحه جزئیات کامیونیتی
  */
-export default function CommunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params)
-  const communityId = parseInt(resolvedParams.id)
+export default function CommunityDetailPage({ params }: { params: { id: string } }) {
+  const communityId = parseInt(params.id)
   const router = useRouter()
   const { user } = useAuth()
   const { showToast } = useToast()

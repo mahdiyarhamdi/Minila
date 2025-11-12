@@ -4,24 +4,52 @@
 
 export interface Card {
   id: number
-  origin: string
-  destination: string
-  travel_date?: string
-  capacity_kg?: number
-  price?: number
-  category: string
-  packaging_status: string
-  description?: string
-  owner_id: number
   owner: {
     id: number
-    first_name: string
-    last_name: string
-    email: string
+    first_name?: string
+    last_name?: string
+  }
+  is_sender: boolean
+  origin_country: {
+    id: number
+    name: string
+  }
+  origin_city: {
+    id: number
+    name: string
+    country_id: number
+  }
+  destination_country: {
+    id: number
+    name: string
+  }
+  destination_city: {
+    id: number
+    name: string
+    country_id: number
+  }
+  start_time_frame?: string
+  end_time_frame?: string
+  ticket_date_time?: string
+  weight?: number
+  is_packed?: boolean
+  price_aed?: number
+  description?: string
+  product_classification?: {
+    id: number
+    name: string
   }
   communities?: Community[]
   created_at: string
-  updated_at: string
+  
+  // Legacy fields for backward compatibility (computed)
+  origin?: string
+  destination?: string
+  travel_date?: string
+  capacity_kg?: number
+  price?: number
+  category?: string
+  packaging_status?: string
 }
 
 export interface CardCreate {

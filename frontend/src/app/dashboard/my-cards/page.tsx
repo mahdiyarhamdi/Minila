@@ -37,15 +37,19 @@ export default function MyCardsPage() {
   // فیلتر کارت‌ها بر اساس تب فعال
   const filteredCards = data?.items.filter((card) => {
     if (activeTab === 'all') return true
+    
+    // تاریخ سفر (برای مسافران) یا انتهای بازه زمانی (برای فرستندگان)
+    const travelDate = card.ticket_date_time || card.end_time_frame
+    
     if (activeTab === 'active') {
       // کارت‌های فعال (تاریخ سفر هنوز نگذشته یا تاریخ ندارد)
-      if (!card.travel_date) return true
-      return new Date(card.travel_date) >= new Date()
+      if (!travelDate) return true
+      return new Date(travelDate) >= new Date()
     }
     if (activeTab === 'expired') {
       // کارت‌های منقضی شده
-      if (!card.travel_date) return false
-      return new Date(card.travel_date) < new Date()
+      if (!travelDate) return false
+      return new Date(travelDate) < new Date()
     }
     return true
   })
@@ -82,14 +86,18 @@ export default function MyCardsPage() {
               {
                 id: 'active',
                 label: 'فعال',
-                count: data?.items.filter((c) => !c.travel_date || new Date(c.travel_date) >= new Date())
-                  .length,
+                count: data?.items.filter((c) => {
+                  const travelDate = c.ticket_date_time || c.end_time_frame
+                  return !travelDate || new Date(travelDate) >= new Date()
+                }).length,
               },
               {
                 id: 'expired',
                 label: 'منقضی شده',
-                count: data?.items.filter((c) => c.travel_date && new Date(c.travel_date) < new Date())
-                  .length,
+                count: data?.items.filter((c) => {
+                  const travelDate = c.ticket_date_time || c.end_time_frame
+                  return travelDate && new Date(travelDate) < new Date()
+                }).length,
               },
             ]}
             activeTab={activeTab}

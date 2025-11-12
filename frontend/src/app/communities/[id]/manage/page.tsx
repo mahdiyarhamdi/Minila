@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   useCommunity,
@@ -22,9 +22,8 @@ import { useToast } from '@/components/Toast'
 /**
  * صفحه مدیریت کامیونیتی (فقط برای Manager)
  */
-export default function ManageCommunityPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params)
-  const communityId = parseInt(resolvedParams.id)
+export default function ManageCommunityPage({ params }: { params: { id: string } }) {
+  const communityId = parseInt(params.id)
   const { showToast } = useToast()
   const { data: community, isLoading } = useCommunity(communityId)
   const { data: requests } = useJoinRequests(communityId)

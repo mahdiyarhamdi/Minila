@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useCard, useDeleteCard } from '@/hooks/useCards'
@@ -15,9 +15,8 @@ import { useToast } from '@/components/Toast'
 /**
  * صفحه جزئیات کارت
  */
-export default function CardDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params)
-  const cardId = parseInt(resolvedParams.id)
+export default function CardDetailPage({ params }: { params: { id: string } }) {
+  const cardId = parseInt(params.id)
   const router = useRouter()
   const { user } = useAuth()
   const { showToast } = useToast()
@@ -37,7 +36,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
 
   const handleSendMessage = () => {
     if (card) {
-      router.push(`/messages/${card.owner_id}`)
+      router.push(`/messages/${card.owner.id}`)
     }
   }
 
@@ -64,7 +63,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
     )
   }
 
-  const isOwner = user?.id === card.owner_id.toString()
+  const isOwner = user?.id === card.owner.id.toString()
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -83,11 +82,20 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
             <div className="flex-1">
               <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
-                {card.origin} → {card.destination}
+                {card.origin_city.name} → {card.destination_city.name}
               </h1>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="info">{card.category}</Badge>
-                <Badge variant="neutral">{card.packaging_status}</Badge>
+                <Badge variant={card.is_sender ? "warning" : "info"}>
+                  {card.is_sender ? 'فرستنده کالا' : 'مسافر'}
+                </Badge>
+                {card.product_classification && (
+                  <Badge variant="neutral">{card.product_classification.name}</Badge>
+                )}
+                {card.is_packed !== null && card.is_packed !== undefined && (
+                  <Badge variant={card.is_packed ? "success" : "neutral"}>
+                    {card.is_packed ? 'بسته‌بندی شده' : 'بسته‌بندی نشده'}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -115,30 +123,66 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {card.travel_date && (
-              <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">تاریخ سفر</h3>
-                <p className="text-lg text-neutral-900">{new Date(card.travel_date).toLocaleDateString('fa-IR')}</p>
-              </div>
-            )}
-
-            {card.capacity_kg && (
-              <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">ظرفیت</h3>
-                <p className="text-lg text-neutral-900">{card.capacity_kg} کیلوگرم</p>
-              </div>
-            )}
-
-            {card.price && (
-              <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">قیمت پیشنهادی</h3>
-                <p className="text-lg font-bold text-primary-600">{card.price.toLocaleString('fa-IR')} تومان</p>
-              </div>
-            )}
+            {/* مبدأ و مقصد کامل */}
+            <div>
+              <h3 className="text-sm font-medium text-neutral-600 mb-1">مبدأ</h3>
+              <p className="text-lg text-neutral-900">
+                {card.origin_city.name}, {card.origin_country.name}
+              </p>
+            </div>
 
             <div>
+              <h3 className="text-sm font-medium text-neutral-600 mb-1">مقصد</h3>
+              <p className="text-lg text-neutral-900">
+                {card.destination_city.name}, {card.destination_country.name}
+              </p>
+            </div>
+
+            {/* تاریخ سفر */}
+            {card.ticket_date_time && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">تاریخ سفر</h3>
+                <p className="text-lg text-neutral-900">
+                  {new Date(card.ticket_date_time).toLocaleDateString('fa-IR')}
+                </p>
+              </div>
+            )}
+
+            {/* بازه زمانی برای فرستنده */}
+            {card.start_time_frame && card.end_time_frame && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">بازه زمانی</h3>
+                <p className="text-lg text-neutral-900">
+                  {new Date(card.start_time_frame).toLocaleDateString('fa-IR')} تا{' '}
+                  {new Date(card.end_time_frame).toLocaleDateString('fa-IR')}
+                </p>
+              </div>
+            )}
+
+            {/* وزن */}
+            {card.weight && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">وزن</h3>
+                <p className="text-lg text-neutral-900">{card.weight} کیلوگرم</p>
+              </div>
+            )}
+
+            {/* قیمت */}
+            {card.price_aed && (
+              <div>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">قیمت پیشنهادی</h3>
+                <p className="text-lg font-bold text-primary-600">
+                  {card.price_aed.toLocaleString('fa-IR')} درهم
+                </p>
+              </div>
+            )}
+
+            {/* تاریخ ایجاد */}
+            <div>
               <h3 className="text-sm font-medium text-neutral-600 mb-1">تاریخ ایجاد</h3>
-              <p className="text-lg text-neutral-900">{new Date(card.created_at).toLocaleDateString('fa-IR')}</p>
+              <p className="text-lg text-neutral-900">
+                {new Date(card.created_at).toLocaleDateString('fa-IR')}
+              </p>
             </div>
           </div>
 
@@ -156,14 +200,16 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
                 <span className="text-primary-600 font-bold text-lg">
-                  {card.owner.first_name[0]}
+                  {card.owner.first_name?.[0] || '؟'}
                 </span>
               </div>
               <div>
                 <p className="font-medium text-neutral-900">
-                  {card.owner.first_name} {card.owner.last_name}
+                  {card.owner.first_name && card.owner.last_name
+                    ? `${card.owner.first_name} ${card.owner.last_name}`
+                    : 'کاربر'}
                 </p>
-                <p className="text-sm text-neutral-600 font-light" dir="ltr">{card.owner.email}</p>
+                <p className="text-sm text-neutral-600 font-light">شناسه: {card.owner.id}</p>
               </div>
             </div>
           </div>

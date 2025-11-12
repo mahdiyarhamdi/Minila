@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useMessages, useSendMessage } from '@/hooks/useMessages'
 import { useAuth } from '@/contexts/AuthContext'
@@ -15,9 +15,8 @@ import { useToast } from '@/components/Toast'
 /**
  * صفحه چت با یک کاربر
  */
-export default function ChatPage({ params }: { params: Promise<{ userId: string }> }) {
-  const resolvedParams = use(params)
-  const receiverId = parseInt(resolvedParams.userId)
+export default function ChatPage({ params }: { params: { userId: string } }) {
+  const receiverId = parseInt(params.userId)
   const { user } = useAuth()
   const { showToast } = useToast()
   const { data: messagesData, isLoading } = useMessages(receiverId)
