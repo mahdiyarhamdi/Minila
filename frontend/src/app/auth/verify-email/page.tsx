@@ -9,6 +9,7 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
 import { apiService } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 // Schema برای validation
 const otpSchema = z.object({
@@ -19,6 +20,7 @@ type OTPFormData = z.infer<typeof otpSchema>
 
 export default function VerifyEmailPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -47,10 +49,12 @@ export default function VerifyEmailPage() {
   const onSubmit = async (data: OTPFormData) => {
     try {
       setError('')
-      await apiService.verifyEmail({
+      const tokens = await apiService.verifyEmail({
         email,
         otp_code: data.otp_code,
       })
+      // به‌روزرسانی state جهانی با اطلاعات کاربر
+      await login(tokens.access_token, tokens.refresh_token)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.detail || 'کد OTP نامعتبر یا منقضی شده است.')

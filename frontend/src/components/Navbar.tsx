@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import Button from './Button'
 
 /**
@@ -17,12 +17,35 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
+  // بستن منوها هنگام تغییر وضعیت کاربر (login/logout)
+  useEffect(() => {
+    setProfileMenuOpen(false)
+    setMobileMenuOpen(false)
+  }, [user])
+
+  // بستن منو پروفایل با کلیک خارج از آن
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (profileMenuOpen && !target.closest('[data-profile-menu]')) {
+        setProfileMenuOpen(false)
+      }
+    }
+
+    if (profileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [profileMenuOpen])
+
   // صفحات احراز هویت Navbar ندارند
   if (pathname?.startsWith('/auth')) {
     return null
   }
 
   const handleLogout = () => {
+    setProfileMenuOpen(false)
+    setMobileMenuOpen(false)
     logout()
     router.push('/auth/login')
   }
@@ -74,7 +97,7 @@ export default function Navbar() {
               </span>
               
               {/* Profile Dropdown */}
-              <div className="relative">
+              <div className="relative" data-profile-menu>
                 <button
                   onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                   className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"

@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useMessages, useSendMessage } from '@/hooks/useMessages'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Textarea from '@/components/Textarea'

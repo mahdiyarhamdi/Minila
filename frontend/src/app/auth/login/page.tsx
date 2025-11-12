@@ -9,6 +9,7 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
 import { apiService } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 // Schemas برای validation
 const emailSchema = z.object({
@@ -30,6 +31,7 @@ type OTPFormData = z.infer<typeof otpSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password')
   const [step, setStep] = useState<'form' | 'otp'>('form')
   const [email, setEmail] = useState('')
@@ -66,10 +68,12 @@ export default function LoginPage() {
   const onSubmitPassword = async (data: PasswordFormData) => {
     try {
       setError('')
-      await apiService.loginWithPassword({
+      const tokens = await apiService.loginWithPassword({
         email: data.email,
         password: data.password,
       })
+      // به‌روزرسانی state جهانی با اطلاعات کاربر
+      await login(tokens.access_token, tokens.refresh_token)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.detail || 'ایمیل یا رمز عبور نادرست است.')
@@ -92,10 +96,12 @@ export default function LoginPage() {
   const onSubmitOTP = async (data: OTPFormData) => {
     try {
       setError('')
-      await apiService.verifyOTP({
+      const tokens = await apiService.verifyOTP({
         email,
         otp_code: data.otp_code,
       })
+      // به‌روزرسانی state جهانی با اطلاعات کاربر
+      await login(tokens.access_token, tokens.refresh_token)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.detail || 'کد OTP نامعتبر است.')
