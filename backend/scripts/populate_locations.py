@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.database import get_async_session_context
+from app.core.database import AsyncSessionLocal
 from app.models.location import Country, City
 from app.utils.logger import logger
 
@@ -180,7 +180,7 @@ async def populate_database(countries: dict, cities: dict):
     """ذخیره داده‌ها در دیتابیس."""
     logger.info("Starting database population...")
     
-    async with get_async_session_context() as session:
+    async with AsyncSessionLocal() as session:
         # Check if already populated
         result = await session.execute(select(Country))
         existing = result.scalars().first()
