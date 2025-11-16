@@ -173,6 +173,7 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `GET` | `/me` | دریافت پروفایل کاربر جاری | ✅ |
 | `PATCH` | `/me` | ویرایش پروفایل | ✅ |
 | `PUT` | `/me/password` | تغییر رمز عبور | ✅ |
+| `GET` | `/me/join-requests` | لیست درخواست‌های عضویت من | ✅ |
 
 ### Communities (`/api/v1/communities`)
 
@@ -180,13 +181,15 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 |--------|----------|-------|------|
 | `GET` | `/` | لیست کامیونیتی‌ها (paginated) | ❌ |
 | `POST` | `/` | ایجاد کامیونیتی جدید | ✅ |
-| `GET` | `/{id}` | جزئیات کامیونیتی | ❌ |
+| `GET` | `/{id}` | جزئیات کامیونیتی (با is_member و my_role) | ❌* |
 | `PATCH` | `/{id}` | ویرایش کامیونیتی (owner/manager) | ✅ |
 | `POST` | `/{id}/join` | درخواست عضویت | ✅ |
 | `GET` | `/{id}/requests` | لیست درخواست‌های عضویت (manager) | ✅ |
 | `POST` | `/{id}/requests/{req_id}/approve` | تایید درخواست (manager) | ✅ |
 | `POST` | `/{id}/requests/{req_id}/reject` | رد درخواست (manager) | ✅ |
 | `GET` | `/{id}/members` | لیست اعضا (paginated) | ❌ |
+
+*اگر کاربر لاگین کرده باشد، `is_member` و `my_role` در response نمایش داده می‌شوند.
 
 ### Cards (`/api/v1/cards`)
 
@@ -213,6 +216,8 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `POST` | `/` | ارسال پیام | ✅ | 5/day |
 | `GET` | `/inbox` | پیام‌های دریافتی (paginated) | ✅ | - |
 | `GET` | `/sent` | پیام‌های ارسالی (paginated) | ✅ | - |
+| `GET` | `/conversations` | لیست مکالمات با آخرین پیام | ✅ | - |
+| `GET` | `/{other_user_id}` | مکالمه با یک کاربر (paginated) | ✅ | - |
 
 **نکته مهم**: ارسال پیام فقط با شرط کامیونیتی مشترک امکان‌پذیر است.
 
@@ -254,6 +259,10 @@ curl -X POST http://localhost:8000/api/v1/auth/verify-otp \
 curl http://localhost:8000/api/v1/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 
+# دریافت درخواست‌های عضویت من
+curl http://localhost:8000/api/v1/users/me/join-requests \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
 # جست‌وجوی کارت‌ها
 curl "http://localhost:8000/api/v1/cards/?origin_city_id=1&destination_city_id=2&is_sender=false"
 
@@ -283,6 +292,18 @@ curl -X POST http://localhost:8000/api/v1/cards/ \
     "weight": 5.0,
     "description": "می‌توانم بسته کوچک حمل کنم"
   }'
+
+# دریافت لیست مکالمات
+curl http://localhost:8000/api/v1/messages/conversations \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# دریافت مکالمه با یک کاربر
+curl http://localhost:8000/api/v1/messages/2 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# دریافت جزئیات کامیونیتی (با authentication برای is_member و my_role)
+curl http://localhost:8000/api/v1/communities/1 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ---

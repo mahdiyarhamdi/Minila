@@ -8,6 +8,7 @@ import Input from '@/components/Input'
 import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 import type { CommunityCreate } from '@/types/community'
 
 /**
@@ -20,7 +21,7 @@ export default function NewCommunityPage() {
 
   const [formData, setFormData] = useState<CommunityCreate>({
     name: '',
-    description: '',
+    bio: '',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -58,7 +59,7 @@ export default function NewCommunityPage() {
       showToast('success', 'کامیونیتی با موفقیت ایجاد شد')
       router.push(`/communities/${newCommunity.id}`)
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در ایجاد کامیونیتی')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -94,8 +95,8 @@ export default function NewCommunityPage() {
                 label="توضیحات"
                 placeholder="درباره این کامیونیتی بنویسید..."
                 rows={5}
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
+                value={formData.bio}
+                onChange={(e) => handleChange('bio', e.target.value)}
                 helperText="اختیاری - بگویید این کامیونیتی برای چیست و چه کسانی می‌توانند عضو شوند"
               />
 

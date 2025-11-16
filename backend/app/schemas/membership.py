@@ -1,7 +1,7 @@
 """Membership و Request schemas برای مدیریت عضویت در کامیونیتی‌ها."""
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, computed_field
 from .user import UserBasicOut
 from .community import CommunityBasicOut
 
@@ -84,6 +84,17 @@ class RequestOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     
+    @computed_field
+    @property
+    def status(self) -> str:
+        """محاسبه status از روی is_approved."""
+        if self.is_approved is None:
+            return "pending"
+        elif self.is_approved is True:
+            return "approved"
+        else:
+            return "rejected"
+    
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
@@ -92,6 +103,7 @@ class RequestOut(BaseModel):
                 "user": {"id": 1, "first_name": "علی", "last_name": "احمدی"},
                 "community": {"id": 1, "name": "کامیونیتی مسافران تهران", "bio": "توضیحات"},
                 "is_approved": None,
+                "status": "pending",
                 "created_at": "2024-01-01T12:00:00",
                 "updated_at": "2024-01-01T12:00:00"
             }

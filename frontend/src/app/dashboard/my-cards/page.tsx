@@ -11,6 +11,7 @@ import Tabs from '@/components/Tabs'
 import { useState } from 'react'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه کارت‌های من
@@ -30,7 +31,7 @@ export default function MyCardsPage() {
       showToast('success', 'کارت با موفقیت حذف شد')
       setDeleteCardId(null)
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در حذف کارت')
+      showToast('error', extractErrorMessage(error))
     }
   }
 

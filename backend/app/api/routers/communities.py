@@ -1,7 +1,7 @@
 """Community management endpoints."""
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi import APIRouter, HTTPException, status, Depends, Query
-from ...api.deps import DBSession, CurrentUser
+from ...api.deps import DBSession, CurrentUser, get_current_user_optional
 from ...schemas.community import CommunityCreate, CommunityUpdate, CommunityOut
 from ...schemas.membership import MembershipOut, RequestOut, RequestApproveRejectIn
 from ...utils.pagination import PaginatedResponse, get_pagination_params
@@ -78,15 +78,19 @@ async def create_community(
 دریافت اطلاعات کامل یک کامیونیتی.
 
 **Authentication**: اختیاری
+
+اگر کاربر لاگین کرده باشد، فیلدهای `is_member` و `my_role` مقداردهی می‌شوند.
     """
 )
 async def get_community(
     community_id: int,
-    db: DBSession
+    db: DBSession,
+    current_user: Annotated[Optional[dict], Depends(get_current_user_optional)] = None
 ) -> CommunityOut:
     """دریافت جزئیات کامیونیتی."""
     try:
-        community = await community_service.get_community(db, community_id)
+        user_id = current_user["user_id"] if current_user else None
+        community = await community_service.get_community(db, community_id, user_id)
         return CommunityOut.model_validate(community)
         
     except ValueError as e:
@@ -183,7 +187,6 @@ async def join_community(
 @router.get(
     "/{community_id}/requests",
     status_code=status.HTTP_200_OK,
-    response_model=list[RequestOut],
     summary="لیست درخواست‌های عضویت",
     description="""
 دریافت لیست درخواست‌های عضویت pending.
@@ -195,17 +198,21 @@ async def join_community(
 async def get_join_requests(
     community_id: int,
     current_user: CurrentUser,
-    db: DBSession
-) -> list[RequestOut]:
+    db: DBSession,
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20
+) -> PaginatedResponse[RequestOut]:
     """دریافت درخواست‌های عضویت."""
     try:
-        requests = await community_service.get_join_requests(
+        result = await community_service.get_join_requests(
             db,
             community_id,
-            current_user["user_id"]
+            current_user["user_id"],
+            page,
+            page_size
         )
         
-        return [RequestOut.model_validate(r) for r in requests]
+        return result
         
     except PermissionError as e:
         raise HTTPException(

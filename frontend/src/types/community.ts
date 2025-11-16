@@ -5,28 +5,34 @@
 export interface Community {
   id: number
   name: string
-  description?: string
-  creator_id: number
-  creator: {
+  bio?: string
+  avatar?: {
+    id: number
+    url: string
+    mime_type: string
+  } | null
+  owner: {
     id: number
     first_name: string
     last_name: string
   }
-  member_count: number
+  member_count?: number
   is_member?: boolean
-  my_role?: 'member' | 'manager' | 'moderator' | null
+  my_role?: 'owner' | 'member' | 'manager' | 'moderator' | null
   created_at: string
   updated_at: string
 }
 
 export interface CommunityCreate {
   name: string
-  description?: string
+  bio?: string
+  avatar_id?: number
 }
 
 export interface CommunityUpdate {
   name?: string
-  description?: string
+  bio?: string
+  avatar_id?: number
 }
 
 export interface CommunityListResponse {

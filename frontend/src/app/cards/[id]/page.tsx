@@ -11,6 +11,7 @@ import Badge from '@/components/Badge'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه جزئیات کارت
@@ -30,7 +31,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
       showToast('success', 'کارت با موفقیت حذف شد')
       router.push('/cards')
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در حذف کارت')
+      showToast('error', extractErrorMessage(error))
     }
   }
 

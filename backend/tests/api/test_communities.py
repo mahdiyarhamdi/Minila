@@ -48,6 +48,36 @@ class TestGetCommunities:
         assert test_community["name"] in community_names
 
     @pytest.mark.asyncio
+    async def test_get_communities_invalid_page_zero(self, client: AsyncClient):
+        """Test getting communities with page=0 (should default to 1)."""
+        response = await client.get("/api/v1/communities/?page=0&page_size=10")
+        
+        assert response.status_code == 200
+        data = response.json()
+        # Page should be corrected to 1
+        assert data["page"] == 1
+
+    @pytest.mark.asyncio
+    async def test_get_communities_large_page_size(self, client: AsyncClient):
+        """Test getting communities with very large page_size (should cap at 100)."""
+        response = await client.get("/api/v1/communities/?page=1&page_size=1000")
+        
+        assert response.status_code == 200
+        data = response.json()
+        # Page size should be capped at 100
+        assert data["page_size"] == 100
+
+    @pytest.mark.asyncio
+    async def test_get_communities_negative_page(self, client: AsyncClient):
+        """Test getting communities with negative page number."""
+        response = await client.get("/api/v1/communities/?page=-1&page_size=10")
+        
+        assert response.status_code == 200
+        data = response.json()
+        # Should default to page 1
+        assert data["page"] == 1
+
+    @pytest.mark.asyncio
     async def test_get_communities_pagination(
         self, 
         client: AsyncClient, 

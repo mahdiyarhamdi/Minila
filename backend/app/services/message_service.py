@@ -145,3 +145,63 @@ async def get_sent(
         page_size=page_size
     )
 
+
+async def get_conversation(
+    db: AsyncSession,
+    user_id: int,
+    other_user_id: int,
+    page: int,
+    page_size: int
+):
+    """دریافت تمام پیام‌های رد و بدل شده با یک کاربر خاص (conversation).
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر فعلی
+        other_user_id: شناسه کاربر مقابل
+        page: شماره صفحه
+        page_size: تعداد آیتم در صفحه
+        
+    Returns:
+        PaginatedResponse از Message
+        
+    Raises:
+        ValueError: اگر کاربر مقابل یافت نشود
+    """
+    # بررسی وجود کاربر مقابل
+    other_user = await user_repo.get_by_id(db, other_user_id)
+    if not other_user:
+        raise ValueError("کاربر مورد نظر یافت نشد")
+    
+    messages, total = await message_repo.get_conversation(
+        db, user_id, other_user_id, page, page_size
+    )
+    
+    return PaginatedResponse.create(
+        items=messages,
+        total=total,
+        page=page,
+        page_size=page_size
+    )
+
+
+async def get_conversations(
+    db: AsyncSession,
+    user_id: int
+):
+    """دریافت لیست مکالمات کاربر.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        
+    Returns:
+        dict شامل لیست مکالمات و تعداد کل
+    """
+    conversations = await message_repo.get_conversations(db, user_id)
+    
+    return {
+        "items": conversations,
+        "total": len(conversations)
+    }
+

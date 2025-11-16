@@ -5,15 +5,15 @@ import Badge from '../Badge'
 interface CommunityCardProps {
   id: number
   name: string
-  description?: string
-  member_count: number
+  bio?: string
+  member_count?: number
   is_member?: boolean
 }
 
 /**
  * CommunityCard - کارت کامیونیتی
  */
-export default function CommunityCard({ id, name, description, member_count, is_member }: CommunityCardProps) {
+export default function CommunityCard({ id, name, bio, member_count, is_member }: CommunityCardProps) {
   return (
     <Link href={`/communities/${id}`}>
       <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer h-full">
@@ -40,8 +40,8 @@ export default function CommunityCard({ id, name, description, member_count, is_
         </div>
 
         {/* Description */}
-        {description && (
-          <p className="text-sm text-neutral-600 font-light line-clamp-2 mb-4">{description}</p>
+        {bio && (
+          <p className="text-sm text-neutral-600 font-light line-clamp-2 mb-4">{bio}</p>
         )}
 
         {/* Member Count */}
@@ -54,7 +54,7 @@ export default function CommunityCard({ id, name, description, member_count, is_
               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
             />
           </svg>
-          <span className="text-sm text-neutral-600">{member_count} عضو</span>
+          <span className="text-sm text-neutral-600">{member_count || 0} عضو</span>
         </div>
       </Card>
     </Link>

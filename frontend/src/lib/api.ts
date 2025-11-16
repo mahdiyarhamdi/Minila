@@ -244,6 +244,14 @@ class APIService {
   }
 
   /**
+   * دریافت درخواست‌های عضویت من
+   */
+  async getMyJoinRequests(): Promise<JoinRequest[]> {
+    const response = await this.client.get<JoinRequest[]>('/api/v1/users/me/join-requests')
+    return response.data
+  }
+
+  /**
    * دریافت درخواست‌های عضویت یک کامیونیتی
    */
   async getJoinRequests(communityId: number, page: number = 1): Promise<JoinRequestListResponse> {

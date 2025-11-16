@@ -12,6 +12,7 @@ import Button from '@/components/Button'
 import Autocomplete from '@/components/Autocomplete'
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
+import { extractErrorMessage } from '@/utils/errors'
 import type { Country, City } from '@/types/location'
 
 interface AutocompleteOption {
@@ -175,7 +176,7 @@ export default function NewCardPage() {
       showToast('success', 'کارت با موفقیت ایجاد شد')
       router.push(`/cards/${newCard.id}`)
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در ایجاد کارت')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -283,7 +284,7 @@ export default function NewCardPage() {
               {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
               {formData.is_sender ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
+              <Input
                     label="شروع بازه زمانی"
                     type="datetime-local"
                     value={formData.start_time_frame || ''}
@@ -305,7 +306,7 @@ export default function NewCardPage() {
                   value={formData.ticket_date_time || ''}
                   onChange={(e) => handleChange('ticket_date_time', e.target.value)}
                   helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
-                />
+              />
               )}
 
               {/* وزن و قیمت */}
@@ -331,16 +332,16 @@ export default function NewCardPage() {
               </div>
 
               {/* وضعیت بسته‌بندی */}
-              <Select
+                <Select
                 label="وضعیت بسته‌بندی"
                 value={formData.is_packed === undefined ? '' : formData.is_packed ? 'true' : 'false'}
                 onChange={(e) => handleChange('is_packed', e.target.value === 'true' ? true : e.target.value === 'false' ? false : undefined)}
-                options={[
+                  options={[
                   { value: '', label: 'نامشخص' },
                   { value: 'true', label: 'بسته‌بندی شده' },
                   { value: 'false', label: 'بدون بسته‌بندی' },
-                ]}
-              />
+                  ]}
+                />
 
 
               {/* توضیحات */}

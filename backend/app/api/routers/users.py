@@ -4,7 +4,9 @@ from fastapi import APIRouter, HTTPException, status, Depends, Request
 from ...api.deps import DBSession, CurrentUser
 from ...schemas.user import UserMeOut, UserUpdate
 from ...schemas.auth import AuthChangePasswordIn
+from ...schemas.membership import RequestOut
 from ...services import user_service
+from ...repositories import membership_repo
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -145,4 +147,39 @@ async def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+
+@router.get(
+    "/me/join-requests",
+    status_code=status.HTTP_200_OK,
+    response_model=list[RequestOut],
+    summary="لیست درخواست‌های عضویت من",
+    description="""
+دریافت لیست تمام درخواست‌های عضویت کاربر جاری در کامیونیتی‌ها.
+
+**احراز هویت**: نیاز به JWT access token در هدر Authorization
+
+شامل درخواست‌های:
+- pending: در انتظار بررسی (is_approved=null)
+- approved: تایید شده (is_approved=true)
+- rejected: رد شده (is_approved=false)
+
+درخواست‌ها به ترتیب جدیدترین نمایش داده می‌شوند.
+    """
+)
+async def get_my_join_requests(
+    current_user: CurrentUser,
+    db: DBSession
+) -> list[RequestOut]:
+    """دریافت درخواست‌های عضویت کاربر جاری."""
+    requests = await membership_repo.get_user_requests(db, current_user["user_id"])
+    
+    result = []
+    for request in requests:
+        await db.refresh(request, attribute_names=["user", "community"])
+        if request.community:
+            await db.refresh(request.community, attribute_names=["owner", "avatar"])
+        result.append(RequestOut.model_validate(request))
+    
+    return result
 

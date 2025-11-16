@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { apiService } from '@/lib/api'
+import { extractErrorMessage } from '@/utils/errors'
 import Card from '@/components/Card'
 import Input from '@/components/Input'
 import Button from '@/components/Button'
@@ -72,7 +73,7 @@ export default function ProfilePage() {
       // Refresh user data
       window.location.reload()
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در به‌روزرسانی پروفایل')
+      showToast('error', extractErrorMessage(error))
     } finally {
       setIsLoading(false)
     }

@@ -37,16 +37,18 @@ async def get_communities(
 
 async def get_community(
     db: AsyncSession,
-    community_id: int
+    community_id: int,
+    user_id: Optional[int] = None
 ) -> Community:
     """دریافت جزئیات کامیونیتی.
     
     Args:
         db: Database session
         community_id: شناسه کامیونیتی
+        user_id: شناسه کاربر فعلی (اختیاری)
         
     Returns:
-        Community
+        Community با فیلدهای member_count، is_member، my_role
         
     Raises:
         ValueError: اگر کامیونیتی یافت نشود
@@ -55,6 +57,29 @@ async def get_community(
     
     if not community:
         raise ValueError("کامیونیتی یافت نشد")
+    
+    # محاسبه member_count
+    community.member_count = await community_repo.get_member_count(db, community_id)
+    
+    # اگر کاربری لاگین کرده است
+    if user_id:
+        # بررسی ownership
+        if community.owner_id == user_id:
+            community.is_member = True
+            community.my_role = "owner"
+        else:
+            # بررسی عضویت
+            membership = await membership_repo.get_membership(db, user_id, community_id)
+            if membership and membership.is_active:
+                community.is_member = True
+                # دریافت نام role از relation
+                community.my_role = membership.role.name if membership.role else "member"
+            else:
+                community.is_member = False
+                community.my_role = None
+    else:
+        community.is_member = None
+        community.my_role = None
     
     return community
 
@@ -221,17 +246,21 @@ async def join_request(
 async def get_join_requests(
     db: AsyncSession,
     community_id: int,
-    user_id: int
+    user_id: int,
+    page: int = 1,
+    page_size: int = 20
 ):
-    """دریافت درخواست‌های عضویت.
+    """دریافت درخواست‌های عضویت (paginated).
     
     Args:
         db: Database session
         community_id: شناسه کامیونیتی
         user_id: شناسه کاربر درخواست‌کننده
+        page: شماره صفحه
+        page_size: تعداد آیتم در صفحه
         
     Returns:
-        لیست درخواست‌های pending
+        PaginatedResponse از درخواست‌های pending
         
     Raises:
         PermissionError: اگر کاربر مجاز نباشد
@@ -240,7 +269,14 @@ async def get_join_requests(
     if not await membership_repo.is_manager(db, user_id, community_id):
         raise PermissionError("شما مجاز به مشاهده درخواست‌ها نیستید")
     
-    return await membership_repo.get_pending_requests(db, community_id)
+    requests, total = await membership_repo.get_pending_requests(db, community_id, page, page_size)
+    
+    return PaginatedResponse.create(
+        items=requests,
+        total=total,
+        page=page,
+        page_size=page_size
+    )
 
 
 async def handle_request(

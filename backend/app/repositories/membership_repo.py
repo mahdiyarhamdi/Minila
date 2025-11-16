@@ -1,10 +1,11 @@
 """Membership and Request repository."""
 from typing import Optional
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from ..models.membership import Membership, Request
 from ..models.role import Role
+from ..utils.pagination import calculate_offset
 
 
 async def get_user_memberships(
@@ -124,17 +125,32 @@ async def create_request(
 
 async def get_pending_requests(
     db: AsyncSession,
-    community_id: int
-) -> list[Request]:
-    """دریافت درخواست‌های در انتظار.
+    community_id: int,
+    page: int = 1,
+    page_size: int = 20
+) -> tuple[list[Request], int]:
+    """دریافت درخواست‌های در انتظار (paginated).
     
     Args:
         db: Database session
         community_id: شناسه کامیونیتی
+        page: شماره صفحه
+        page_size: تعداد آیتم در صفحه
         
     Returns:
-        لیست درخواست‌های pending
+        tuple از (لیست درخواست‌های pending، تعداد کل)
     """
+    # Count total
+    count_query = (
+        select(func.count(Request.id))
+        .where(Request.community_id == community_id)
+        .where(Request.is_approved.is_(None))
+    )
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+    
+    # Fetch requests
+    offset = calculate_offset(page, page_size)
     query = (
         select(Request)
         .where(Request.community_id == community_id)
@@ -144,9 +160,13 @@ async def get_pending_requests(
             selectinload(Request.community)
         )
         .order_by(Request.created_at.asc())
+        .limit(page_size)
+        .offset(offset)
     )
     result = await db.execute(query)
-    return list(result.scalars().all())
+    requests = list(result.scalars().all())
+    
+    return requests, total
 
 
 async def get_request_by_id(
@@ -270,4 +290,30 @@ async def is_manager(
     )
     result = await db.execute(query)
     return result.scalar_one_or_none() is not None
+
+
+async def get_user_requests(
+    db: AsyncSession,
+    user_id: int
+) -> list[Request]:
+    """دریافت تمام درخواست‌های عضویت یک کاربر.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        
+    Returns:
+        لیست درخواست‌های کاربر (pending, approved, rejected)
+    """
+    query = (
+        select(Request)
+        .where(Request.user_id == user_id)
+        .options(
+            selectinload(Request.user),
+            selectinload(Request.community)
+        )
+        .order_by(Request.created_at.desc())
+    )
+    result = await db.execute(query)
+    return list(result.scalars().all())
 

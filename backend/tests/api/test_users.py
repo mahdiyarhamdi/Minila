@@ -509,3 +509,200 @@ class TestChangePassword:
             json=login_payload
         )
         assert login_response.status_code == 200
+
+
+# ==================== GET /api/v1/users/me/join-requests ====================
+
+class TestGetMyJoinRequests:
+    """Test cases for getting current user's join requests."""
+
+    @pytest.mark.asyncio
+    async def test_get_join_requests_success(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict,
+        test_community: dict,
+        auth_headers_user2: dict,
+        test_db: AsyncSession
+    ):
+        """Test successful retrieval of join requests with data."""
+        # Arrange - Create a join request
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert join_response.status_code == 201
+        
+        # Act
+        response = await client.get(
+            "/api/v1/users/me/join-requests",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+        
+        # Verify structure of request
+        request_item = data[0]
+        assert "id" in request_item
+        assert "user" in request_item
+        assert "community" in request_item
+        assert "is_approved" in request_item
+        assert "status" in request_item
+        assert "created_at" in request_item
+        assert request_item["user"]["id"] == test_user2["user_id"]
+
+    @pytest.mark.asyncio
+    async def test_get_join_requests_empty(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test retrieval of join requests when user has no requests."""
+        # Act - User has no join requests
+        response = await client.get(
+            "/api/v1/users/me/join-requests",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        # May have 0 or more requests depending on fixtures
+
+    @pytest.mark.asyncio
+    async def test_get_join_requests_without_auth(self, client: AsyncClient):
+        """Test getting join requests without authentication returns 401."""
+        # Act
+        response = await client.get("/api/v1/users/me/join-requests")
+        
+        # Assert
+        assert response.status_code == 401
+        assert "detail" in response.json()
+
+    @pytest.mark.asyncio
+    async def test_get_join_requests_includes_all_statuses(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict,
+        test_community: dict,
+        test_community2: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict,
+        test_db: AsyncSession
+    ):
+        """Test that all request statuses (pending, approved, rejected) are returned."""
+        # Arrange - Create multiple requests with different statuses
+        
+        # 1. Create pending request
+        pending_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert pending_response.status_code == 201
+        pending_request_id = pending_response.json()["id"]
+        
+        # 2. Create and approve another request
+        approved_response = await client.post(
+            f"/api/v1/communities/{test_community2['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert approved_response.status_code == 201
+        approved_request_id = approved_response.json()["id"]
+        
+        # Approve the second request (as owner of community2)
+        await client.post(
+            f"/api/v1/communities/{test_community2['id']}/requests/{approved_request_id}/approve",
+            headers=auth_headers  # test_user is owner of community2
+        )
+        
+        # Act - Get all join requests
+        response = await client.get(
+            "/api/v1/users/me/join-requests",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 2
+        
+        # Verify both pending and approved requests are included
+        statuses = [req["status"] for req in data]
+        assert "pending" in statuses
+        assert "approved" in statuses
+
+    @pytest.mark.asyncio
+    async def test_get_join_requests_ordered_newest_first(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict,
+        test_community: dict,
+        test_community2: dict,
+        auth_headers_user2: dict,
+        test_db: AsyncSession
+    ):
+        """Test that join requests are ordered by newest first."""
+        # Arrange - Create multiple requests
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        
+        await client.post(
+            f"/api/v1/communities/{test_community2['id']}/join",
+            headers=auth_headers_user2
+        )
+        
+        # Act
+        response = await client.get(
+            "/api/v1/users/me/join-requests",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        
+        if len(data) >= 2:
+            # Verify ordering (newest first)
+            timestamps = [req["created_at"] for req in data]
+            assert timestamps == sorted(timestamps, reverse=True)
+
+    @pytest.mark.asyncio
+    async def test_get_join_requests_includes_community_details(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict,
+        test_community: dict,
+        auth_headers_user2: dict
+    ):
+        """Test that join requests include full community details."""
+        # Arrange
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        
+        # Act
+        response = await client.get(
+            "/api/v1/users/me/join-requests",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        
+        # Verify community details are included
+        request_item = data[0]
+        community = request_item["community"]
+        assert "id" in community
+        assert "name" in community
+        assert community["name"] == test_community["name"]

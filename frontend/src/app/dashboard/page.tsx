@@ -2,15 +2,21 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { useMyJoinRequests } from '@/hooks/useCommunities'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
+import Badge from '@/components/Badge'
 import Input from '@/components/Input'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import { apiService } from '@/lib/api'
+import { extractErrorMessage } from '@/utils/errors'
 
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading, isAuthenticated } = useAuth()
+  const { data: joinRequests, isLoading: requestsLoading } = useMyJoinRequests()
 
   // State برای فرم تغییر رمز عبور
   const [oldPassword, setOldPassword] = useState('')
@@ -66,7 +72,7 @@ export default function DashboardPage() {
       setNewPassword('')
       setConfirmPassword('')
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'خطا در تغییر رمز عبور'
+      const errorMessage = extractErrorMessage(error)
       setPasswordError(errorMessage)
     } finally {
       setPasswordLoading(false)
@@ -151,6 +157,68 @@ export default function DashboardPage() {
               </div>
             </button>
           </div>
+        </Card>
+
+        {/* درخواست‌های عضویت من */}
+        <Card variant="bordered" className="mt-6 p-6">
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">درخواست‌های عضویت من</h3>
+          
+          {requestsLoading ? (
+            <div className="flex justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : !joinRequests || joinRequests.length === 0 ? (
+            <div className="text-center py-8">
+              <svg className="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-neutral-600 font-light mb-4">شما هیچ درخواست عضویتی ندارید</p>
+              <Link href="/communities">
+                <Button variant="ghost">مشاهده کامیونیتی‌ها</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {joinRequests.map((request) => (
+                <Link 
+                  key={request.id} 
+                  href={`/communities/${request.community.id}`}
+                  className="block"
+                >
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-sand-100 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-neutral-900">{request.community.name}</p>
+                        <p className="text-sm text-neutral-600 font-light">
+                          {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant={
+                        request.is_approved === null 
+                          ? 'neutral' 
+                          : request.is_approved 
+                            ? 'success' 
+                            : 'error'
+                      }
+                    >
+                      {request.is_approved === null 
+                        ? 'در انتظار' 
+                        : request.is_approved 
+                          ? 'تایید شده ✓' 
+                          : 'رد شده ✗'}
+                    </Badge>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </Card>
 
         {/* اطلاعات کاربر */}

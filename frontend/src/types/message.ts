@@ -18,16 +18,13 @@ export interface Message {
     last_name: string
     email: string
   }
-  content: string
-  is_read: boolean
+  body: string
   created_at: string
-  updated_at: string
 }
 
 export interface MessageCreate {
   receiver_id: number
-  content: string
-  card_id?: number
+  body: string
 }
 
 export interface MessageListResponse {
@@ -45,9 +42,8 @@ export interface Conversation {
     email: string
   }
   last_message: {
-    content: string
+    body: string
     created_at: string
-    is_read: boolean
   }
   unread_count: number
 }

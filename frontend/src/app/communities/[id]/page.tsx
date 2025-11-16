@@ -12,6 +12,7 @@ import Tabs from '@/components/Tabs'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه جزئیات کامیونیتی
@@ -31,7 +32,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
       await joinMutation.mutateAsync(communityId)
       showToast('success', 'درخواست عضویت شما ارسال شد')
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در ارسال درخواست')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -58,8 +59,12 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
     )
   }
 
-  const isManager = community.my_role === 'manager'
-  const isMember = community.my_role !== null
+  // Check if current user is the owner (convert user.id to number for comparison)
+  const isOwner = user && community.owner && community.owner.id === parseInt(user.id)
+  
+  // Check member status from API if available, otherwise use owner check
+  const isManager = community.my_role === 'manager' || community.my_role === 'owner' || isOwner
+  const isMember = community.is_member || (community.my_role !== null && community.my_role !== undefined) || isOwner
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -94,13 +99,18 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl font-extrabold text-neutral-900">{community.name}</h1>
-                  {isMember && (
+                  {isOwner && (
+                    <Badge variant="success" size="md">
+                      مالک
+                    </Badge>
+                  )}
+                  {isMember && !isOwner && (
                     <Badge variant="success" size="md">
                       {community.my_role === 'manager' ? 'مدیر' : 'عضو'}
                     </Badge>
                   )}
                 </div>
-                <p className="text-neutral-600 font-light mb-3">{community.description}</p>
+                <p className="text-neutral-600 font-light mb-3">{community.bio}</p>
                 <div className="flex items-center gap-4 text-sm text-neutral-600">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +124,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                     {community.member_count} عضو
                   </span>
                   <span className="font-light">
-                    ایجاد شده توسط {community.creator.first_name} {community.creator.last_name}
+                    ایجاد شده توسط {community.owner.first_name} {community.owner.last_name}
                   </span>
                 </div>
               </div>
@@ -122,7 +132,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
 
             {/* Actions */}
             <div className="flex gap-2">
-              {isManager && (
+              {(isManager || isOwner) && (
                 <Link href={`/communities/${community.id}/manage`}>
                   <Button variant="secondary">
                     <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +153,14 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                   </Button>
                 </Link>
               )}
-              {!isMember && (
+              {!user && (
+                <Link href="/auth/login">
+                  <Button variant="primary">
+                    ورود برای عضویت
+                  </Button>
+                </Link>
+              )}
+              {user && !isMember && !isOwner && (
                 <Button onClick={handleJoin} isLoading={joinMutation.isPending}>
                   درخواست عضویت
                 </Button>
@@ -166,7 +183,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
             <Card variant="bordered" className="p-6">
               <h3 className="text-lg font-bold text-neutral-900 mb-3">درباره کامیونیتی</h3>
               <p className="text-neutral-700 font-light leading-relaxed mb-6">
-                {community.description || 'توضیحاتی برای این کامیونیتی ثبت نشده است.'}
+                {community.bio || 'توضیحاتی برای این کامیونیتی ثبت نشده است.'}
               </p>
 
               <div className="pt-6 border-t border-neutral-200">

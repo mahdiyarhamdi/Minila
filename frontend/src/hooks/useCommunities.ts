@@ -34,6 +34,16 @@ export function useMyCommunities() {
 }
 
 /**
+ * Hook برای دریافت درخواست‌های عضویت من
+ */
+export function useMyJoinRequests() {
+  return useQuery({
+    queryKey: ['my-join-requests'],
+    queryFn: () => apiService.getMyJoinRequests(),
+  })
+}
+
+/**
  * Hook برای دریافت اعضای کامیونیتی
  */
 export function useCommunityMembers(communityId: number, page: number = 1) {

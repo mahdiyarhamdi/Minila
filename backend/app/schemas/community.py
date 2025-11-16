@@ -48,6 +48,9 @@ class CommunityOut(BaseModel):
     bio: Optional[str] = None
     avatar: Optional[AvatarOut] = None
     owner: UserBasicOut
+    member_count: int = Field(default=0, description="تعداد اعضای فعال")
+    is_member: Optional[bool] = Field(default=None, description="آیا کاربر فعلی عضو است")
+    my_role: Optional[str] = Field(default=None, description="نقش کاربر فعلی (owner, manager, moderator, member)")
     created_at: datetime
     updated_at: datetime
     
@@ -60,6 +63,9 @@ class CommunityOut(BaseModel):
                 "bio": "گروهی برای هماهنگی سفرهای بین‌شهری از تهران",
                 "avatar": {"id": 1, "url": "https://example.com/avatar.jpg", "mime_type": "image/jpeg"},
                 "owner": {"id": 1, "first_name": "علی", "last_name": "احمدی"},
+                "member_count": 150,
+                "is_member": True,
+                "my_role": "member",
                 "created_at": "2024-01-01T12:00:00",
                 "updated_at": "2024-01-01T12:00:00"
             }

@@ -11,6 +11,7 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import MessageBubble from '@/components/messages/MessageBubble'
 import EmptyState from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه چت با یک کاربر
@@ -40,12 +41,12 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
     try {
       await sendMutation.mutateAsync({
         receiver_id: receiverId,
-        content: messageContent.trim(),
+        body: messageContent.trim(),
       })
       setMessageContent('')
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در ارسال پیام')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -128,7 +129,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
               {messages.map((message) => (
                 <MessageBubble
                   key={message.id}
-                  content={message.content}
+                  content={message.body}
                   isOwn={message.sender_id === parseInt(user?.id || '0')}
                   timestamp={message.created_at}
                   senderName={

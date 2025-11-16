@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   useCommunity,
   useJoinRequests,
@@ -18,12 +19,14 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه مدیریت کامیونیتی (فقط برای Manager)
  */
 export default function ManageCommunityPage({ params }: { params: { id: string } }) {
   const communityId = parseInt(params.id)
+  const router = useRouter()
   const { showToast } = useToast()
   const { data: community, isLoading } = useCommunity(communityId)
   const { data: requests } = useJoinRequests(communityId)
@@ -34,12 +37,23 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
   const [activeTab, setActiveTab] = useState('requests')
   const [removeMemberId, setRemoveMemberId] = useState<number | null>(null)
 
+  // بررسی وجود token
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token')
+      if (!token) {
+        showToast('error', 'لطفاً ابتدا وارد شوید')
+        router.push('/auth/login')
+      }
+    }
+  }, [router, showToast])
+
   const handleApprove = async (requestId: number) => {
     try {
       await approveMutation.mutateAsync({ communityId, requestId })
       showToast('success', 'درخواست تایید شد')
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در تایید درخواست')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -48,7 +62,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
       await rejectMutation.mutateAsync({ communityId, requestId })
       showToast('success', 'درخواست رد شد')
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در رد درخواست')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -60,7 +74,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
       showToast('success', 'عضو از کامیونیتی حذف شد')
       setRemoveMemberId(null)
     } catch (error: any) {
-      showToast('error', error.response?.data?.detail || 'خطا در حذف عضو')
+      showToast('error', extractErrorMessage(error))
     }
   }
 
@@ -82,21 +96,67 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
     )
   }
 
-  // Check if user is manager
-  if (community.my_role !== 'manager') {
+  // Debug: بررسی اطلاعات کامیونیتی و Authentication
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+  console.log('Auth Token exists?', !!token)
+  console.log('Community Data:', {
+    id: community.id,
+    name: community.name,
+    owner: community.owner,
+    my_role: community.my_role,
+    is_member: community.is_member,
+    member_count: community.member_count
+  })
+
+  // Check if user is manager or owner
+  const canManage = community.my_role === 'manager' || community.my_role === 'owner'
+  console.log('Can Manage?', canManage, '(my_role:', community.my_role, ')')
+  
+  if (!canManage) {
+    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('access_token')
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <Card variant="bordered" className="p-6 max-w-md text-center">
-          <p className="text-red-600 mb-4">شما دسترسی به مدیریت این کامیونیتی را ندارید</p>
-          <Link href={`/communities/${communityId}`}>
-            <Button variant="ghost">بازگشت به کامیونیتی</Button>
-          </Link>
+          <p className="text-red-600 mb-4">
+            {!hasToken 
+              ? 'لطفاً ابتدا وارد شوید' 
+              : 'شما دسترسی به مدیریت این کامیونیتی را ندارید'}
+          </p>
+          
+          {!hasToken && (
+            <p className="text-neutral-600 mb-4 text-sm">
+              برای دسترسی به صفحه مدیریت، ابتدا باید وارد حساب کاربری خود شوید.
+            </p>
+          )}
+          
+          {community.my_role === null && hasToken && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded text-sm">
+              <p className="text-amber-800">
+                احتمالاً نشست شما منقضی شده است. لطفاً دوباره وارد شوید.
+              </p>
+            </div>
+          )}
+          
+          <div className="flex flex-col gap-2">
+            {!hasToken || community.my_role === null ? (
+              <Link href="/auth/login" className="w-full">
+                <Button variant="primary" className="w-full">
+                  ورود به حساب کاربری
+                </Button>
+              </Link>
+            ) : null}
+            
+            <Link href={`/communities/${communityId}`} className="w-full">
+              <Button variant="ghost" className="w-full">بازگشت به کامیونیتی</Button>
+            </Link>
+          </div>
         </Card>
       </div>
     )
   }
 
-  const pendingRequests = requests?.items.filter((r) => r.status === 'pending') || []
+  const pendingRequests = requests?.items?.filter((r) => r.status === 'pending') || []
 
   return (
     <div className="min-h-screen bg-neutral-50">

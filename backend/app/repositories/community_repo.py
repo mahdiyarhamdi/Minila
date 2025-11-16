@@ -44,6 +44,10 @@ async def get_all(
     result = await db.execute(query)
     communities = list(result.scalars().all())
     
+    # محاسبه member_count برای هر کامیونیتی
+    for community in communities:
+        community.member_count = await get_member_count(db, community.id)
+    
     return communities, total
 
 
@@ -255,4 +259,23 @@ async def name_exists(db: AsyncSession, name: str) -> bool:
     query = select(Community.id).where(Community.name == name)
     result = await db.execute(query)
     return result.scalar_one_or_none() is not None
+
+
+async def get_member_count(db: AsyncSession, community_id: int) -> int:
+    """دریافت تعداد اعضای فعال کامیونیتی.
+    
+    Args:
+        db: Database session
+        community_id: شناسه کامیونیتی
+        
+    Returns:
+        تعداد اعضای فعال
+    """
+    query = (
+        select(func.count(Membership.id))
+        .where(Membership.community_id == community_id)
+        .where(Membership.is_active == True)
+    )
+    result = await db.execute(query)
+    return result.scalar() or 0
 

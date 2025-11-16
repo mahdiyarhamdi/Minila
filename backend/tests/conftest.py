@@ -3,6 +3,7 @@ import asyncio
 import pytest
 import pytest_asyncio
 from typing import AsyncGenerator
+from unittest.mock import AsyncMock, MagicMock, patch
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
@@ -15,9 +16,9 @@ from app.core.security import create_access_token
 
 
 # Test database URL (PostgreSQL test container)
-# استفاده از localhost:5433 برای اجرای تست‌ها خارج از Docker
-TEST_DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost:5433/minila_test"
-TEST_REDIS_URL = "redis://localhost:6380/0"
+# استفاده از service name برای اجرای تست‌ها داخل Docker
+TEST_DATABASE_URL = "postgresql+psycopg://postgres:postgres@db_test:5432/minila_test"
+TEST_REDIS_URL = "redis://redis_test:6379/0"
 
 settings = get_settings()
 
@@ -543,3 +544,116 @@ def auth_headers_user2(test_user2: dict) -> dict:
         dict: Authorization headers
     """
     return {"Authorization": f"Bearer {test_user2['token']}"}
+
+
+# ==================== Mock Fixtures for Unit Tests ====================
+
+@pytest.fixture
+def mock_db_session():
+    """Mock AsyncSession برای unit tests.
+    
+    Returns:
+        AsyncMock: Mock database session
+    """
+    session = AsyncMock(spec=AsyncSession)
+    session.commit = AsyncMock()
+    session.flush = AsyncMock()
+    session.refresh = AsyncMock()
+    session.rollback = AsyncMock()
+    session.close = AsyncMock()
+    session.add = MagicMock()
+    session.add_all = MagicMock()
+    session.execute = AsyncMock()
+    return session
+
+
+@pytest.fixture
+def mock_user_repo():
+    """Mock user repository برای service tests.
+    
+    Returns:
+        MagicMock: Mock user repository module
+    """
+    repo = MagicMock()
+    repo.get_by_email = AsyncMock()
+    repo.get_by_id = AsyncMock()
+    repo.email_exists = AsyncMock()
+    repo.create = AsyncMock()
+    repo.update = AsyncMock()
+    repo.update_otp = AsyncMock()
+    repo.set_email_verified = AsyncMock()
+    return repo
+
+
+@pytest.fixture
+def mock_community_repo():
+    """Mock community repository برای service tests.
+    
+    Returns:
+        MagicMock: Mock community repository module
+    """
+    repo = MagicMock()
+    repo.get_all = AsyncMock()
+    repo.get_by_id = AsyncMock()
+    repo.create = AsyncMock()
+    repo.update = AsyncMock()
+    repo.delete = AsyncMock()
+    repo.check_common_membership = AsyncMock()
+    return repo
+
+
+@pytest.fixture
+def mock_message_repo():
+    """Mock message repository برای service tests.
+    
+    Returns:
+        MagicMock: Mock message repository module
+    """
+    repo = MagicMock()
+    repo.create = AsyncMock()
+    repo.get_inbox = AsyncMock()
+    repo.get_sent = AsyncMock()
+    return repo
+
+
+@pytest.fixture
+def mock_card_repo():
+    """Mock card repository برای service tests.
+    
+    Returns:
+        MagicMock: Mock card repository module
+    """
+    repo = MagicMock()
+    repo.get_all = AsyncMock()
+    repo.get_by_id = AsyncMock()
+    repo.create = AsyncMock()
+    repo.update = AsyncMock()
+    repo.delete = AsyncMock()
+    return repo
+
+
+@pytest.fixture
+def mock_log_service():
+    """Mock log service برای تست‌های دیگر.
+    
+    Returns:
+        MagicMock: Mock log service module
+    """
+    service = MagicMock()
+    service.log_event = AsyncMock()
+    return service
+
+
+@pytest.fixture
+def mock_email_functions():
+    """Mock email sending functions.
+    
+    Returns:
+        dict: Dictionary of mocked email functions
+    """
+    return {
+        'send_otp_email': MagicMock(),
+        'send_membership_request_notification': MagicMock(),
+        'send_membership_result': MagicMock(),
+        'send_message_notification': MagicMock()
+    }

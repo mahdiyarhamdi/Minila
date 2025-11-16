@@ -85,10 +85,11 @@ backend/app/
 ├── schemas/                   # لایه انتقال داده (DTO)
 │   ├── __init__.py
 │   ├── auth.py               # LoginRequest, OTPRequest
-│   ├── user.py               # UserCreate, UserOut
-│   ├── community.py          # CommunityCreate, CommunityOut
+│   ├── user.py               # UserCreate, UserOut, UserMeOut
+│   ├── community.py          # CommunityCreate, CommunityOut (با is_member و my_role)
+│   ├── membership.py         # MembershipOut, RequestOut (با status computed field)
 │   ├── card.py               # CardCreate, CardOut, CardFilter
-│   └── message.py            # MessageCreate, MessageOut
+│   └── message.py            # MessageCreate, MessageOut, ConversationOut
 │
 ├── services/                  # لایه منطق کسب‌وکار
 │   ├── __init__.py

@@ -2,7 +2,7 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from ...api.deps import DBSession, CurrentUser, MessageRateLimit
-from ...schemas.message import MessageCreate, MessageOut
+from ...schemas.message import MessageCreate, MessageOut, ConversationOut
 from ...utils.pagination import PaginatedResponse
 from ...services import message_service
 
@@ -116,4 +116,70 @@ async def get_sent(
         page_size
     )
     return result
+
+
+@router.get(
+    "/conversations",
+    status_code=status.HTTP_200_OK,
+    summary="لیست مکالمات",
+    description="""
+دریافت لیست مکالمات کاربر با آخرین پیام و تعداد پیام‌های خوانده نشده.
+
+**Authentication**: الزامی
+
+هر آیتم شامل:
+- اطلاعات کاربر مقابل
+- آخرین پیام رد و بدل شده
+- تعداد پیام‌های خوانده نشده
+
+مکالمات به ترتیب آخرین پیام (جدیدترین) نمایش داده می‌شوند.
+    """
+)
+async def get_conversations_list(
+    current_user: CurrentUser,
+    db: DBSession
+):
+    """دریافت لیست مکالمات."""
+    result = await message_service.get_conversations(
+        db,
+        current_user["user_id"]
+    )
+    return result
+
+
+@router.get(
+    "/{other_user_id}",
+    status_code=status.HTTP_200_OK,
+    summary="مکالمه با یک کاربر",
+    description="""
+دریافت تمام پیام‌های رد و بدل شده با یک کاربر خاص (conversation).
+
+**Authentication**: الزامی
+
+پیام‌ها شامل پیام‌های ارسالی و دریافتی به/از کاربر مشخص‌شده هستند.
+پیام‌ها به ترتیب جدیدترین نمایش داده می‌شوند.
+    """
+)
+async def get_conversation(
+    other_user_id: int,
+    current_user: CurrentUser,
+    db: DBSession,
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20
+) -> PaginatedResponse[MessageOut]:
+    """دریافت مکالمه با یک کاربر."""
+    try:
+        result = await message_service.get_conversation(
+            db,
+            current_user["user_id"],
+            other_user_id,
+            page,
+            page_size
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
 

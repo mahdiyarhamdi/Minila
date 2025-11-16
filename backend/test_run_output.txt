@@ -1,0 +1,1778 @@
+time="2025-11-12T18:22:33+04:00" level=warning msg="/Users/sedmahdiyar/Desktop/Minila/backend/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-8.3.5, pluggy-1.6.0 -- /usr/local/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /app
+plugins: Faker-37.12.0, cov-7.0.0, anyio-4.11.0, asyncio-0.23.8
+asyncio: mode=Mode.STRICT
+collecting ... collected 93 items
+
+tests/api/test_auth.py::TestSignup::test_signup_success PASSED           [  1%]
+tests/api/test_auth.py::TestSignup::test_signup_duplicate_email PASSED   [  2%]
+tests/api/test_auth.py::TestSignup::test_signup_invalid_email PASSED     [  3%]
+tests/api/test_auth.py::TestSignup::test_signup_missing_required_field PASSED [  4%]
+tests/api/test_auth.py::TestSignup::test_signup_empty_password PASSED    [  5%]
+tests/api/test_auth.py::TestRequestOTP::test_request_otp_success FAILED  [  6%]
+tests/api/test_auth.py::TestRequestOTP::test_request_otp_nonexistent_user PASSED [  7%]
+tests/api/test_auth.py::TestRequestOTP::test_request_otp_invalid_email PASSED [  8%]
+tests/api/test_auth.py::TestRequestOTP::test_request_otp_updates_existing_code FAILED [  9%]
+tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_success FAILED    [ 10%]
+tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_wrong_code PASSED [ 11%]
+tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_used_code FAILED  [ 12%]
+tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_nonexistent_user PASSED [ 13%]
+tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_invalid_email_format PASSED [ 15%]
+tests/api/test_auth.py::TestRefreshToken::test_refresh_token_success FAILED [ 16%]
+tests/api/test_auth.py::TestRefreshToken::test_refresh_token_invalid PASSED [ 17%]
+tests/api/test_auth.py::TestRefreshToken::test_refresh_token_expired PASSED [ 18%]
+tests/api/test_cards.py::TestGetCards::test_get_cards_with_pagination ERROR [ 19%]
+tests/api/test_cards.py::TestGetCards::test_get_cards_filter_origin_city ERROR [ 20%]
+tests/api/test_cards.py::TestGetCards::test_get_cards_filter_destination_city ERROR [ 21%]
+tests/api/test_cards.py::TestGetCards::test_get_cards_filter_is_sender_true FAILED [ 22%]
+tests/api/test_cards.py::TestGetCards::test_get_cards_filter_is_sender_false ERROR [ 23%]
+tests/api/test_cards.py::TestGetCards::test_get_cards_multiple_filters ERROR [ 24%]
+tests/api/test_cards.py::TestCreateCard::test_create_passenger_card_success FAILED [ 25%]
+tests/api/test_cards.py::TestCreateCard::test_create_sender_card_success FAILED [ 26%]
+tests/api/test_cards.py::TestCreateCard::test_create_card_without_auth PASSED [ 27%]
+tests/api/test_cards.py::TestCreateCard::test_create_card_validation_error FAILED [ 29%]
+tests/api/test_cards.py::TestCreateCard::test_create_card_with_community_ids ERROR [ 30%]
+tests/api/test_cards.py::TestGetCard::test_get_card_success ERROR        [ 31%]
+tests/api/test_cards.py::TestGetCard::test_get_card_not_found PASSED     [ 32%]
+tests/api/test_cards.py::TestUpdateCard::test_update_card_by_owner ERROR [ 33%]
+tests/api/test_cards.py::TestUpdateCard::test_update_card_by_non_owner ERROR [ 34%]
+tests/api/test_cards.py::TestUpdateCard::test_update_card_without_auth ERROR [ 35%]
+tests/api/test_cards.py::TestUpdateCard::test_update_card_not_found FAILED [ 36%]
+tests/api/test_cards.py::TestDeleteCard::test_delete_card_by_owner FAILED [ 37%]
+tests/api/test_cards.py::TestDeleteCard::test_delete_card_by_non_owner ERROR [ 38%]
+tests/api/test_cards.py::TestDeleteCard::test_delete_card_without_auth ERROR [ 39%]
+tests/api/test_cards.py::TestDeleteCard::test_delete_card_not_found FAILED [ 40%]
+tests/api/test_communities.py::TestGetCommunities::test_get_communities_empty_list PASSED [ 41%]
+tests/api/test_communities.py::TestGetCommunities::test_get_communities_with_data ERROR [ 43%]
+tests/api/test_communities.py::TestGetCommunities::test_get_communities_pagination ERROR [ 44%]
+tests/api/test_communities.py::TestCreateCommunity::test_create_community_success FAILED [ 45%]
+tests/api/test_communities.py::TestCreateCommunity::test_create_community_duplicate_name ERROR [ 46%]
+tests/api/test_communities.py::TestCreateCommunity::test_create_community_without_auth PASSED [ 47%]
+tests/api/test_communities.py::TestCreateCommunity::test_create_community_validation_error FAILED [ 48%]
+tests/api/test_communities.py::TestGetCommunity::test_get_community_success ERROR [ 49%]
+tests/api/test_communities.py::TestGetCommunity::test_get_community_not_found PASSED [ 50%]
+tests/api/test_communities.py::TestUpdateCommunity::test_update_community_by_owner ERROR [ 51%]
+tests/api/test_communities.py::TestUpdateCommunity::test_update_community_by_non_owner ERROR [ 52%]
+tests/api/test_communities.py::TestUpdateCommunity::test_update_community_without_auth ERROR [ 53%]
+tests/api/test_communities.py::TestUpdateCommunity::test_update_community_not_found FAILED [ 54%]
+tests/api/test_communities.py::TestJoinCommunity::test_join_community_success ERROR [ 55%]
+tests/api/test_communities.py::TestJoinCommunity::test_join_community_duplicate_request ERROR [ 56%]
+tests/api/test_communities.py::TestJoinCommunity::test_join_community_not_found FAILED [ 58%]
+tests/api/test_communities.py::TestJoinCommunity::test_join_community_without_auth ERROR [ 59%]
+tests/api/test_communities.py::TestGetJoinRequests::test_get_requests_by_owner ERROR [ 60%]
+tests/api/test_communities.py::TestGetJoinRequests::test_get_requests_by_non_owner ERROR [ 61%]
+tests/api/test_communities.py::TestGetJoinRequests::test_get_requests_without_auth ERROR [ 62%]
+tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_success ERROR [ 63%]
+tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_by_non_owner ERROR [ 64%]
+tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_not_found ERROR [ 65%]
+tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_without_auth ERROR [ 66%]
+tests/api/test_communities.py::TestRejectJoinRequest::test_reject_request_success ERROR [ 67%]
+tests/api/test_communities.py::TestRejectJoinRequest::test_reject_request_by_non_owner ERROR [ 68%]
+tests/api/test_communities.py::TestRejectJoinRequest::test_reject_request_without_auth ERROR [ 69%]
+tests/api/test_communities.py::TestGetCommunityMembers::test_get_members_with_pagination ERROR [ 70%]
+tests/api/test_communities.py::TestGetCommunityMembers::test_get_members_only_active ERROR [ 72%]
+tests/api/test_communities.py::TestGetCommunityMembers::test_get_members_not_found PASSED [ 73%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_success_with_common_community ERROR [ 74%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_blocked_no_common_community ERROR [ 75%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_rate_limit_exceeded ERROR [ 76%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_without_auth PASSED [ 77%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_validation_error_missing_body FAILED [ 78%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_validation_error_empty_body FAILED [ 79%]
+tests/api/test_messages.py::TestSendMessage::test_send_message_to_nonexistent_user FAILED [ 80%]
+tests/api/test_messages.py::TestGetInbox::test_get_inbox_with_messages ERROR [ 81%]
+tests/api/test_messages.py::TestGetInbox::test_get_inbox_only_received_messages ERROR [ 82%]
+tests/api/test_messages.py::TestGetInbox::test_get_inbox_newest_first ERROR [ 83%]
+tests/api/test_messages.py::TestGetInbox::test_get_inbox_without_auth PASSED [ 84%]
+tests/api/test_messages.py::TestGetSent::test_get_sent_with_messages ERROR [ 86%]
+tests/api/test_messages.py::TestGetSent::test_get_sent_only_sent_messages ERROR [ 87%]
+tests/api/test_messages.py::TestGetSent::test_get_sent_newest_first ERROR [ 88%]
+tests/api/test_messages.py::TestGetSent::test_get_sent_without_auth PASSED [ 89%]
+tests/api/test_users.py::TestGetMyProfile::test_get_profile_success FAILED [ 90%]
+tests/api/test_users.py::TestGetMyProfile::test_get_profile_without_auth PASSED [ 91%]
+tests/api/test_users.py::TestGetMyProfile::test_get_profile_invalid_token PASSED [ 92%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_all_fields FAILED [ 93%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_partial FAILED [ 94%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_without_auth PASSED [ 95%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_invalid_data FAILED [ 96%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_check_updated_at FAILED [ 97%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_empty_payload FAILED [ 98%]
+tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_with_null_values FAILED [100%]
+
+==================================== ERRORS ====================================
+________ ERROR at setup of TestGetCards.test_get_cards_with_pagination _________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 37, 41540), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+_______ ERROR at setup of TestGetCards.test_get_cards_filter_origin_city _______
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 37, 358964), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+____ ERROR at setup of TestGetCards.test_get_cards_filter_destination_city _____
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 37, 650608), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+_____ ERROR at setup of TestGetCards.test_get_cards_filter_is_sender_false _____
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 38, 244432), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+________ ERROR at setup of TestGetCards.test_get_cards_multiple_filters ________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 38, 534303), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+_____ ERROR at setup of TestCreateCard.test_create_card_with_community_ids _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____________ ERROR at setup of TestGetCard.test_get_card_success ______________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 39, 419180), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+__________ ERROR at setup of TestUpdateCard.test_update_card_by_owner __________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 39, 820182), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+________ ERROR at setup of TestUpdateCard.test_update_card_by_non_owner ________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 40, 124479), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+________ ERROR at setup of TestUpdateCard.test_update_card_without_auth ________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 40, 432869), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+________ ERROR at setup of TestDeleteCard.test_delete_card_by_non_owner ________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 41, 174494), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+________ ERROR at setup of TestDeleteCard.test_delete_card_without_auth ________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:374: in test_card
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 41, 468583), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Test card for unit tests'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+_____ ERROR at setup of TestGetCommunities.test_get_communities_with_data ______
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestGetCommunities.test_get_communities_pagination _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__ ERROR at setup of TestCreateCommunity.test_create_community_duplicate_name __
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+________ ERROR at setup of TestGetCommunity.test_get_community_success _________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestUpdateCommunity.test_update_community_by_owner _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___ ERROR at setup of TestUpdateCommunity.test_update_community_by_non_owner ___
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___ ERROR at setup of TestUpdateCommunity.test_update_community_without_auth ___
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_______ ERROR at setup of TestJoinCommunity.test_join_community_success ________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__ ERROR at setup of TestJoinCommunity.test_join_community_duplicate_request ___
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestJoinCommunity.test_join_community_without_auth _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_______ ERROR at setup of TestGetJoinRequests.test_get_requests_by_owner _______
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestGetJoinRequests.test_get_requests_by_non_owner _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestGetJoinRequests.test_get_requests_without_auth _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+____ ERROR at setup of TestApproveJoinRequest.test_approve_request_success _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__ ERROR at setup of TestApproveJoinRequest.test_approve_request_by_non_owner __
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___ ERROR at setup of TestApproveJoinRequest.test_approve_request_not_found ____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__ ERROR at setup of TestApproveJoinRequest.test_approve_request_without_auth __
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestRejectJoinRequest.test_reject_request_success ______
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___ ERROR at setup of TestRejectJoinRequest.test_reject_request_by_non_owner ___
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___ ERROR at setup of TestRejectJoinRequest.test_reject_request_without_auth ___
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__ ERROR at setup of TestGetCommunityMembers.test_get_members_with_pagination __
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+____ ERROR at setup of TestGetCommunityMembers.test_get_members_only_active ____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_ ERROR at setup of TestSendMessage.test_send_message_success_with_common_community _
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_ ERROR at setup of TestSendMessage.test_send_message_blocked_no_common_community _
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___ ERROR at setup of TestSendMessage.test_send_message_rate_limit_exceeded ____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_________ ERROR at setup of TestGetInbox.test_get_inbox_with_messages __________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+_____ ERROR at setup of TestGetInbox.test_get_inbox_only_received_messages _____
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__________ ERROR at setup of TestGetInbox.test_get_inbox_newest_first __________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+__________ ERROR at setup of TestGetSent.test_get_sent_with_messages ___________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+________ ERROR at setup of TestGetSent.test_get_sent_only_sent_messages ________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+___________ ERROR at setup of TestGetSent.test_get_sent_newest_first ___________
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:369: in _async_fixture_wrapper
+    return event_loop.run_until_complete(setup())
+/usr/local/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+/usr/local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:364: in setup
+    res = await func(
+tests/conftest.py:238: in test_community
+    from app.models.role import MembershipRole
+E   ImportError: cannot import name 'MembershipRole' from 'app.models.role' (/app/app/models/role.py)
+=================================== FAILURES ===================================
+___________________ TestRequestOTP.test_request_otp_success ____________________
+tests/api/test_auth.py:126: in test_request_otp_success
+    assert response.status_code == 200
+E   assert 400 == 200
+E    +  where 400 = <Response [400 Bad Request]>.status_code
+____________ TestRequestOTP.test_request_otp_updates_existing_code _____________
+tests/api/test_auth.py:178: in test_request_otp_updates_existing_code
+    assert response1.status_code == 200
+E   assert 400 == 200
+E    +  where 400 = <Response [400 Bad Request]>.status_code
+____________________ TestVerifyOTP.test_verify_otp_success _____________________
+tests/api/test_auth.py:235: in test_verify_otp_success
+    assert response.status_code == 200
+E   assert 422 == 200
+E    +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+----------------------------- Captured stdout call -----------------------------
+2025-11-12 14:22:36 - minila - WARNING - Validation error: [{'type': 'string_type', 'loc': ('body', 'otp_code'), 'msg': 'Input should be a valid string', 'input': None}]
+------------------------------ Captured log call -------------------------------
+WARNING  minila:main.py:111 Validation error: [{'type': 'string_type', 'loc': ('body', 'otp_code'), 'msg': 'Input should be a valid string', 'input': None}]
+___________________ TestVerifyOTP.test_verify_otp_used_code ____________________
+tests/api/test_auth.py:293: in test_verify_otp_used_code
+    assert response1.status_code == 200
+E   assert 422 == 200
+E    +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+----------------------------- Captured stdout call -----------------------------
+2025-11-12 14:22:36 - minila - WARNING - Validation error: [{'type': 'string_type', 'loc': ('body', 'otp_code'), 'msg': 'Input should be a valid string', 'input': None}]
+------------------------------ Captured log call -------------------------------
+WARNING  minila:main.py:111 Validation error: [{'type': 'string_type', 'loc': ('body', 'otp_code'), 'msg': 'Input should be a valid string', 'input': None}]
+_________________ TestRefreshToken.test_refresh_token_success __________________
+tests/api/test_auth.py:361: in test_refresh_token_success
+    refresh_token = tokens["refresh_token"]
+E   KeyError: 'refresh_token'
+----------------------------- Captured stdout call -----------------------------
+2025-11-12 14:22:36 - minila - WARNING - Validation error: [{'type': 'string_type', 'loc': ('body', 'otp_code'), 'msg': 'Input should be a valid string', 'input': None}]
+------------------------------ Captured log call -------------------------------
+WARNING  minila:main.py:111 Validation error: [{'type': 'string_type', 'loc': ('body', 'otp_code'), 'msg': 'Input should be a valid string', 'input': None}]
+______________ TestGetCards.test_get_cards_filter_is_sender_true _______________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+tests/api/test_cards.py:92: in test_get_cards_filter_is_sender_true
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': True, 'start_time_frame': datetime.datetime(2025, 11, 13, 14, 22, 37, 974364), 'end_time_frame': datetime.datetime(2025, 11, 19, 14, 22, 37, 974366), 'ticket_date_time': None, 'weight': 10.0, 'is_packed': None, 'price_aed': None, 'description': 'Sender card'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+______________ TestCreateCard.test_create_passenger_card_success _______________
+tests/api/test_cards.py:175: in test_create_passenger_card_success
+    assert response.status_code == 201
+E   assert 403 == 201
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+________________ TestCreateCard.test_create_sender_card_success ________________
+tests/api/test_cards.py:212: in test_create_sender_card_success
+    assert response.status_code == 201
+E   assert 403 == 201
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+_______________ TestCreateCard.test_create_card_validation_error _______________
+tests/api/test_cards.py:260: in test_create_card_validation_error
+    assert response.status_code == 422
+E   assert 403 == 422
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+__________________ TestUpdateCard.test_update_card_not_found ___________________
+tests/api/test_cards.py:419: in test_update_card_not_found
+    assert response.status_code == 404
+E   assert 403 == 404
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+___________________ TestDeleteCard.test_delete_card_by_owner ___________________
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.ForeignKeyViolation: insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+
+The above exception was the direct cause of the following exception:
+tests/api/test_cards.py:450: in test_delete_card_by_owner
+    await test_db.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:203: in greenlet_spawn
+    result = context.switch(value)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2030: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1311: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1286: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4331: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4466: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4427: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1419: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:597: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+/usr/local/lib/python3.12/site-packages/psycopg/cursor_async.py:89: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table "card" violates foreign key constraint "card_origin_country_id_fkey"
+E   DETAIL:  Key (origin_country_id)=(1) is not present in table "country".
+E   [SQL: INSERT INTO card (owner_id, origin_country_id, origin_city_id, destination_country_id, destination_city_id, product_classification_id, is_sender, start_time_frame, end_time_frame, ticket_date_time, weight, is_packed, price_aed, description) VALUES (%(owner_id)s::INTEGER, %(origin_country_id)s::INTEGER, %(origin_city_id)s::INTEGER, %(destination_country_id)s::INTEGER, %(destination_city_id)s::INTEGER, %(product_classification_id)s::INTEGER, %(is_sender)s, %(start_time_frame)s::TIMESTAMP WITH TIME ZONE, %(end_time_frame)s::TIMESTAMP WITH TIME ZONE, %(ticket_date_time)s::TIMESTAMP WITH TIME ZONE, %(weight)s, %(is_packed)s, %(price_aed)s, %(description)s::VARCHAR) RETURNING card.id, card.created_at, card.updated_at]
+E   [parameters: {'owner_id': 1, 'origin_country_id': 1, 'origin_city_id': 1, 'destination_country_id': 2, 'destination_city_id': 2, 'product_classification_id': None, 'is_sender': False, 'start_time_frame': None, 'end_time_frame': None, 'ticket_date_time': datetime.datetime(2025, 11, 19, 14, 22, 40, 846743), 'weight': 5.0, 'is_packed': None, 'price_aed': None, 'description': 'Card to delete'}]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+__________________ TestDeleteCard.test_delete_card_not_found ___________________
+tests/api/test_cards.py:507: in test_delete_card_not_found
+    assert response.status_code == 404
+E   assert 403 == 404
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+______________ TestCreateCommunity.test_create_community_success _______________
+tests/api/test_communities.py:95: in test_create_community_success
+    assert response.status_code == 201
+E   assert 403 == 201
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+__________ TestCreateCommunity.test_create_community_validation_error __________
+tests/api/test_communities.py:161: in test_create_community_validation_error
+    assert response.status_code == 422
+E   assert 403 == 422
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+_____________ TestUpdateCommunity.test_update_community_not_found ______________
+tests/api/test_communities.py:287: in test_update_community_not_found
+    assert response.status_code == 404
+E   assert 403 == 404
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+_______________ TestJoinCommunity.test_join_community_not_found ________________
+tests/api/test_communities.py:356: in test_join_community_not_found
+    assert response.status_code == 400
+E   assert 403 == 400
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+_______ TestSendMessage.test_send_message_validation_error_missing_body ________
+tests/api/test_messages.py:168: in test_send_message_validation_error_missing_body
+    assert response.status_code == 422
+E   assert 403 == 422
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+________ TestSendMessage.test_send_message_validation_error_empty_body _________
+tests/api/test_messages.py:191: in test_send_message_validation_error_empty_body
+    assert response.status_code == 422
+E   assert 403 == 422
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+____________ TestSendMessage.test_send_message_to_nonexistent_user _____________
+tests/api/test_messages.py:218: in test_send_message_to_nonexistent_user
+    assert response.status_code == 400
+E   assert 403 == 400
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+__________________ TestGetMyProfile.test_get_profile_success ___________________
+tests/api/test_users.py:24: in test_get_profile_success
+    assert response.status_code == 200
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+______________ TestUpdateMyProfile.test_update_profile_all_fields ______________
+tests/api/test_users.py:87: in test_update_profile_all_fields
+    assert response.status_code == 200
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+_______________ TestUpdateMyProfile.test_update_profile_partial ________________
+tests/api/test_users.py:115: in test_update_profile_partial
+    assert response.status_code == 200
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+_____________ TestUpdateMyProfile.test_update_profile_invalid_data _____________
+tests/api/test_users.py:151: in test_update_profile_invalid_data
+    assert response.status_code == 422
+E   assert 403 == 422
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+___________ TestUpdateMyProfile.test_update_profile_check_updated_at ___________
+tests/api/test_users.py:183: in test_update_profile_check_updated_at
+    assert response.status_code == 200
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+____________ TestUpdateMyProfile.test_update_profile_empty_payload _____________
+tests/api/test_users.py:209: in test_update_profile_empty_payload
+    assert response.status_code == 200
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+___________ TestUpdateMyProfile.test_update_profile_with_null_values ___________
+tests/api/test_users.py:237: in test_update_profile_with_null_values
+    assert response.status_code == 200
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:291
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.8/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+tests/api/test_auth.py::TestSignup::test_signup_success
+  /app/app/services/auth_service.py:67: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+
+tests/api/test_auth.py: 8 warnings
+tests/api/test_cards.py: 19 warnings
+tests/api/test_communities.py: 26 warnings
+tests/api/test_messages.py: 21 warnings
+tests/api/test_users.py: 7 warnings
+  /app/app/core/security.py:106: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(minutes=expires_minutes)
+
+tests/api/test_auth.py: 1 warning
+tests/api/test_cards.py: 5 warnings
+tests/api/test_communities.py: 4 warnings
+tests/api/test_messages.py: 3 warnings
+tests/api/test_users.py: 7 warnings
+  /app/app/core/security.py:180: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    if datetime.utcnow().timestamp() > payload["exp"]:
+
+tests/api/test_cards.py: 11 warnings
+  /app/tests/conftest.py:369: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    ticket_date_time=datetime.utcnow() + timedelta(days=7),
+
+tests/api/test_cards.py::TestGetCards::test_get_cards_filter_is_sender_true
+  /app/tests/api/test_cards.py:86: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    start_time_frame=datetime.utcnow() + timedelta(days=1),
+
+tests/api/test_cards.py::TestGetCards::test_get_cards_filter_is_sender_true
+  /app/tests/api/test_cards.py:87: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    end_time_frame=datetime.utcnow() + timedelta(days=7),
+
+tests/api/test_cards.py::TestCreateCard::test_create_passenger_card_success
+  /app/tests/api/test_cards.py:162: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "ticket_date_time": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+
+tests/api/test_cards.py::TestCreateCard::test_create_sender_card_success
+  /app/tests/api/test_cards.py:198: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "start_time_frame": (datetime.utcnow() + timedelta(days=1)).isoformat(),
+
+tests/api/test_cards.py::TestCreateCard::test_create_sender_card_success
+  /app/tests/api/test_cards.py:199: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "end_time_frame": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+
+tests/api/test_cards.py::TestCreateCard::test_create_card_without_auth
+  /app/tests/api/test_cards.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "ticket_date_time": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+
+tests/api/test_cards.py::TestDeleteCard::test_delete_card_by_owner
+  /app/tests/api/test_cards.py:445: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    ticket_date_time=datetime.utcnow() + timedelta(days=7),
+
+tests/api/test_messages.py::TestSendMessage::test_send_message_to_nonexistent_user
+  /app/tests/conftest.py:75: DeprecationWarning: Call to deprecated close. (Use aclose() instead) -- Deprecated since version 5.0.1.
+    await client.close()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/api/test_auth.py::TestRequestOTP::test_request_otp_success - ass...
+FAILED tests/api/test_auth.py::TestRequestOTP::test_request_otp_updates_existing_code
+FAILED tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_success - asser...
+FAILED tests/api/test_auth.py::TestVerifyOTP::test_verify_otp_used_code - ass...
+FAILED tests/api/test_auth.py::TestRefreshToken::test_refresh_token_success
+FAILED tests/api/test_cards.py::TestGetCards::test_get_cards_filter_is_sender_true
+FAILED tests/api/test_cards.py::TestCreateCard::test_create_passenger_card_success
+FAILED tests/api/test_cards.py::TestCreateCard::test_create_sender_card_success
+FAILED tests/api/test_cards.py::TestCreateCard::test_create_card_validation_error
+FAILED tests/api/test_cards.py::TestUpdateCard::test_update_card_not_found - ...
+FAILED tests/api/test_cards.py::TestDeleteCard::test_delete_card_by_owner - s...
+FAILED tests/api/test_cards.py::TestDeleteCard::test_delete_card_not_found - ...
+FAILED tests/api/test_communities.py::TestCreateCommunity::test_create_community_success
+FAILED tests/api/test_communities.py::TestCreateCommunity::test_create_community_validation_error
+FAILED tests/api/test_communities.py::TestUpdateCommunity::test_update_community_not_found
+FAILED tests/api/test_communities.py::TestJoinCommunity::test_join_community_not_found
+FAILED tests/api/test_messages.py::TestSendMessage::test_send_message_validation_error_missing_body
+FAILED tests/api/test_messages.py::TestSendMessage::test_send_message_validation_error_empty_body
+FAILED tests/api/test_messages.py::TestSendMessage::test_send_message_to_nonexistent_user
+FAILED tests/api/test_users.py::TestGetMyProfile::test_get_profile_success - ...
+FAILED tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_all_fields
+FAILED tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_partial
+FAILED tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_invalid_data
+FAILED tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_check_updated_at
+FAILED tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_empty_payload
+FAILED tests/api/test_users.py::TestUpdateMyProfile::test_update_profile_with_null_values
+ERROR tests/api/test_cards.py::TestGetCards::test_get_cards_with_pagination
+ERROR tests/api/test_cards.py::TestGetCards::test_get_cards_filter_origin_city
+ERROR tests/api/test_cards.py::TestGetCards::test_get_cards_filter_destination_city
+ERROR tests/api/test_cards.py::TestGetCards::test_get_cards_filter_is_sender_false
+ERROR tests/api/test_cards.py::TestGetCards::test_get_cards_multiple_filters
+ERROR tests/api/test_cards.py::TestCreateCard::test_create_card_with_community_ids
+ERROR tests/api/test_cards.py::TestGetCard::test_get_card_success - sqlalchem...
+ERROR tests/api/test_cards.py::TestUpdateCard::test_update_card_by_owner - sq...
+ERROR tests/api/test_cards.py::TestUpdateCard::test_update_card_by_non_owner
+ERROR tests/api/test_cards.py::TestUpdateCard::test_update_card_without_auth
+ERROR tests/api/test_cards.py::TestDeleteCard::test_delete_card_by_non_owner
+ERROR tests/api/test_cards.py::TestDeleteCard::test_delete_card_without_auth
+ERROR tests/api/test_communities.py::TestGetCommunities::test_get_communities_with_data
+ERROR tests/api/test_communities.py::TestGetCommunities::test_get_communities_pagination
+ERROR tests/api/test_communities.py::TestCreateCommunity::test_create_community_duplicate_name
+ERROR tests/api/test_communities.py::TestGetCommunity::test_get_community_success
+ERROR tests/api/test_communities.py::TestUpdateCommunity::test_update_community_by_owner
+ERROR tests/api/test_communities.py::TestUpdateCommunity::test_update_community_by_non_owner
+ERROR tests/api/test_communities.py::TestUpdateCommunity::test_update_community_without_auth
+ERROR tests/api/test_communities.py::TestJoinCommunity::test_join_community_success
+ERROR tests/api/test_communities.py::TestJoinCommunity::test_join_community_duplicate_request
+ERROR tests/api/test_communities.py::TestJoinCommunity::test_join_community_without_auth
+ERROR tests/api/test_communities.py::TestGetJoinRequests::test_get_requests_by_owner
+ERROR tests/api/test_communities.py::TestGetJoinRequests::test_get_requests_by_non_owner
+ERROR tests/api/test_communities.py::TestGetJoinRequests::test_get_requests_without_auth
+ERROR tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_success
+ERROR tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_by_non_owner
+ERROR tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_not_found
+ERROR tests/api/test_communities.py::TestApproveJoinRequest::test_approve_request_without_auth
+ERROR tests/api/test_communities.py::TestRejectJoinRequest::test_reject_request_success
+ERROR tests/api/test_communities.py::TestRejectJoinRequest::test_reject_request_by_non_owner
+ERROR tests/api/test_communities.py::TestRejectJoinRequest::test_reject_request_without_auth
+ERROR tests/api/test_communities.py::TestGetCommunityMembers::test_get_members_with_pagination
+ERROR tests/api/test_communities.py::TestGetCommunityMembers::test_get_members_only_active
+ERROR tests/api/test_messages.py::TestSendMessage::test_send_message_success_with_common_community
+ERROR tests/api/test_messages.py::TestSendMessage::test_send_message_blocked_no_common_community
+ERROR tests/api/test_messages.py::TestSendMessage::test_send_message_rate_limit_exceeded
+ERROR tests/api/test_messages.py::TestGetInbox::test_get_inbox_with_messages
+ERROR tests/api/test_messages.py::TestGetInbox::test_get_inbox_only_received_messages
+ERROR tests/api/test_messages.py::TestGetInbox::test_get_inbox_newest_first
+ERROR tests/api/test_messages.py::TestGetSent::test_get_sent_with_messages - ...
+ERROR tests/api/test_messages.py::TestGetSent::test_get_sent_only_sent_messages
+ERROR tests/api/test_messages.py::TestGetSent::test_get_sent_newest_first - I...
+=========== 26 failed, 24 passed, 122 warnings, 43 errors in 14.43s ============
+

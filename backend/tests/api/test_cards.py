@@ -139,6 +139,43 @@ class TestGetCards:
             assert card["destination_city"]["id"] == 2
             assert card["is_sender"] is False
 
+    @pytest.mark.asyncio
+    async def test_get_cards_invalid_page_zero(self, client: AsyncClient):
+        """Test getting cards with page=0 (should default to 1)."""
+        response = await client.get("/api/v1/cards/?page=0&page_size=10")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["page"] == 1
+
+    @pytest.mark.asyncio
+    async def test_get_cards_large_page_size(self, client: AsyncClient):
+        """Test getting cards with very large page_size (should cap at 100)."""
+        response = await client.get("/api/v1/cards/?page=1&page_size=500")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["page_size"] == 100
+
+    @pytest.mark.asyncio
+    async def test_get_cards_negative_page(self, client: AsyncClient):
+        """Test getting cards with negative page number."""
+        response = await client.get("/api/v1/cards/?page=-5&page_size=10")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["page"] == 1
+
+    @pytest.mark.asyncio
+    async def test_get_cards_no_results_with_filter(self, client: AsyncClient):
+        """Test filtering cards with no matching results."""
+        response = await client.get("/api/v1/cards/?origin_city_id=9999")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 0
+        assert len(data["items"]) == 0
+
 
 # ==================== POST /api/v1/cards/ ====================
 

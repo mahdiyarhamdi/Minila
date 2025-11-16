@@ -9,6 +9,7 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
+import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه بلاک لیست
@@ -31,7 +32,7 @@ export default function BlockedUsersPage() {
       setUnblockUserId(null)
     },
     onError: (error: any) => {
-      showToast('error', error.response?.data?.detail || 'خطا در آنبلاک کردن کاربر')
+      showToast('error', extractErrorMessage(error))
     },
   })
 
