@@ -12,6 +12,7 @@ import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
 import Autocomplete from '@/components/Autocomplete'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import DateTimePicker from '@/components/DateTimePicker'
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
@@ -96,13 +97,6 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         value: String(card.destination_city.id),
       })
 
-      // Convert datetime strings to input format
-      const formatDateTimeForInput = (dateStr?: string) => {
-        if (!dateStr) return ''
-        const date = new Date(dateStr)
-        return date.toISOString().slice(0, 16)
-      }
-
       // Set form data
       setFormData({
         is_sender: card.is_sender,
@@ -110,9 +104,9 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         origin_city_id: card.origin_city.id,
         destination_country_id: card.destination_country.id,
         destination_city_id: card.destination_city.id,
-        start_time_frame: formatDateTimeForInput(card.start_time_frame),
-        end_time_frame: formatDateTimeForInput(card.end_time_frame),
-        ticket_date_time: formatDateTimeForInput(card.ticket_date_time),
+        start_time_frame: card.start_time_frame || '',
+        end_time_frame: card.end_time_frame || '',
+        ticket_date_time: card.ticket_date_time || '',
         weight: card.weight,
         is_packed: card.is_packed,
         price_aed: card.price_aed,
@@ -398,27 +392,29 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
               {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
               {formData.is_sender ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
+                  <DateTimePicker
                     label="شروع بازه زمانی"
-                    type="datetime-local"
                     value={formData.start_time_frame || ''}
-                    onChange={(e) => handleChange('start_time_frame', e.target.value)}
+                    onChange={(value) => handleChange('start_time_frame', value)}
+                    includeTime={false}
                     helperText="اختیاری"
                   />
-                  <Input
+                  <DateTimePicker
                     label="پایان بازه زمانی"
-                    type="datetime-local"
                     value={formData.end_time_frame || ''}
-                    onChange={(e) => handleChange('end_time_frame', e.target.value)}
+                    onChange={(value) => handleChange('end_time_frame', value)}
+                    includeTime={false}
+                    validatePast={true}
                     helperText="اختیاری"
                   />
                 </div>
               ) : (
-                <Input
+                <DateTimePicker
                   label="تاریخ دقیق سفر"
-                  type="datetime-local"
                   value={formData.ticket_date_time || ''}
-                  onChange={(e) => handleChange('ticket_date_time', e.target.value)}
+                  onChange={(value) => handleChange('ticket_date_time', value)}
+                  includeTime={true}
+                  validatePast={true}
                   helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
                 />
               )}

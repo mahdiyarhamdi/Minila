@@ -10,6 +10,7 @@ import Select from '@/components/Select'
 import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
 import Autocomplete from '@/components/Autocomplete'
+import DateTimePicker from '@/components/DateTimePicker'
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
@@ -304,29 +305,31 @@ export default function NewCardPage() {
               {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
               {formData.is_sender ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
+                  <DateTimePicker
                     label="شروع بازه زمانی"
-                    type="datetime-local"
                     value={formData.start_time_frame || ''}
-                    onChange={(e) => handleChange('start_time_frame', e.target.value)}
+                    onChange={(value) => handleChange('start_time_frame', value)}
+                    includeTime={false}
                     helperText="اختیاری"
                   />
-                  <Input
+                  <DateTimePicker
                     label="پایان بازه زمانی"
-                    type="datetime-local"
                     value={formData.end_time_frame || ''}
-                    onChange={(e) => handleChange('end_time_frame', e.target.value)}
+                    onChange={(value) => handleChange('end_time_frame', value)}
+                    includeTime={false}
+                    validatePast={true}
                     helperText="اختیاری"
                   />
                 </div>
               ) : (
-                <Input
+                <DateTimePicker
                   label="تاریخ دقیق سفر"
-                  type="datetime-local"
                   value={formData.ticket_date_time || ''}
-                  onChange={(e) => handleChange('ticket_date_time', e.target.value)}
+                  onChange={(value) => handleChange('ticket_date_time', value)}
+                  includeTime={true}
+                  validatePast={true}
                   helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
-              />
+                />
               )}
 
               {/* وزن و قیمت */}
