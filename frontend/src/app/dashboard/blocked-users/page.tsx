@@ -105,7 +105,7 @@ export default function BlockedUsersPage() {
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={() => setUnblockUserId(parseInt(user.id))}
+                    onClick={() => setUnblockUserId(user.id)}
                   >
                     آنبلاک
                   </Button>

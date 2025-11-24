@@ -64,7 +64,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
     )
   }
 
-  const isOwner = user?.id === card.owner.id.toString()
+  const isOwner = user?.id === card.owner.id
 
   return (
     <div className="min-h-screen bg-neutral-50">

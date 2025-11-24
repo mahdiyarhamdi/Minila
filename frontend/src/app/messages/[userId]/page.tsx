@@ -58,9 +58,9 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
     )
   }
 
-  const messages = messagesData?.items || []
+  const messages = [...(messagesData?.items || [])].reverse()
   const otherUser = messages.length > 0
-    ? messages[0].sender_id === parseInt(user?.id || '0')
+    ? messages[0].sender.id === user?.id
       ? messages[0].receiver
       : messages[0].sender
     : null
@@ -130,10 +130,10 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
                 <MessageBubble
                   key={message.id}
                   content={message.body}
-                  isOwn={message.sender_id === parseInt(user?.id || '0')}
+                  isOwn={message.sender.id === user?.id}
                   timestamp={message.created_at}
                   senderName={
-                    message.sender_id !== parseInt(user?.id || '0')
+                    message.sender.id !== user?.id
                       ? `${message.sender.first_name} ${message.sender.last_name}`
                       : undefined
                   }

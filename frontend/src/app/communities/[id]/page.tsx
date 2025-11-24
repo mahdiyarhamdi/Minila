@@ -59,8 +59,8 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
     )
   }
 
-  // Check if current user is the owner (convert user.id to number for comparison)
-  const isOwner = user && community.owner && community.owner.id === parseInt(user.id)
+  // Check if current user is the owner
+  const isOwner = user && community.owner && community.owner.id === user.id
   
   // Check member status from API if available, otherwise use owner check
   const isManager = community.my_role === 'manager' || community.my_role === 'owner' || isOwner
