@@ -112,7 +112,7 @@ export default function MessagesPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-medium text-neutral-900">
+                        <h3 className={`${conversation.unread_count > 0 ? 'font-bold' : 'font-medium'} text-neutral-900`}>
                           {conversation.user.first_name} {conversation.user.last_name}
                         </h3>
                         <span className="text-xs text-neutral-500 flex-shrink-0">
@@ -124,12 +124,12 @@ export default function MessagesPage() {
                       <div className="flex items-center justify-between">
                         <p
                           className={`text-sm truncate ${
-                            !conversation.last_message.is_read
+                            conversation.unread_count > 0
                               ? 'font-medium text-neutral-900'
                               : 'font-light text-neutral-600'
                           }`}
                         >
-                          {conversation.last_message.content}
+                          {conversation.last_message.body}
                         </p>
                         {conversation.unread_count > 0 && (
                           <Badge variant="error" size="sm" className="flex-shrink-0 mr-2">

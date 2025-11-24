@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useMessages, useSendMessage } from '@/hooks/useMessages'
+import { useMessages, useSendMessage, useMarkAsRead } from '@/hooks/useMessages'
 import { useAuth } from '@/contexts/AuthContext'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
@@ -22,8 +22,16 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
   const { showToast } = useToast()
   const { data: messagesData, isLoading } = useMessages(receiverId)
   const sendMutation = useSendMessage()
+  const markAsReadMutation = useMarkAsRead()
   const [messageContent, setMessageContent] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Mark messages as read when opening conversation
+  useEffect(() => {
+    if (receiverId) {
+      markAsReadMutation.mutate(receiverId)
+    }
+  }, [receiverId])
 
   // Scroll to bottom when messages load
   useEffect(() => {
@@ -137,6 +145,8 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
                       ? `${message.sender.first_name} ${message.sender.last_name}`
                       : undefined
                   }
+                  status={message.status}
+                  isRead={message.is_read}
                 />
               ))}
               <div ref={messagesEndRef} />

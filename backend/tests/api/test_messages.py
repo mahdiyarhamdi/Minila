@@ -840,3 +840,127 @@ class TestGetConversations:
             # Verify ordering by checking created_at of last_message
             timestamps = [conv["last_message"]["created_at"] for conv in data["items"]]
             assert timestamps == sorted(timestamps, reverse=True)
+
+
+# ==================== GET /api/v1/messages/unread-count ====================
+
+class TestGetUnreadCount:
+    """Test cases for getting total unread messages count."""
+
+    @pytest.mark.asyncio
+    async def test_get_unread_count_no_messages(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test unread count when user has no messages."""
+        # Act
+        response = await client.get(
+            "/api/v1/messages/unread-count",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "unread_count" in data
+        assert data["unread_count"] >= 0
+
+    @pytest.mark.asyncio
+    async def test_get_unread_count_with_unread_messages(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        test_user2: dict,
+        test_community: dict,
+        test_membership: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict,
+        redis_client: aioredis.Redis
+    ):
+        """Test unread count when user has unread messages."""
+        # Arrange - Clear rate limits
+        await redis_client.delete(f"test:msg:{test_user2['user_id']}")
+        
+        # User2 sends messages to User1
+        await client.post(
+            "/api/v1/messages/",
+            json={"receiver_id": test_user["user_id"], "body": "Unread message 1"},
+            headers=auth_headers_user2
+        )
+        await client.post(
+            "/api/v1/messages/",
+            json={"receiver_id": test_user["user_id"], "body": "Unread message 2"},
+            headers=auth_headers_user2
+        )
+        
+        # Act - User1 checks unread count
+        response = await client.get(
+            "/api/v1/messages/unread-count",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["unread_count"] >= 2
+
+    @pytest.mark.asyncio
+    async def test_get_unread_count_after_marking_read(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        test_user2: dict,
+        test_community: dict,
+        test_membership: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict,
+        redis_client: aioredis.Redis
+    ):
+        """Test unread count decreases after marking messages as read."""
+        # Arrange - Clear rate limits
+        await redis_client.delete(f"test:msg:{test_user2['user_id']}")
+        
+        # User2 sends message to User1
+        await client.post(
+            "/api/v1/messages/",
+            json={"receiver_id": test_user["user_id"], "body": "Test message"},
+            headers=auth_headers_user2
+        )
+        
+        # Get initial unread count
+        response1 = await client.get(
+            "/api/v1/messages/unread-count",
+            headers=auth_headers
+        )
+        initial_count = response1.json()["unread_count"]
+        
+        # Act - Mark as read
+        await client.post(
+            f"/api/v1/messages/mark-read/{test_user2['user_id']}",
+            headers=auth_headers
+        )
+        
+        # Get unread count after marking read
+        response2 = await client.get(
+            "/api/v1/messages/unread-count",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response2.status_code == 200
+        final_count = response2.json()["unread_count"]
+        assert final_count < initial_count
+
+    @pytest.mark.asyncio
+    async def test_get_unread_count_requires_auth(
+        self, 
+        client: AsyncClient
+    ):
+        """Test unread count endpoint requires authentication."""
+        # Act
+        response = await client.get("/api/v1/messages/unread-count")
+        
+        # Assert
+        assert response.status_code == 401

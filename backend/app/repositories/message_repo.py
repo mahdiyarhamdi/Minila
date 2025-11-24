@@ -1,5 +1,6 @@
 """Message repository برای دسترسی به دیتابیس."""
-from sqlalchemy import select, func
+from datetime import datetime
+from sqlalchemy import select, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from ..models.message import Message
@@ -195,7 +196,7 @@ async def get_conversations(
     Returns:
         لیست dictionary شامل اطلاعات هر مکالمه
     """
-    from sqlalchemy import or_, and_, case, distinct
+    from sqlalchemy import or_, and_
     from ..models.user import User
     
     # یافتن تمام کاربرانی که با آن‌ها پیام رد و بدل شده
@@ -232,12 +233,86 @@ async def get_conversations(
             conversations[other_user_id] = {
                 'user': other_user,
                 'last_message': message,
-                'unread_count': 0  # TODO: پیاده‌سازی is_read در آینده
+                'unread_count': 0
             }
+    
+    # محاسبه تعداد پیام‌های خوانده نشده برای هر مکالمه
+    for other_user_id in conversations.keys():
+        count_query = select(func.count(Message.id)).where(
+            and_(
+                Message.sender_id == other_user_id,
+                Message.receiver_id == user_id,
+                Message.is_read == False
+            )
+        )
+        count_result = await db.execute(count_query)
+        unread_count = count_result.scalar() or 0
+        conversations[other_user_id]['unread_count'] = unread_count
     
     # تبدیل به لیست و مرتب‌سازی بر اساس آخرین پیام
     result_list = list(conversations.values())
     result_list.sort(key=lambda x: x['last_message'].created_at, reverse=True)
     
     return result_list
+
+
+async def mark_as_read(
+    db: AsyncSession,
+    user_id: int,
+    other_user_id: int
+) -> int:
+    """علامت‌گذاری تمام پیام‌های خوانده نشده از یک کاربر به عنوان خوانده شده.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر دریافت‌کننده (کاربر فعلی)
+        other_user_id: شناسه کاربر فرستنده (کاربر مقابل)
+        
+    Returns:
+        تعداد پیام‌هایی که به عنوان خوانده شده علامت‌گذاری شدند
+    """
+    from sqlalchemy import and_
+    
+    # آپدیت تمام پیام‌های خوانده نشده از other_user_id به user_id
+    stmt = (
+        update(Message)
+        .where(
+            and_(
+                Message.sender_id == other_user_id,
+                Message.receiver_id == user_id,
+                Message.is_read == False
+            )
+        )
+        .values(
+            is_read=True,
+            read_at=datetime.utcnow(),
+            status="delivered"
+        )
+    )
+    
+    result = await db.execute(stmt)
+    await db.commit()
+    
+    return result.rowcount or 0
+
+
+async def get_total_unread_count(
+    db: AsyncSession,
+    user_id: int
+) -> int:
+    """دریافت تعداد کل پیام‌های خوانده نشده کاربر.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        
+    Returns:
+        تعداد کل پیام‌های خوانده نشده
+    """
+    count_query = select(func.count(Message.id)).where(
+        Message.receiver_id == user_id,
+        Message.is_read == False
+    )
+    result = await db.execute(count_query)
+    return result.scalar() or 0
 

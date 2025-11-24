@@ -315,10 +315,19 @@ class APIService {
   }
 
   /**
-   * علامت‌گذاری پیام به عنوان خوانده شده
+   * علامت‌گذاری تمام پیام‌های یک مکالمه به عنوان خوانده شده
    */
-  async markMessageAsRead(messageId: number): Promise<void> {
-    await this.client.put(`/api/v1/messages/${messageId}/read`)
+  async markConversationAsRead(userId: number): Promise<{ message: string; count: number }> {
+    const response = await this.client.post<{ message: string; count: number }>(`/api/v1/messages/mark-read/${userId}`)
+    return response.data
+  }
+
+  /**
+   * دریافت تعداد کل پیام‌های خوانده نشده
+   */
+  async getUnreadMessagesCount(): Promise<number> {
+    const response = await this.client.get<{ unread_count: number }>('/api/v1/messages/unread-count')
+    return response.data.unread_count
   }
 
   // ==================== Profile & Block API ====================

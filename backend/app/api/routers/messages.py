@@ -18,7 +18,7 @@ router = APIRouter(prefix="/api/v1/messages", tags=["messages"])
 ارسال پیام به کاربر دیگر.
 
 **Authentication**: الزامی  
-**Rate Limit**: 5 پیام در روز
+**Rate Limit**: 50 پیام در روز
 
 **قید مهم**: فرستنده و گیرنده باید حداقل یک کامیونیتی مشترک داشته باشند.
 بدون کامیونیتی مشترک، ارسال پیام با خطای 403 Forbidden مواجه می‌شود.
@@ -148,6 +148,31 @@ async def get_conversations_list(
 
 
 @router.get(
+    "/unread-count",
+    status_code=status.HTTP_200_OK,
+    summary="تعداد کل پیام‌های خوانده نشده",
+    description="""
+دریافت تعداد کل پیام‌های خوانده نشده کاربر.
+
+**Authentication**: الزامی
+
+این endpoint تعداد کل پیام‌هایی که کاربر دریافت کرده ولی هنوز نخوانده را برمی‌گرداند.
+برای نمایش در badge نوتیفیکیشن استفاده می‌شود.
+    """
+)
+async def get_unread_count(
+    current_user: CurrentUser,
+    db: DBSession
+):
+    """دریافت تعداد پیام‌های خوانده نشده."""
+    count = await message_service.get_total_unread_count(
+        db,
+        current_user["user_id"]
+    )
+    return {"unread_count": count}
+
+
+@router.get(
     "/{other_user_id}",
     status_code=status.HTTP_200_OK,
     summary="مکالمه با یک کاربر",
@@ -177,6 +202,39 @@ async def get_conversation(
             page_size
         )
         return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+
+
+@router.post(
+    "/mark-read/{other_user_id}",
+    status_code=status.HTTP_200_OK,
+    summary="علامت‌گذاری پیام‌ها به عنوان خوانده شده",
+    description="""
+علامت‌گذاری تمام پیام‌های خوانده نشده از یک کاربر به عنوان خوانده شده.
+
+**Authentication**: الزامی
+
+این endpoint تمام پیام‌های دریافتی از کاربر مشخص‌شده را که هنوز خوانده نشده‌اند،
+به عنوان خوانده شده علامت‌گذاری می‌کند.
+    """
+)
+async def mark_conversation_read(
+    other_user_id: int,
+    current_user: CurrentUser,
+    db: DBSession
+):
+    """علامت‌گذاری پیام‌ها به عنوان خوانده شده."""
+    try:
+        count = await message_service.mark_conversation_as_read(
+            db,
+            current_user["user_id"],
+            other_user_id
+        )
+        return {"message": "پیام‌ها به عنوان خوانده شده علامت‌گذاری شدند", "count": count}
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

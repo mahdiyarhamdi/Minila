@@ -28,6 +28,9 @@ class MessageOut(BaseModel):
     receiver: UserBasicOut
     body: str
     created_at: datetime
+    is_read: bool = False
+    read_at: datetime | None = None
+    status: str = "sent"
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -37,7 +40,10 @@ class MessageOut(BaseModel):
                 "sender": {"id": 1, "first_name": "علی", "last_name": "احمدی"},
                 "receiver": {"id": 2, "first_name": "محمد", "last_name": "رضایی"},
                 "body": "سلام، من می‌توانم بسته شما را به دبی منتقل کنم.",
-                "created_at": "2024-01-01T12:00:00"
+                "created_at": "2024-01-01T12:00:00",
+                "is_read": False,
+                "read_at": None,
+                "status": "sent"
             }
         }
     )
@@ -48,6 +54,8 @@ class LastMessageInfo(BaseModel):
     
     body: str
     created_at: datetime
+    is_read: bool = False
+    status: str = "sent"
     
     model_config = ConfigDict(from_attributes=True)
 

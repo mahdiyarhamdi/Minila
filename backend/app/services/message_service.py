@@ -205,3 +205,59 @@ async def get_conversations(
         "total": len(conversations)
     }
 
+
+async def mark_conversation_as_read(
+    db: AsyncSession,
+    user_id: int,
+    other_user_id: int
+):
+    """علامت‌گذاری تمام پیام‌های یک مکالمه به عنوان خوانده شده.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر فعلی
+        other_user_id: شناسه کاربر مقابل
+        
+    Returns:
+        تعداد پیام‌هایی که mark شدند
+        
+    Raises:
+        ValueError: اگر کاربر مقابل یافت نشود
+    """
+    # بررسی وجود کاربر مقابل
+    other_user = await user_repo.get_by_id(db, other_user_id)
+    if not other_user:
+        raise ValueError("کاربر مورد نظر یافت نشد")
+    
+    # علامت‌گذاری پیام‌ها به عنوان خوانده شده
+    count = await message_repo.mark_as_read(db, user_id, other_user_id)
+    
+    # ثبت لاگ اگر پیامی mark شده باشد
+    if count > 0:
+        await log_service.log_event(
+            db,
+            event_type="message_read",
+            actor_user_id=user_id,
+            target_user_id=other_user_id,
+            payload={"count": count}
+        )
+    
+    logger.info(f"Marked {count} messages as read: {other_user_id} → {user_id}")
+    return count
+
+
+async def get_total_unread_count(
+    db: AsyncSession,
+    user_id: int
+) -> int:
+    """دریافت تعداد کل پیام‌های خوانده نشده کاربر.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        
+    Returns:
+        تعداد کل پیام‌های خوانده نشده
+    """
+    return await message_repo.get_total_unread_count(db, user_id)
+

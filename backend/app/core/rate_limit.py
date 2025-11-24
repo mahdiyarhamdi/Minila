@@ -147,14 +147,10 @@ async def check_rate_limit(
     
     if not allowed:
         remaining = await limiter.get_remaining(key, limit, window_seconds)
+        hours_left = int(window_seconds / 3600)
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail={
-                "error": "Rate limit exceeded",
-                "limit": limit,
-                "remaining": remaining,
-                "window_seconds": window_seconds
-            }
+            detail=f"شما به محدودیت روزانه رسیده‌اید. می‌توانید حداکثر {limit} پیام در روز ارسال کنید. لطفاً {hours_left} ساعت دیگر دوباره امتحان کنید."
         )
 
 

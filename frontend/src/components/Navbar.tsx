@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUnreadCount } from '@/hooks/useMessages'
 import Button from './Button'
 
 /**
@@ -14,6 +15,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
+  const { data: unreadCount, refetch } = useUnreadCount(!!user)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
@@ -22,6 +24,13 @@ export default function Navbar() {
     setProfileMenuOpen(false)
     setMobileMenuOpen(false)
   }, [user])
+
+  // Refetch unread count when user logs in
+  useEffect(() => {
+    if (user) {
+      refetch()
+    }
+  }, [user, refetch])
 
   // بستن منو پروفایل با کلیک خارج از آن
   useEffect(() => {
@@ -54,7 +63,7 @@ export default function Navbar() {
     { href: '/dashboard', label: 'داشبورد' },
     { href: '/cards', label: 'کارت‌ها' },
     { href: '/communities', label: 'کامیونیتی‌ها' },
-    { href: '/messages', label: 'پیام‌ها', badge: 0 },
+    { href: '/messages', label: 'پیام‌ها', badge: unreadCount || 0 },
   ]
 
   return (
@@ -81,8 +90,8 @@ export default function Navbar() {
               >
                 {link.label}
                 {link.badge !== undefined && link.badge > 0 && (
-                  <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {link.badge}
+                  <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center font-bold shadow-sm">
+                    {link.badge > 99 ? '99+' : link.badge}
                   </span>
                 )}
               </Link>
@@ -175,13 +184,18 @@ export default function Navbar() {
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'relative px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                     pathname === link.href
                       ? 'bg-primary-50 text-primary-600'
                       : 'text-neutral-700 hover:bg-neutral-100'
                   )}
                 >
                   {link.label}
+                  {link.badge !== undefined && link.badge > 0 && (
+                    <span className="absolute top-1 left-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center font-bold">
+                      {link.badge > 99 ? '99+' : link.badge}
+                    </span>
+                  )}
                 </Link>
               ))}
               

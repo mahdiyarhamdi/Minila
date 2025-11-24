@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     EMAIL_FROM: Union[EmailStr, str] = "no-reply@example.local"
 
     # Rate limit
-    MESSAGES_PER_DAY: int = 5
+    MESSAGES_PER_DAY: int = 50
     API_RATE_LIMIT_PER_MINUTE: int = 100
 
     class Config:

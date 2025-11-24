@@ -110,7 +110,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `EMAIL_FROM` | ایمیل فرستنده | `no-reply@example.local` | ✅ |
 | `CORS_ORIGINS` | لیست domainهای مجاز | `["http://localhost:3000"]` | ❌ |
 | `OTP_EXPIRY_MINUTES` | زمان اعتبار OTP (دقیقه) | `10` | ❌ |
-| `MESSAGES_PER_DAY` | محدودیت پیام روزانه | `5` | ❌ |
+| `MESSAGES_PER_DAY` | محدودیت پیام روزانه | `50` | ❌ |
 
 ### نمونه فایل `.env`
 
@@ -135,7 +135,7 @@ OTP_EXPIRY_MINUTES=10
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 
 # Rate Limiting
-MESSAGES_PER_DAY=5
+MESSAGES_PER_DAY=50
 API_RATE_LIMIT_PER_MINUTE=100
 
 # CORS
@@ -213,13 +213,19 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 
 | Method | Endpoint | توضیح | Auth | Rate Limit |
 |--------|----------|-------|------|------------|
-| `POST` | `/` | ارسال پیام | ✅ | 5/day |
+| `POST` | `/` | ارسال پیام | ✅ | 50/day |
 | `GET` | `/inbox` | پیام‌های دریافتی (paginated) | ✅ | - |
 | `GET` | `/sent` | پیام‌های ارسالی (paginated) | ✅ | - |
-| `GET` | `/conversations` | لیست مکالمات با آخرین پیام | ✅ | - |
+| `GET` | `/conversations` | لیست مکالمات با آخرین پیام و تعداد خوانده نشده | ✅ | - |
 | `GET` | `/{other_user_id}` | مکالمه با یک کاربر (paginated) | ✅ | - |
+| `POST` | `/mark-read/{other_user_id}` | علامت‌گذاری پیام‌های یک مکالمه به عنوان خوانده شده | ✅ | - |
+| `GET` | `/unread-count` | دریافت تعداد کل پیام‌های خوانده نشده | ✅ | - |
 
-**نکته مهم**: ارسال پیام فقط با شرط کامیونیتی مشترک امکان‌پذیر است.
+**نکات مهم**: 
+- ارسال پیام فقط با شرط کامیونیتی مشترک امکان‌پذیر است
+- هر پیام دارای وضعیت (status) است: `pending` → `sent` → `delivered`
+- هنگام باز کردن مکالمه، پیام‌ها به‌طور خودکار به عنوان خوانده شده علامت‌گذاری می‌شوند
+- تعداد پیام‌های خوانده نشده در Navbar نمایش داده می‌شود (با badge قرمز)
 
 ---
 

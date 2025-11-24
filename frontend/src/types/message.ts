@@ -20,6 +20,9 @@ export interface Message {
   }
   body: string
   created_at: string
+  is_read: boolean
+  read_at: string | null
+  status: 'pending' | 'sent' | 'delivered'
 }
 
 export interface MessageCreate {
@@ -44,6 +47,8 @@ export interface Conversation {
   last_message: {
     body: string
     created_at: string
+    is_read: boolean
+    status: 'pending' | 'sent' | 'delivered'
   }
   unread_count: number
 }

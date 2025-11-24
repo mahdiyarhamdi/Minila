@@ -67,7 +67,7 @@ export function extractErrorMessage(error: any): string {
       case 422:
         return 'داده‌های ورودی نامعتبر'
       case 429:
-        return 'تعداد درخواست‌های شما بیش از حد مجاز است'
+        return 'شما به محدودیت روزانه رسیده‌اید. لطفاً بعداً دوباره امتحان کنید.'
       case 500:
         return 'خطای سرور'
       default:
