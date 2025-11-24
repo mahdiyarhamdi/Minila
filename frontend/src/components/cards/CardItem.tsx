@@ -90,11 +90,15 @@ export default function CardItem(card: CardType) {
               {product_classification.name}
             </Badge>
           )}
-          {is_packed !== null && is_packed !== undefined && (
-            <Badge variant={is_packed ? "success" : "neutral"} size="sm">
-              {is_packed ? 'بسته‌بندی شده' : 'بسته‌بندی نشده'}
-            </Badge>
-          )}
+          <Badge variant={
+            is_packed === true ? "success" : 
+            is_packed === false ? "neutral" : 
+            "neutral"
+          } size="sm">
+            {is_packed === true ? 'بسته‌بندی شده' : 
+             is_packed === false ? 'بسته‌بندی نشده' : 
+             'فرقی ندارد'}
+          </Badge>
         </div>
       </Card>
     </Link>

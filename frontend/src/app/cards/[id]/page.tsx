@@ -92,11 +92,15 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
                 {card.product_classification && (
                   <Badge variant="neutral">{card.product_classification.name}</Badge>
                 )}
-                {card.is_packed !== null && card.is_packed !== undefined && (
-                  <Badge variant={card.is_packed ? "success" : "neutral"}>
-                    {card.is_packed ? 'بسته‌بندی شده' : 'بسته‌بندی نشده'}
-                  </Badge>
-                )}
+                <Badge variant={
+                  card.is_packed === true ? "success" : 
+                  card.is_packed === false ? "neutral" : 
+                  "neutral"
+                }>
+                  {card.is_packed === true ? 'بسته‌بندی شده' : 
+                   card.is_packed === false ? 'بسته‌بندی نشده' : 
+                   'فرقی ندارد'}
+                </Badge>
               </div>
             </div>
 

@@ -82,6 +82,7 @@ class CardUpdate(BaseModel):
     price_aed: Optional[float] = Field(None, ge=0)
     description: Optional[str] = Field(None, max_length=2000)
     product_classification_id: Optional[int] = None
+    community_ids: Optional[list[int]] = Field(None, description="لیست کامیونیتی‌ها برای نمایش محدود")
     
     model_config = ConfigDict(
         json_schema_extra={

@@ -53,26 +53,36 @@ export interface Card {
 }
 
 export interface CardCreate {
-  origin: string
-  destination: string
-  travel_date?: string
-  capacity_kg?: number
-  price?: number
-  category: string
-  packaging_status: string
+  is_sender: boolean
+  origin_country_id: number
+  origin_city_id: number
+  destination_country_id: number
+  destination_city_id: number
+  start_time_frame?: string
+  end_time_frame?: string
+  ticket_date_time?: string
+  weight?: number
+  is_packed?: boolean
+  price_aed?: number
   description?: string
+  product_classification_id?: number
   community_ids?: number[]
 }
 
 export interface CardUpdate {
-  origin?: string
-  destination?: string
-  travel_date?: string
-  capacity_kg?: number
-  price?: number
-  category?: string
-  packaging_status?: string
+  is_sender?: boolean
+  origin_country_id?: number
+  origin_city_id?: number
+  destination_country_id?: number
+  destination_city_id?: number
+  start_time_frame?: string
+  end_time_frame?: string
+  ticket_date_time?: string
+  weight?: number
+  is_packed?: boolean
+  price_aed?: number
   description?: string
+  product_classification_id?: number
   community_ids?: number[]
 }
 

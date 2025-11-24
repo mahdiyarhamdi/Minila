@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface AutocompleteOption {
   id: number
@@ -45,6 +45,12 @@ export default function Autocomplete({
   
   const wrapperRef = useRef<HTMLDivElement>(null)
   const debounceTimer = useRef<NodeJS.Timeout>()
+  const onSearchRef = useRef(onSearch)
+
+  // به‌روزرسانی reference تابع جستجو
+  useEffect(() => {
+    onSearchRef.current = onSearch
+  }, [onSearch])
 
   // بستن dropdown هنگام کلیک خارج از component
   useEffect(() => {
@@ -69,6 +75,11 @@ export default function Autocomplete({
       return
     }
 
+    // اگر inputValue دقیقاً برابر با مقدار انتخاب شده باشد، جستجو نکن
+    if (value && inputValue === value.label) {
+      return
+    }
+
     // Clear previous timer
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)
@@ -78,7 +89,7 @@ export default function Autocomplete({
     debounceTimer.current = setTimeout(async () => {
       setIsLoading(true)
       try {
-        const results = await onSearch(inputValue)
+        const results = await onSearchRef.current(inputValue)
         setOptions(results)
         setIsOpen(true)
       } catch (error) {
@@ -94,7 +105,7 @@ export default function Autocomplete({
         clearTimeout(debounceTimer.current)
       }
     }
-  }, [inputValue, onSearch, disabled])
+  }, [inputValue, disabled, value])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value
@@ -155,7 +166,8 @@ export default function Autocomplete({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (inputValue && options.length > 0) {
+            // فقط dropdown را باز کن اگر نتایجی موجود باشند
+            if (options.length > 0) {
               setIsOpen(true)
             }
           }}

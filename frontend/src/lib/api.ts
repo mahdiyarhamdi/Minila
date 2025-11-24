@@ -174,7 +174,7 @@ class APIService {
    * ویرایش کارت
    */
   async updateCard(id: number, data: CardUpdate): Promise<Card> {
-    const response = await this.client.put<Card>(`/api/v1/cards/${id}`, data)
+    const response = await this.client.patch<Card>(`/api/v1/cards/${id}`, data)
     return response.data
   }
 

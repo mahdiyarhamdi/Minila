@@ -459,6 +459,29 @@ class TestUpdateCard:
         # Assert
         assert response.status_code == 404
 
+    @pytest.mark.asyncio
+    async def test_update_card_nullable_field(
+        self, 
+        client: AsyncClient, 
+        test_card: dict,
+        auth_headers: dict
+    ):
+        """Test updating nullable field to null."""
+        # Arrange - Set is_packed to null
+        payload = {"is_packed": None}
+        
+        # Act
+        response = await client.patch(
+            f"/api/v1/cards/{test_card['id']}", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["is_packed"] is None
+
 
 # ==================== DELETE /api/v1/cards/{id} ====================
 

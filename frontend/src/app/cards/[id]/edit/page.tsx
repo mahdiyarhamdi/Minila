@@ -1,19 +1,22 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useCreateCard } from '@/hooks/useCards'
+import { useCard, useUpdateCard } from '@/hooks/useCards'
 import { useMyCommunities } from '@/hooks/useCommunities'
+import { useAuth } from '@/contexts/AuthContext'
 import Card from '@/components/Card'
 import Input from '@/components/Input'
 import Select from '@/components/Select'
 import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
 import Autocomplete from '@/components/Autocomplete'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
 import type { Country, City } from '@/types/location'
+import type { CardUpdate } from '@/types/card'
 
 interface AutocompleteOption {
   id: number
@@ -39,12 +42,15 @@ interface CardFormData {
 }
 
 /**
- * صفحه ایجاد کارت جدید
+ * صفحه ویرایش کارت
  */
-export default function NewCardPage() {
+export default function EditCardPage({ params }: { params: { id: string } }) {
+  const cardId = parseInt(params.id)
   const router = useRouter()
+  const { user } = useAuth()
   const { showToast } = useToast()
-  const createCardMutation = useCreateCard()
+  const { data: card, isLoading: isLoadingCard, error: cardError } = useCard(cardId)
+  const updateCardMutation = useUpdateCard(cardId)
   const { data: communities } = useMyCommunities()
 
   // State for location selections
@@ -63,6 +69,69 @@ export default function NewCardPage() {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Initialize form with card data
+  useEffect(() => {
+    if (card && !isInitialized) {
+      // Set location autocomplete options
+      setOriginCountry({
+        id: card.origin_country.id,
+        label: card.origin_country.name,
+        value: String(card.origin_country.id),
+      })
+      setOriginCity({
+        id: card.origin_city.id,
+        label: card.origin_city.name,
+        value: String(card.origin_city.id),
+      })
+      setDestinationCountry({
+        id: card.destination_country.id,
+        label: card.destination_country.name,
+        value: String(card.destination_country.id),
+      })
+      setDestinationCity({
+        id: card.destination_city.id,
+        label: card.destination_city.name,
+        value: String(card.destination_city.id),
+      })
+
+      // Convert datetime strings to input format
+      const formatDateTimeForInput = (dateStr?: string) => {
+        if (!dateStr) return ''
+        const date = new Date(dateStr)
+        return date.toISOString().slice(0, 16)
+      }
+
+      // Set form data
+      setFormData({
+        is_sender: card.is_sender,
+        origin_country_id: card.origin_country.id,
+        origin_city_id: card.origin_city.id,
+        destination_country_id: card.destination_country.id,
+        destination_city_id: card.destination_city.id,
+        start_time_frame: formatDateTimeForInput(card.start_time_frame),
+        end_time_frame: formatDateTimeForInput(card.end_time_frame),
+        ticket_date_time: formatDateTimeForInput(card.ticket_date_time),
+        weight: card.weight,
+        is_packed: card.is_packed,
+        price_aed: card.price_aed,
+        description: card.description || '',
+        product_classification_id: card.product_classification?.id,
+        community_ids: card.communities?.map(c => c.id) || [],
+      })
+
+      setIsInitialized(true)
+    }
+  }, [card, isInitialized])
+
+  // Check ownership
+  useEffect(() => {
+    if (card && user && card.owner.id !== user.id) {
+      showToast('error', 'شما مجاز به ویرایش این کارت نیستید')
+      router.push(`/cards/${cardId}`)
+    }
+  }, [card, user, cardId, router, showToast])
 
   const handleChange = (field: keyof CardFormData, value: any) => {
     setFormData({ ...formData, [field]: value })
@@ -149,8 +218,8 @@ export default function NewCardPage() {
     }
 
     try {
-      // تبدیل مقادیر خالی به undefined و ساخت submitData
-      const submitData: any = {
+      // Build update data - only include changed fields
+      const updateData: CardUpdate = {
         is_sender: formData.is_sender,
         origin_country_id: originCountry!.id,
         origin_city_id: originCity!.id,
@@ -158,43 +227,43 @@ export default function NewCardPage() {
         destination_city_id: destinationCity!.id,
       }
 
-      // فقط فیلدهایی که مقدار دارند را اضافه کن
+      // فیلدهای اختیاری - فقط فیلدهایی که تغییر کرده‌اند را ارسال کن
       if (formData.weight) {
-        submitData.weight = Number(formData.weight)
+        updateData.weight = Number(formData.weight)
       }
-      if (formData.is_packed !== undefined) {
-        submitData.is_packed = formData.is_packed
-      }
+      // برای is_packed باید مقدار null هم قابل ارسال باشد
+      updateData.is_packed = formData.is_packed === undefined ? null : formData.is_packed
+      
       if (formData.price_aed) {
-        submitData.price_aed = Number(formData.price_aed)
+        updateData.price_aed = Number(formData.price_aed)
       }
       if (formData.description) {
-        submitData.description = formData.description
+        updateData.description = formData.description
       }
       if (formData.product_classification_id) {
-        submitData.product_classification_id = formData.product_classification_id
+        updateData.product_classification_id = formData.product_classification_id
       }
       if (formData.community_ids?.length) {
-        submitData.community_ids = formData.community_ids
+        updateData.community_ids = formData.community_ids
       }
 
       // Add time fields based on card type
       if (formData.is_sender) {
         if (formData.start_time_frame) {
-          submitData.start_time_frame = formData.start_time_frame
+          updateData.start_time_frame = formData.start_time_frame
         }
         if (formData.end_time_frame) {
-          submitData.end_time_frame = formData.end_time_frame
+          updateData.end_time_frame = formData.end_time_frame
         }
       } else {
         if (formData.ticket_date_time) {
-          submitData.ticket_date_time = formData.ticket_date_time
+          updateData.ticket_date_time = formData.ticket_date_time
         }
       }
 
-      const newCard = await createCardMutation.mutateAsync(submitData)
-      showToast('success', 'کارت با موفقیت ایجاد شد')
-      router.push(`/cards/${newCard.id}`)
+      await updateCardMutation.mutateAsync(updateData)
+      showToast('success', 'کارت با موفقیت ویرایش شد')
+      router.push(`/cards/${cardId}`)
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
@@ -215,16 +284,41 @@ export default function NewCardPage() {
     }
   }
 
+  // Loading state
+  if (isLoadingCard) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
+  // Error or not found
+  if (cardError || !card) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <Card variant="bordered" className="p-6 max-w-md">
+          <p className="text-red-600 text-center">کارت یافت نشد</p>
+          <div className="mt-4 text-center">
+            <Button variant="ghost" onClick={() => router.push('/cards')}>
+              بازگشت به لیست کارت‌ها
+            </Button>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
-            ایجاد کارت جدید
+            ویرایش کارت
           </h1>
           <p className="text-neutral-600 font-light">
-            اطلاعات سفر یا بار خود را وارد کنید
+            اطلاعات کارت خود را به‌روزرسانی کنید
           </p>
         </div>
 
@@ -304,7 +398,7 @@ export default function NewCardPage() {
               {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
               {formData.is_sender ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
+                  <Input
                     label="شروع بازه زمانی"
                     type="datetime-local"
                     value={formData.start_time_frame || ''}
@@ -326,7 +420,7 @@ export default function NewCardPage() {
                   value={formData.ticket_date_time || ''}
                   onChange={(e) => handleChange('ticket_date_time', e.target.value)}
                   helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
-              />
+                />
               )}
 
               {/* وزن و قیمت */}
@@ -352,17 +446,16 @@ export default function NewCardPage() {
               </div>
 
               {/* وضعیت بسته‌بندی */}
-                <Select
+              <Select
                 label="وضعیت بسته‌بندی"
                 value={formData.is_packed === undefined ? '' : formData.is_packed ? 'true' : 'false'}
                 onChange={(e) => handleChange('is_packed', e.target.value === 'true' ? true : e.target.value === 'false' ? false : undefined)}
-                  options={[
+                options={[
                   { value: '', label: 'فرقی ندارد' },
                   { value: 'true', label: 'بسته‌بندی شده' },
                   { value: 'false', label: 'بدون بسته‌بندی' },
-                  ]}
-                />
-
+                ]}
+              />
 
               {/* توضیحات */}
               <Textarea
@@ -411,15 +504,15 @@ export default function NewCardPage() {
             <Button
               type="button"
               variant="ghost"
-              onClick={() => router.back()}
+              onClick={() => router.push(`/cards/${cardId}`)}
             >
               انصراف
             </Button>
             <Button
               type="submit"
-              isLoading={createCardMutation.isPending}
+              isLoading={updateCardMutation.isPending}
             >
-              ایجاد کارت
+              ذخیره تغییرات
             </Button>
           </div>
         </form>

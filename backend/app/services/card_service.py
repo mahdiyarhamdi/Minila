@@ -184,8 +184,19 @@ async def update_card(
     if start and end and start >= end:
         raise ValueError("تاریخ پایان باید بعد از تاریخ شروع باشد")
     
-    # حذف فیلدهای None
-    updates_clean = {k: v for k, v in updates.items() if v is not None}
+    # فیلدهای nullable که می‌توانند None باشند
+    nullable_fields = {
+        'weight', 'is_packed', 'price_aed', 'description', 
+        'product_classification_id', 'start_time_frame', 
+        'end_time_frame', 'ticket_date_time', 'community_ids'
+    }
+    
+    # حذف فقط فیلدهایی که None هستند و nullable نیستند
+    updates_clean = {}
+    for k, v in updates.items():
+        if v is None and k not in nullable_fields:
+            continue
+        updates_clean[k] = v
     
     if not updates_clean:
         return card
