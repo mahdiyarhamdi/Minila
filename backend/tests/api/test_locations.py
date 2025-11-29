@@ -333,3 +333,97 @@ class TestLocationAPI:
         data = response.json()
         assert len(data["items"]) <= 1
 
+
+class TestLocationCurrency:
+    """تست‌های currency_code برای کشورها."""
+    
+    @pytest.fixture
+    async def setup_locations_with_currency(self, db_session: AsyncSession):
+        """ایجاد کشورها با currency_code."""
+        iran = Country(
+            name="Iran",
+            name_en="Iran",
+            name_fa="ایران",
+            name_ar="إيران",
+            iso_code="IR",
+            currency_code="IRR"
+        )
+        uae = Country(
+            name="United Arab Emirates",
+            name_en="United Arab Emirates",
+            name_fa="امارات متحده عربی",
+            name_ar="الإمارات العربية المتحدة",
+            iso_code="AE",
+            currency_code="AED"
+        )
+        usa = Country(
+            name="United States",
+            name_en="United States",
+            name_fa="ایالات متحده",
+            name_ar="الولايات المتحدة",
+            iso_code="US",
+            currency_code="USD"
+        )
+        
+        db_session.add_all([iran, uae, usa])
+        await db_session.commit()
+        
+        return {
+            'iran': iran,
+            'uae': uae,
+            'usa': usa
+        }
+    
+    async def test_country_includes_currency_code(
+        self,
+        client: AsyncClient,
+        setup_locations_with_currency: dict
+    ):
+        """تست اینکه اطلاعات کشور شامل currency_code باشد."""
+        iran = setup_locations_with_currency['iran']
+        
+        response = await client.get(f"/api/v1/locations/countries/{iran.id}")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert "currency_code" in data
+        assert data["currency_code"] == "IRR"
+    
+    async def test_search_countries_includes_currency(
+        self,
+        client: AsyncClient,
+        setup_locations_with_currency: dict
+    ):
+        """تست اینکه جستجوی کشورها currency_code را برگرداند."""
+        response = await client.get(
+            "/api/v1/locations/countries/search",
+            params={"q": "Iran", "limit": 10}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] >= 1
+        
+        iran = next((c for c in data["items"] if c["name_en"] == "Iran"), None)
+        assert iran is not None
+        assert "currency_code" in iran
+        assert iran["currency_code"] == "IRR"
+    
+    async def test_all_countries_include_currency(
+        self,
+        client: AsyncClient,
+        setup_locations_with_currency: dict
+    ):
+        """تست اینکه لیست همه کشورها currency_code داشته باشد."""
+        response = await client.get(
+            "/api/v1/locations/countries",
+            params={"limit": 250}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        # همه کشورها باید فیلد currency_code داشته باشند (حتی اگر None باشد)
+        for country in data["items"]:
+            assert "currency_code" in country
+

@@ -1,12 +1,14 @@
 """User management endpoints."""
-from typing import Tuple, Optional
-from fastapi import APIRouter, HTTPException, status, Depends, Request
+from typing import Tuple, Optional, Annotated
+from fastapi import APIRouter, HTTPException, status, Depends, Request, Query
 from ...api.deps import DBSession, CurrentUser
 from ...schemas.user import UserMeOut, UserUpdate
 from ...schemas.auth import AuthChangePasswordIn
 from ...schemas.membership import RequestOut
-from ...services import user_service, community_service
+from ...schemas.card import CardOut
+from ...services import user_service, community_service, card_service
 from ...repositories import membership_repo
+from ...utils.pagination import PaginatedResponse
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -219,4 +221,32 @@ async def cancel_my_join_request(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e)
         )
+
+
+@router.get(
+    "/me/cards",
+    status_code=status.HTTP_200_OK,
+    summary="دریافت کارت‌های من",
+    description="""
+دریافت لیست کارت‌های کاربر جاری (paginated).
+
+**احراز هویت**: نیاز به JWT access token در هدر Authorization
+
+کارت‌ها به ترتیب جدیدترین نمایش داده می‌شوند.
+    """
+)
+async def get_my_cards(
+    current_user: CurrentUser,
+    db: DBSession,
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20
+) -> PaginatedResponse[CardOut]:
+    """دریافت کارت‌های کاربر جاری."""
+    result = await card_service.get_user_cards(
+        db,
+        user_id=current_user["user_id"],
+        page=page,
+        page_size=page_size
+    )
+    return result
 

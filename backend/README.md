@@ -173,6 +173,7 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `GET` | `/me` | دریافت پروفایل کاربر جاری | ✅ |
 | `PATCH` | `/me` | ویرایش پروفایل | ✅ |
 | `PUT` | `/me/password` | تغییر رمز عبور | ✅ |
+| `GET` | `/me/cards` | لیست کارت‌های من (paginated) | ✅ |
 | `GET` | `/me/join-requests` | لیست درخواست‌های عضویت من | ✅ |
 | `DELETE` | `/me/join-requests/{id}` | لغو درخواست عضویت (فقط pending) | ✅ |
 
@@ -216,6 +217,10 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 - `is_packed` (وضعیت بسته‌بندی)
 - `community_id`
 - `min_weight`, `max_weight`
+
+**فیلد currency**:
+- هر کارت دارای فیلد `currency` است (پیش‌فرض: `USD`)
+- واحد پول بر اساس استاندارد ISO 4217 (مثال: `IRR`, `AED`, `EUR`)
 
 ### Messages (`/api/v1/messages`)
 
@@ -275,6 +280,10 @@ curl http://localhost:8000/api/v1/users/me \
 
 # دریافت درخواست‌های عضویت من
 curl http://localhost:8000/api/v1/users/me/join-requests \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# دریافت کارت‌های من
+curl http://localhost:8000/api/v1/users/me/cards \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 
 # جست‌وجوی کارت‌ها
@@ -533,6 +542,6 @@ pip install -r requirements.txt
 
 ---
 
-**نسخه**: 0.2.0  
-**آخرین به‌روزرسانی**: 2025-11-29
+**نسخه**: 0.3.0  
+**آخرین به‌روزرسانی**: 2025-11-30
 

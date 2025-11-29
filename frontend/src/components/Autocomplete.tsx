@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
+// Base interface - allows extra properties
 interface AutocompleteOption {
   id: number
   label: string
   value: string
+  [key: string]: unknown // Allow extra properties like isoCode
 }
 
 interface AutocompleteProps {
@@ -42,6 +44,7 @@ export default function Autocomplete({
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [hasSearched, setHasSearched] = useState(false) // برای نمایش "نتیجه‌ای یافت نشد"
   
   const wrapperRef = useRef<HTMLDivElement>(null)
   const debounceTimer = useRef<NodeJS.Timeout>()
@@ -72,6 +75,8 @@ export default function Autocomplete({
   useEffect(() => {
     if (!inputValue || disabled) {
       setOptions([])
+      setHasSearched(false)
+      setIsOpen(false)
       return
     }
 
@@ -88,13 +93,16 @@ export default function Autocomplete({
     // Set new timer
     debounceTimer.current = setTimeout(async () => {
       setIsLoading(true)
+      setHasSearched(false)
       try {
         const results = await onSearchRef.current(inputValue)
         setOptions(results)
+        setHasSearched(true)
         setIsOpen(true)
       } catch (error) {
         console.error('Search error:', error)
         setOptions([])
+        setHasSearched(true)
       } finally {
         setIsLoading(false)
       }
@@ -188,46 +196,54 @@ export default function Autocomplete({
           `}
         />
         
-        {/* Loading spinner */}
+        {/* Loading spinner - RTL: positioned on left */}
         {isLoading && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
+          <div className="absolute left-10 top-1/2 -translate-y-1/2">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
           </div>
         )}
 
-        {/* Dropdown icon */}
-        <svg
-          className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        {/* Dropdown icon - RTL: positioned on left */}
+        {!isLoading && (
+          <svg
+            className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none transition-transform ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        )}
       </div>
 
       {/* Dropdown menu */}
-      {isOpen && options.length > 0 && (
+      {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-          {options.map((option, index) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => handleOptionClick(option)}
-              className={`
-                w-full px-4 py-2.5 text-right transition-colors
-                ${index === selectedIndex
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'hover:bg-neutral-50 text-neutral-900'
-                }
-                ${index > 0 ? 'border-t border-neutral-100' : ''}
-              `}
-            >
-              {option.label}
-            </button>
-          ))}
+          {options.length > 0 ? (
+            options.map((option, index) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => handleOptionClick(option)}
+                className={`
+                  w-full px-4 py-2.5 text-right transition-colors
+                  ${index === selectedIndex
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'hover:bg-neutral-50 text-neutral-900'
+                  }
+                  ${index > 0 ? 'border-t border-neutral-100' : ''}
+                `}
+              >
+                {option.label}
+              </button>
+            ))
+          ) : hasSearched ? (
+            <div className="px-4 py-3 text-sm text-neutral-500 text-center">
+              نتیجه‌ای یافت نشد
+            </div>
+          ) : null}
         </div>
       )}
 

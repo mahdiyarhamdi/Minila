@@ -9,6 +9,7 @@ export interface Country {
   name_fa: string
   name_ar: string
   iso_code?: string
+  currency_code?: string
 }
 
 export interface City {

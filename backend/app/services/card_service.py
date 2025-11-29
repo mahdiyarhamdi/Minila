@@ -263,3 +263,30 @@ async def delete_card(
     logger.info(f"Card deleted: {card_id} by user {user_id}")
     return success
 
+
+async def get_user_cards(
+    db: AsyncSession,
+    user_id: int,
+    page: int,
+    page_size: int
+):
+    """دریافت کارت‌های یک کاربر.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        page: شماره صفحه
+        page_size: تعداد آیتم در صفحه
+        
+    Returns:
+        PaginatedResponse از کارت‌ها
+    """
+    cards, total = await card_repo.get_by_owner_id(db, user_id, page, page_size)
+    
+    return PaginatedResponse.create(
+        items=cards,
+        total=total,
+        page=page,
+        page_size=page_size
+    )
+

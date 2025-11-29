@@ -34,6 +34,7 @@ export interface Card {
   weight?: number
   is_packed?: boolean
   price_aed?: number
+  currency?: string
   description?: string
   product_classification?: {
     id: number
@@ -64,6 +65,7 @@ export interface CardCreate {
   weight?: number
   is_packed?: boolean
   price_aed?: number
+  currency?: string
   description?: string
   product_classification_id?: number
   community_ids?: number[]
@@ -81,6 +83,7 @@ export interface CardUpdate {
   weight?: number
   is_packed?: boolean
   price_aed?: number
+  currency?: string
   description?: string
   product_classification_id?: number
   community_ids?: number[]

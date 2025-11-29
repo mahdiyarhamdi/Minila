@@ -77,6 +77,12 @@ class Card(BaseModel):
     weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     is_packed: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     price_aed: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    currency: Mapped[Optional[str]] = mapped_column(
+        String(3), 
+        nullable=True, 
+        default="USD",
+        comment="واحد پول (ISO 4217)"
+    )
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     # Relationships

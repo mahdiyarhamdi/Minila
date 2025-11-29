@@ -297,3 +297,49 @@ async def get_card_communities(
     result = await db.execute(query)
     return list(result.scalars().all())
 
+
+async def get_by_owner_id(
+    db: AsyncSession,
+    owner_id: int,
+    page: int,
+    page_size: int
+) -> tuple[list[Card], int]:
+    """دریافت کارت‌های یک کاربر (paginated).
+    
+    Args:
+        db: Database session
+        owner_id: شناسه صاحب کارت
+        page: شماره صفحه
+        page_size: تعداد آیتم در صفحه
+        
+    Returns:
+        tuple از (لیست کارت‌ها، تعداد کل)
+    """
+    # Count total
+    count_query = select(func.count(Card.id)).where(Card.owner_id == owner_id)
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+    
+    # Fetch cards با eager loading
+    offset = calculate_offset(page, page_size)
+    query = (
+        select(Card)
+        .where(Card.owner_id == owner_id)
+        .options(
+            selectinload(Card.owner),
+            selectinload(Card.origin_country),
+            selectinload(Card.origin_city),
+            selectinload(Card.destination_country),
+            selectinload(Card.destination_city),
+            selectinload(Card.product_classification)
+        )
+        .order_by(Card.created_at.desc())
+        .limit(page_size)
+        .offset(offset)
+    )
+    
+    result = await db.execute(query)
+    cards = list(result.scalars().all())
+    
+    return cards, total
+

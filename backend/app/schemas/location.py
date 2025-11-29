@@ -14,6 +14,7 @@ class CountryOut(BaseModel):
     name_fa: str
     name_ar: str
     iso_code: Optional[str] = None
+    currency_code: Optional[str] = None
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -24,7 +25,8 @@ class CountryOut(BaseModel):
                 "name_en": "Iran",
                 "name_fa": "ایران",
                 "name_ar": "إيران",
-                "iso_code": "IR"
+                "iso_code": "IR",
+                "currency_code": "IRR"
             }
         }
     )
@@ -46,7 +48,8 @@ class CountrySearchResult(BaseModel):
                         "name_en": "Iran",
                         "name_fa": "ایران",
                         "name_ar": "إيران",
-                        "iso_code": "IR"
+                        "iso_code": "IR",
+                        "currency_code": "IRR"
                     }
                 ],
                 "total": 1
@@ -113,7 +116,8 @@ class CityWithCountryOut(BaseModel):
                     "name_en": "Iran",
                     "name_fa": "ایران",
                     "name_ar": "إيران",
-                    "iso_code": "IR"
+                    "iso_code": "IR",
+                    "currency_code": "IRR"
                 }
             }
         }

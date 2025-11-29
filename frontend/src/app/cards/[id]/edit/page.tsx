@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCard, useUpdateCard } from '@/hooks/useCards'
 import { useMyCommunities } from '@/hooks/useCommunities'
@@ -13,9 +13,11 @@ import Button from '@/components/Button'
 import Autocomplete from '@/components/Autocomplete'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import DateTimePicker from '@/components/DateTimePicker'
+// Toggle removed - using checkbox instead
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
+import { getCurrencyOptions } from '@/utils/currency'
 import type { Country, City } from '@/types/location'
 import type { CardUpdate } from '@/types/card'
 
@@ -23,6 +25,7 @@ interface AutocompleteOption {
   id: number
   label: string
   value: string
+  isoCode?: string // برای ذخیره کد کشور جهت واحد پول
 }
 
 interface CardFormData {
@@ -37,6 +40,7 @@ interface CardFormData {
   weight?: number
   is_packed?: boolean
   price_aed?: number
+  currency?: string
   description?: string
   product_classification_id?: number
   community_ids?: number[]
@@ -65,12 +69,16 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     weight: undefined,
     is_packed: undefined,
     price_aed: undefined,
+    currency: 'USD',
     description: '',
     community_ids: [],
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isInitialized, setIsInitialized] = useState(false)
+  
+  // برای مسافران: آیا تاریخ دقیق سفر مشخص نیست
+  const [dateNotSpecified, setDateNotSpecified] = useState(false)
 
   // Initialize form with card data
   useEffect(() => {
@@ -80,6 +88,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         id: card.origin_country.id,
         label: card.origin_country.name,
         value: String(card.origin_country.id),
+        isoCode: (card.origin_country as any).iso_code,
       })
       setOriginCity({
         id: card.origin_city.id,
@@ -90,6 +99,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         id: card.destination_country.id,
         label: card.destination_country.name,
         value: String(card.destination_country.id),
+        isoCode: (card.destination_country as any).iso_code,
       })
       setDestinationCity({
         id: card.destination_city.id,
@@ -110,10 +120,17 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         weight: card.weight,
         is_packed: card.is_packed,
         price_aed: card.price_aed,
+        currency: card.currency || 'USD',
         description: card.description || '',
         product_classification_id: card.product_classification?.id,
         community_ids: card.communities?.map(c => c.id) || [],
       })
+
+      // برای مسافر: اگر بازه زمانی دارد یعنی تاریخ دقیق مشخص نیست
+      if (!card.is_sender) {
+        const hasTimeRange = card.start_time_frame || card.end_time_frame
+        setDateNotSpecified(!!hasTimeRange)
+      }
 
       setIsInitialized(true)
     }
@@ -143,12 +160,18 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         id: country.id,
         label: country.name_fa,
         value: String(country.id),
+        isoCode: country.iso_code,
       }))
     } catch (error) {
       console.error('Error searching countries:', error)
       return []
     }
   }, [])
+  
+  // گزینه‌های واحد پول بر اساس کشورهای مبدأ و مقصد
+  const currencyOptions = useMemo(() => {
+    return getCurrencyOptions(originCountry?.isoCode, destinationCountry?.isoCode)
+  }, [originCountry?.isoCode, destinationCountry?.isoCode])
 
   // جستجوی شهرها
   const searchCities = useCallback((countryId: number) => async (query: string): Promise<AutocompleteOption[]> => {
@@ -231,6 +254,9 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
       if (formData.price_aed) {
         updateData.price_aed = Number(formData.price_aed)
       }
+      if (formData.currency) {
+        updateData.currency = formData.currency
+      }
       if (formData.description) {
         updateData.description = formData.description
       }
@@ -241,8 +267,9 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         updateData.community_ids = formData.community_ids
       }
 
-      // Add time fields based on card type
+      // Add time fields based on card type and date knowledge
       if (formData.is_sender) {
+        // فرستنده بار - همیشه بازه زمانی
         if (formData.start_time_frame) {
           updateData.start_time_frame = formData.start_time_frame
         }
@@ -250,8 +277,20 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
           updateData.end_time_frame = formData.end_time_frame
         }
       } else {
-        if (formData.ticket_date_time) {
-          updateData.ticket_date_time = formData.ticket_date_time
+        // مسافر - بسته به اینکه تاریخ دقیق مشخص است یا نه
+        if (!dateNotSpecified) {
+          // تاریخ دقیق مشخص است
+          if (formData.ticket_date_time) {
+            updateData.ticket_date_time = formData.ticket_date_time
+          }
+        } else {
+          // تاریخ دقیق مشخص نیست - بازه زمانی
+          if (formData.start_time_frame) {
+            updateData.start_time_frame = formData.start_time_frame
+          }
+          if (formData.end_time_frame) {
+            updateData.end_time_frame = formData.end_time_frame
+          }
         }
       }
 
@@ -391,6 +430,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
 
               {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
               {formData.is_sender ? (
+                // فرستنده بار - همیشه بازه زمانی
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <DateTimePicker
                     label="شروع بازه زمانی"
@@ -409,35 +449,87 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                   />
                 </div>
               ) : (
-                <DateTimePicker
-                  label="تاریخ دقیق سفر"
-                  value={formData.ticket_date_time || ''}
-                  onChange={(value) => handleChange('ticket_date_time', value)}
-                  includeTime={true}
-                  validatePast={true}
-                  helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
-                />
+                // مسافر - انتخاب بین تاریخ دقیق یا بازه
+                <div className="space-y-4">
+                  {/* چک‌باکس برای مشخص نبودن تاریخ دقیق */}
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={dateNotSpecified}
+                      onChange={(e) => setDateNotSpecified(e.target.checked)}
+                      className="w-5 h-5 text-primary-600 border-2 border-neutral-300 rounded 
+                        focus:ring-2 focus:ring-primary-500 focus:ring-offset-1
+                        checked:bg-primary-600 checked:border-primary-600
+                        transition-colors cursor-pointer"
+                    />
+                    <span className="text-sm font-medium text-neutral-700 group-hover:text-neutral-900">
+                      تاریخ دقیق سفرم مشخص نیست
+                    </span>
+                  </label>
+                  
+                  {!dateNotSpecified ? (
+                    <DateTimePicker
+                      label="تاریخ دقیق سفر"
+                      value={formData.ticket_date_time || ''}
+                      onChange={(value) => handleChange('ticket_date_time', value)}
+                      includeTime={true}
+                      validatePast={true}
+                      helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
+                    />
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <DateTimePicker
+                        label="شروع بازه زمانی"
+                        value={formData.start_time_frame || ''}
+                        onChange={(value) => handleChange('start_time_frame', value)}
+                        includeTime={false}
+                        helperText="اختیاری"
+                      />
+                      <DateTimePicker
+                        label="پایان بازه زمانی"
+                        value={formData.end_time_frame || ''}
+                        onChange={(value) => handleChange('end_time_frame', value)}
+                        includeTime={false}
+                        validatePast={true}
+                        helperText="اختیاری"
+                      />
+                    </div>
+                  )}
+                </div>
               )}
 
-              {/* وزن و قیمت */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="وزن (کیلوگرم)"
-                  type="number"
-                  step="0.1"
-                  placeholder="مثال: 5.5"
-                  value={formData.weight || ''}
-                  onChange={(e) => handleChange('weight', e.target.value)}
-                  helperText="اختیاری"
-                />
-                <Input
-                  label="قیمت پیشنهادی (درهم امارات)"
-                  type="number"
-                  step="0.01"
-                  placeholder="مثال: 50"
-                  value={formData.price_aed || ''}
-                  onChange={(e) => handleChange('price_aed', e.target.value)}
-                  helperText="اختیاری"
+              {/* وزن */}
+              <Input
+                label="وزن (کیلوگرم)"
+                type="number"
+                step="0.1"
+                placeholder="مثال: 5.5"
+                value={formData.weight || ''}
+                onChange={(e) => handleChange('weight', e.target.value)}
+                helperText="اختیاری"
+              />
+              
+              {/* قیمت و واحد پول */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <Input
+                    label="قیمت پیشنهادی"
+                    type="number"
+                    step="0.01"
+                    placeholder="مثال: 50"
+                    value={formData.price_aed || ''}
+                    onChange={(e) => handleChange('price_aed', e.target.value)}
+                    helperText="اختیاری"
+                  />
+                </div>
+                <Select
+                  label="واحد پول"
+                  value={formData.currency || 'USD'}
+                  onChange={(e) => handleChange('currency', e.target.value)}
+                  options={currencyOptions.map((opt) => ({
+                    value: opt.value,
+                    label: opt.label,
+                  }))}
                 />
               </div>
 

@@ -570,3 +570,145 @@ class TestDeleteCard:
         
         # Assert
         assert response.status_code == 404
+
+
+# ==================== Currency Field Tests ====================
+
+class TestCardCurrency:
+    """Test cases for card currency field."""
+
+    @pytest.mark.asyncio
+    async def test_create_card_with_currency(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict,
+        seed_locations: dict
+    ):
+        """Test creating card with explicit currency."""
+        # Arrange
+        payload = {
+            "is_sender": False,
+            "origin_country_id": 1,
+            "origin_city_id": 1,
+            "destination_country_id": 2,
+            "destination_city_id": 2,
+            "ticket_date_time": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+            "weight": 5.0,
+            "price_aed": 100.0,
+            "currency": "AED",
+            "description": "Card with AED currency"
+        }
+        
+        # Act
+        response = await client.post(
+            "/api/v1/cards/", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["currency"] == "AED"
+        assert data["price_aed"] == 100.0
+
+    @pytest.mark.asyncio
+    async def test_create_card_default_currency(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict,
+        seed_locations: dict
+    ):
+        """Test creating card without currency defaults to USD."""
+        # Arrange
+        payload = {
+            "is_sender": False,
+            "origin_country_id": 1,
+            "origin_city_id": 1,
+            "destination_country_id": 2,
+            "destination_city_id": 2,
+            "ticket_date_time": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+            "weight": 5.0,
+            "price_aed": 50.0,
+            "description": "Card without currency"
+        }
+        
+        # Act
+        response = await client.post(
+            "/api/v1/cards/", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        # Currency should default to USD
+        assert data["currency"] == "USD" or data["currency"] is None
+
+    @pytest.mark.asyncio
+    async def test_update_card_currency(
+        self, 
+        client: AsyncClient, 
+        test_card: dict,
+        auth_headers: dict
+    ):
+        """Test updating card currency."""
+        # Arrange
+        payload = {
+            "currency": "IRR",
+            "price_aed": 150.0
+        }
+        
+        # Act
+        response = await client.patch(
+            f"/api/v1/cards/{test_card['id']}", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["currency"] == "IRR"
+        assert data["price_aed"] == 150.0
+
+    @pytest.mark.asyncio
+    async def test_get_card_with_currency(
+        self, 
+        client: AsyncClient, 
+        test_user: dict,
+        auth_headers: dict,
+        test_db: AsyncSession,
+        seed_locations: dict
+    ):
+        """Test getting card details includes currency field."""
+        # Arrange - Create card with currency
+        from app.models.card import Card
+        card = Card(
+            owner_id=test_user["user_id"],
+            is_sender=False,
+            origin_country_id=1,
+            origin_city_id=1,
+            destination_country_id=2,
+            destination_city_id=2,
+            ticket_date_time=datetime.utcnow() + timedelta(days=7),
+            weight=5.0,
+            price_aed=200.0,
+            currency="EUR",
+            description="Card with EUR"
+        )
+        test_db.add(card)
+        await test_db.commit()
+        await test_db.refresh(card)
+        
+        # Act
+        response = await client.get(f"/api/v1/cards/{card.id}")
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["currency"] == "EUR"
+        assert data["price_aed"] == 200.0

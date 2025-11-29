@@ -25,6 +25,9 @@ class Country(BaseModel):
     # ISO code (اختیاری)
     iso_code: Mapped[Optional[str]] = mapped_column(String(3), nullable=True, unique=True)
     
+    # Currency code (ISO 4217 - سه حرفی، مثلاً USD, IRR, AED)
+    currency_code: Mapped[Optional[str]] = mapped_column(String(3), nullable=True)
+    
     # Relationships
     cities: Mapped[list["City"]] = relationship(
         "City",

@@ -39,7 +39,8 @@ class CardCreate(BaseModel):
     # جزئیات بسته
     weight: Optional[float] = Field(None, ge=0, description="وزن (کیلوگرم)")
     is_packed: Optional[bool] = Field(None, description="وضعیت بسته‌بندی")
-    price_aed: Optional[float] = Field(None, ge=0, description="قیمت پیشنهادی (AED)")
+    price_aed: Optional[float] = Field(None, ge=0, description="قیمت پیشنهادی")
+    currency: Optional[str] = Field("USD", max_length=3, description="واحد پول (ISO 4217)")
     description: Optional[str] = Field(None, max_length=2000, description="توضیحات")
     product_classification_id: Optional[int] = Field(None, description="شناسه دسته‌بندی محصول")
     
@@ -58,6 +59,7 @@ class CardCreate(BaseModel):
                 "weight": 5.0,
                 "is_packed": True,
                 "price_aed": 50.0,
+                "currency": "USD",
                 "description": "می‌توانم بسته کوچک حمل کنم",
                 "product_classification_id": 1,
                 "community_ids": [1, 2]
@@ -80,6 +82,7 @@ class CardUpdate(BaseModel):
     weight: Optional[float] = Field(None, ge=0)
     is_packed: Optional[bool] = None
     price_aed: Optional[float] = Field(None, ge=0)
+    currency: Optional[str] = Field(None, max_length=3, description="واحد پول (ISO 4217)")
     description: Optional[str] = Field(None, max_length=2000)
     product_classification_id: Optional[int] = None
     community_ids: Optional[list[int]] = Field(None, description="لیست کامیونیتی‌ها برای نمایش محدود")
@@ -88,7 +91,8 @@ class CardUpdate(BaseModel):
         json_schema_extra={
             "example": {
                 "description": "توضیحات جدید",
-                "price_aed": 60.0
+                "price_aed": 60.0,
+                "currency": "AED"
             }
         }
     )
@@ -138,6 +142,7 @@ class CardOut(BaseModel):
     weight: Optional[float] = None
     is_packed: Optional[bool] = None
     price_aed: Optional[float] = None
+    currency: Optional[str] = None
     description: Optional[str] = None
     product_classification: Optional[ProductClassificationOut] = None
     created_at: datetime
@@ -157,6 +162,7 @@ class CardOut(BaseModel):
                 "weight": 5.0,
                 "is_packed": True,
                 "price_aed": 50.0,
+                "currency": "USD",
                 "description": "می‌توانم بسته کوچک حمل کنم",
                 "product_classification": {"id": 1, "name": "پوشاک"},
                 "created_at": "2024-01-01T12:00:00"
@@ -185,6 +191,7 @@ class CardDetailOut(CardOut):
                 "weight": 5.0,
                 "is_packed": True,
                 "price_aed": 50.0,
+                "currency": "USD",
                 "description": "می‌توانم بسته کوچک حمل کنم",
                 "product_classification": {"id": 1, "name": "پوشاک"},
                 "communities": [
