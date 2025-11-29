@@ -5,7 +5,7 @@ from ...api.deps import DBSession, CurrentUser
 from ...schemas.user import UserMeOut, UserUpdate
 from ...schemas.auth import AuthChangePasswordIn
 from ...schemas.membership import RequestOut
-from ...services import user_service
+from ...services import user_service, community_service
 from ...repositories import membership_repo
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
@@ -182,4 +182,41 @@ async def get_my_join_requests(
         result.append(RequestOut.model_validate(request))
     
     return result
+
+
+@router.delete(
+    "/me/join-requests/{request_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="لغو درخواست عضویت",
+    description="""
+لغو درخواست عضویت در کامیونیتی.
+
+**احراز هویت**: نیاز به JWT access token در هدر Authorization
+
+فقط درخواست‌های pending (در انتظار) قابل لغو هستند.
+درخواست‌های تایید یا رد شده قابل لغو نیستند.
+    """
+)
+async def cancel_my_join_request(
+    request_id: int,
+    current_user: CurrentUser,
+    db: DBSession
+) -> None:
+    """لغو درخواست عضویت کاربر جاری."""
+    try:
+        await community_service.cancel_join_request(
+            db,
+            request_id=request_id,
+            user_id=current_user["user_id"]
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )
 

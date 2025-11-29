@@ -11,6 +11,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
  */
 class APIService {
   private client: AxiosInstance
+  private isRefreshing = false
+  private refreshSubscribers: ((token: string) => void)[] = []
 
   constructor() {
     this.client = axios.create({
@@ -30,6 +32,58 @@ class APIService {
       }
       return config
     })
+
+    // تازه‌سازی خودکار token در صورت 401
+    this.client.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config
+
+        // اگر 401 گرفتیم و قبلاً retry نکرده‌ایم
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null
+          
+          if (refreshToken) {
+            if (this.isRefreshing) {
+              // اگر در حال تازه‌سازی هستیم، منتظر می‌مانیم
+              return new Promise((resolve) => {
+                this.refreshSubscribers.push((token: string) => {
+                  originalRequest.headers.Authorization = `Bearer ${token}`
+                  resolve(this.client(originalRequest))
+                })
+              })
+            }
+
+            originalRequest._retry = true
+            this.isRefreshing = true
+
+            try {
+              const tokens = await this.refreshToken(refreshToken)
+              this.isRefreshing = false
+              
+              // اجرای درخواست‌های در انتظار
+              this.refreshSubscribers.forEach((cb) => cb(tokens.access_token))
+              this.refreshSubscribers = []
+              
+              // تکرار درخواست اصلی با token جدید
+              originalRequest.headers.Authorization = `Bearer ${tokens.access_token}`
+              return this.client(originalRequest)
+            } catch (refreshError) {
+              this.isRefreshing = false
+              this.refreshSubscribers = []
+              // توکن تازه‌سازی هم منقضی شده - خروج کاربر
+              this.logout()
+              if (typeof window !== 'undefined') {
+                window.location.href = '/auth/login'
+              }
+              return Promise.reject(refreshError)
+            }
+          }
+        }
+        
+        return Promise.reject(error)
+      }
+    )
   }
 
   /**
@@ -252,6 +306,13 @@ class APIService {
   }
 
   /**
+   * لغو درخواست عضویت
+   */
+  async cancelJoinRequest(requestId: number): Promise<void> {
+    await this.client.delete(`/api/v1/users/me/join-requests/${requestId}`)
+  }
+
+  /**
    * دریافت درخواست‌های عضویت یک کامیونیتی
    */
   async getJoinRequests(communityId: number, page: number = 1): Promise<JoinRequestListResponse> {
@@ -282,10 +343,20 @@ class APIService {
   }
 
   /**
-   * حذف عضو از کامیونیتی (ban)
+   * حذف عضو از کامیونیتی
    */
   async removeCommunityMember(communityId: number, userId: number): Promise<void> {
     await this.client.delete(`/api/v1/communities/${communityId}/members/${userId}`)
+  }
+
+  /**
+   * تغییر نقش عضو در کامیونیتی
+   */
+  async changeMemberRole(communityId: number, userId: number, role: 'member' | 'manager'): Promise<Member> {
+    const response = await this.client.patch<Member>(
+      `/api/v1/communities/${communityId}/members/${userId}/role?role=${role}`
+    )
+    return response.data
   }
 
   // ==================== Messages API ====================

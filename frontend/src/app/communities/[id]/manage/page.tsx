@@ -10,6 +10,7 @@ import {
   useApproveJoinRequest,
   useRejectJoinRequest,
   useRemoveCommunityMember,
+  useChangeMemberRole,
 } from '@/hooks/useCommunities'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
@@ -28,14 +29,31 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
   const communityId = parseInt(params.id)
   const router = useRouter()
   const { showToast } = useToast()
-  const { data: community, isLoading } = useCommunity(communityId)
-  const { data: requests } = useJoinRequests(communityId)
-  const { data: members } = useCommunityMembers(communityId)
+  
+  // ابتدا اطلاعات کامیونیتی و دسترسی را بررسی می‌کنیم
+  const { data: community, isLoading, refetch: refetchCommunity } = useCommunity(communityId)
+  
+  // بررسی دسترسی - فقط owner یا manager می‌توانند مدیریت کنند
+  const hasManageAccess = community?.my_role === 'manager' || community?.my_role === 'owner'
+  
+  // فقط در صورت داشتن دسترسی، داده‌های مدیریت را fetch می‌کنیم
+  const { data: requests, refetch: refetchRequests } = useJoinRequests(communityId, 1, hasManageAccess)
+  const { data: members, refetch: refetchMembers } = useCommunityMembers(communityId, 1, hasManageAccess)
+  
   const approveMutation = useApproveJoinRequest()
   const rejectMutation = useRejectJoinRequest()
   const removeMutation = useRemoveCommunityMember()
+  const changeRoleMutation = useChangeMemberRole()
   const [activeTab, setActiveTab] = useState('requests')
   const [removeMemberId, setRemoveMemberId] = useState<number | null>(null)
+  const [roleChangeTarget, setRoleChangeTarget] = useState<{ userId: number; currentRole: string; userName: string } | null>(null)
+  
+  // Force refresh داده‌های کامیونیتی هنگام ورود به صفحه برای بررسی دسترسی
+  useEffect(() => {
+    // همیشه داده‌های تازه بگیر برای بررسی دقیق دسترسی
+    refetchCommunity()
+    console.log('🔄 Refetching community data for access check...')
+  }, [communityId, refetchCommunity])
 
   // بررسی وجود token
   useEffect(() => {
@@ -78,6 +96,22 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
     }
   }
 
+  const handleChangeRole = async (newRole: 'member' | 'manager') => {
+    if (!roleChangeTarget) return
+
+    try {
+      await changeRoleMutation.mutateAsync({ 
+        communityId, 
+        userId: roleChangeTarget.userId, 
+        role: newRole 
+      })
+      showToast('success', newRole === 'manager' ? 'کاربر به مدیر ارتقا یافت' : 'نقش کاربر به عضو تغییر کرد')
+      setRoleChangeTarget(null)
+    } catch (error: any) {
+      showToast('error', extractErrorMessage(error))
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -98,54 +132,72 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
 
   // Debug: بررسی اطلاعات کامیونیتی و Authentication
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
-  console.log('Auth Token exists?', !!token)
-  console.log('Community Data:', {
+  console.log('🔐 Auth Token exists?', !!token)
+  console.log('📊 Community Data:', {
     id: community.id,
     name: community.name,
-    owner: community.owner,
+    owner_id: community.owner?.id,
+    owner_email: community.owner?.email,
     my_role: community.my_role,
     is_member: community.is_member,
     member_count: community.member_count
   })
 
-  // Check if user is manager or owner
-  const canManage = community.my_role === 'manager' || community.my_role === 'owner'
-  console.log('Can Manage?', canManage, '(my_role:', community.my_role, ')')
+  // Check if user is manager or owner - استفاده از مقدار تازه‌شده
+  const canManage = hasManageAccess
+  console.log('🔑 Can Manage?', canManage, '(my_role:', community.my_role, ', hasManageAccess:', hasManageAccess, ')')
   
   if (!canManage) {
     const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('access_token')
+    const isTokenExpired = community.my_role === null && hasToken
+    const isMemberWithoutAccess = community.my_role === 'member' && hasToken
+    
+    // Debug: نمایش دلیل عدم دسترسی در کنسول
+    console.warn('⚠️ Access denied:', {
+      hasToken,
+      my_role: community.my_role,
+      is_member: community.is_member,
+      expected_roles: ['manager', 'owner'],
+      canManage,
+      isTokenExpired,
+      isMemberWithoutAccess
+    })
+    
+    // تعیین پیام اصلی بر اساس وضعیت
+    let mainMessage = 'لطفاً ابتدا وارد شوید'
+    let subMessage = 'برای دسترسی به صفحه مدیریت، ابتدا باید وارد حساب کاربری خود شوید.'
+    
+    if (isTokenExpired) {
+      mainMessage = 'نشست شما منقضی شده است'
+      subMessage = 'لطفاً دوباره وارد حساب کاربری خود شوید تا بتوانید به صفحه مدیریت دسترسی داشته باشید.'
+    } else if (isMemberWithoutAccess) {
+      mainMessage = 'شما دسترسی به مدیریت این کامیونیتی را ندارید'
+      subMessage = 'شما عضو این کامیونیتی هستید اما نقش مدیریتی (owner یا manager) ندارید.'
+    } else if (hasToken) {
+      mainMessage = 'شما دسترسی به مدیریت این کامیونیتی را ندارید'
+      subMessage = 'شما عضو این کامیونیتی نیستید یا نقش مدیریتی ندارید.'
+    }
     
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <Card variant="bordered" className="p-6 max-w-md text-center">
-          <p className="text-red-600 mb-4">
-            {!hasToken 
-              ? 'لطفاً ابتدا وارد شوید' 
-              : 'شما دسترسی به مدیریت این کامیونیتی را ندارید'}
-          </p>
-          
-          {!hasToken && (
-            <p className="text-neutral-600 mb-4 text-sm">
-              برای دسترسی به صفحه مدیریت، ابتدا باید وارد حساب کاربری خود شوید.
+          <div className={`mb-4 p-4 rounded-lg ${isTokenExpired ? 'bg-amber-50 border border-amber-200' : isMemberWithoutAccess ? 'bg-blue-50 border border-blue-200' : 'bg-red-50 border border-red-200'}`}>
+            <p className={`font-medium mb-2 ${isTokenExpired ? 'text-amber-800' : isMemberWithoutAccess ? 'text-blue-800' : 'text-red-600'}`}>
+              {mainMessage}
             </p>
-          )}
-          
-          {community.my_role === null && hasToken && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded text-sm">
-              <p className="text-amber-800">
-                احتمالاً نشست شما منقضی شده است. لطفاً دوباره وارد شوید.
-              </p>
-            </div>
-          )}
+            <p className={`text-sm ${isTokenExpired ? 'text-amber-700' : isMemberWithoutAccess ? 'text-blue-700' : 'text-neutral-600'}`}>
+              {subMessage}
+            </p>
+          </div>
           
           <div className="flex flex-col gap-2">
-            {!hasToken || community.my_role === null ? (
+            {(!hasToken || isTokenExpired) && (
               <Link href="/auth/login" className="w-full">
                 <Button variant="primary" className="w-full">
                   ورود به حساب کاربری
                 </Button>
               </Link>
-            ) : null}
+            )}
             
             <Link href={`/communities/${communityId}`} className="w-full">
               <Button variant="ghost" className="w-full">بازگشت به کامیونیتی</Button>
@@ -252,46 +304,92 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
             <Card variant="bordered" className="p-6">
               {members && members.items.length > 0 ? (
                 <div className="space-y-3">
-                  {members.items.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center justify-between p-4 rounded-lg hover:bg-neutral-50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                          <span className="text-primary-600 font-bold">
-                            {member.user.first_name[0]}
-                          </span>
+                  {members.items.map((member) => {
+                    const isOwner = member.role.name === 'owner'
+                    const isManager = member.role.name === 'manager'
+                    const isMember = member.role.name === 'member'
+                    const isCurrentUserOwner = community.my_role === 'owner'
+                    const isCurrentUserManager = community.my_role === 'manager'
+                    
+                    // owner می‌تواند همه را مدیریت کند (به جز خودش/owner دیگر)
+                    // manager فقط می‌تواند member ها را حذف کند
+                    const canManageThisMember = (isCurrentUserOwner && !isOwner) || (isCurrentUserManager && isMember)
+                    const canChangeRole = isCurrentUserOwner && !isOwner // فقط owner می‌تواند نقش را تغییر دهد
+                    
+                    return (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between p-4 rounded-lg hover:bg-neutral-50 border border-neutral-100"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            isOwner ? 'bg-amber-100' : isManager ? 'bg-green-100' : 'bg-primary-100'
+                          }`}>
+                            <span className={`font-bold ${
+                              isOwner ? 'text-amber-600' : isManager ? 'text-green-600' : 'text-primary-600'
+                            }`}>
+                              {member.user.first_name?.[0] || '?'}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-neutral-900">
+                              {member.user.first_name} {member.user.last_name}
+                            </p>
+                            <p className="text-sm text-neutral-600 font-light" dir="ltr">
+                              {member.user.email}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-neutral-900">
-                            {member.user.first_name} {member.user.last_name}
-                          </p>
-                          <p className="text-sm text-neutral-600 font-light" dir="ltr">
-                            {member.user.email}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <Badge variant={isOwner ? 'warning' : isManager ? 'success' : 'neutral'}>
+                            {isOwner ? 'مالک' : isManager ? 'مدیر' : 'عضو'}
+                          </Badge>
+                          
+                          {/* دکمه‌های مدیریت */}
+                          <div className="flex items-center gap-2">
+                            {/* دکمه‌های تغییر نقش - فقط برای owner */}
+                            {canChangeRole && isMember && (
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => setRoleChangeTarget({ 
+                                  userId: member.user.id, 
+                                  currentRole: 'member',
+                                  userName: `${member.user.first_name} ${member.user.last_name}`
+                                })}
+                              >
+                                ارتقا به مدیر
+                              </Button>
+                            )}
+                            {canChangeRole && isManager && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setRoleChangeTarget({ 
+                                  userId: member.user.id, 
+                                  currentRole: 'manager',
+                                  userName: `${member.user.first_name} ${member.user.last_name}`
+                                })}
+                              >
+                                تنزل به عضو
+                              </Button>
+                            )}
+                            {/* دکمه حذف - برای owner و manager */}
+                            {canManageThisMember && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-600 hover:bg-red-50"
+                                onClick={() => setRemoveMemberId(member.user.id)}
+                              >
+                                حذف
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge variant={member.role === 'manager' ? 'success' : 'neutral'}>
-                          {member.role === 'manager'
-                            ? 'مدیر'
-                            : member.role === 'moderator'
-                            ? 'ناظر'
-                            : 'عضو'}
-                        </Badge>
-                        {member.role !== 'manager' && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setRemoveMemberId(member.user_id)}
-                          >
-                            حذف
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <EmptyState title="عضوی یافت نشد" />
@@ -332,6 +430,46 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
               isLoading={removeMutation.isPending}
             >
               حذف عضو
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Change Role Modal */}
+      <Modal
+        isOpen={roleChangeTarget !== null}
+        onClose={() => setRoleChangeTarget(null)}
+        title={roleChangeTarget?.currentRole === 'member' ? 'ارتقا به مدیر' : 'تنزل به عضو'}
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-neutral-700">
+            {roleChangeTarget?.currentRole === 'member' 
+              ? `آیا می‌خواهید ${roleChangeTarget?.userName} را به مدیر ارتقا دهید؟`
+              : `آیا می‌خواهید نقش ${roleChangeTarget?.userName} را به عضو عادی تنزل دهید؟`
+            }
+          </p>
+          
+          {roleChangeTarget?.currentRole === 'member' && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
+              <p className="font-medium mb-1">مدیران می‌توانند:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>درخواست‌های عضویت را تایید یا رد کنند</li>
+                <li>اعضای عادی را از کامیونیتی حذف کنند</li>
+              </ul>
+            </div>
+          )}
+          
+          <div className="flex gap-3 justify-end">
+            <Button variant="ghost" onClick={() => setRoleChangeTarget(null)}>
+              انصراف
+            </Button>
+            <Button
+              variant={roleChangeTarget?.currentRole === 'member' ? 'primary' : 'secondary'}
+              onClick={() => handleChangeRole(roleChangeTarget?.currentRole === 'member' ? 'manager' : 'member')}
+              isLoading={changeRoleMutation.isPending}
+            >
+              {roleChangeTarget?.currentRole === 'member' ? 'ارتقا به مدیر' : 'تنزل به عضو'}
             </Button>
           </div>
         </div>

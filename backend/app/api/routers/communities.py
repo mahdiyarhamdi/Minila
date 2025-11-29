@@ -344,3 +344,89 @@ async def get_community_members(
             detail=str(e)
         )
 
+
+@router.patch(
+    "/{community_id}/members/{user_id}/role",
+    status_code=status.HTTP_200_OK,
+    response_model=MembershipOut,
+    summary="تغییر نقش عضو",
+    description="""
+تغییر نقش یک عضو در کامیونیتی.
+
+**Authentication**: الزامی  
+**Authorization**: فقط owner کامیونیتی
+
+نقش‌های مجاز:
+- member: عضو عادی
+- manager: مدیر (می‌تواند درخواست‌ها را مدیریت کند)
+
+نکته: نقش owner قابل تغییر نیست.
+    """
+)
+async def change_member_role(
+    community_id: int,
+    user_id: int,
+    role: str = Query(..., description="نقش جدید: member یا manager"),
+    current_user: CurrentUser = None,
+    db: DBSession = None
+) -> MembershipOut:
+    """تغییر نقش عضو در کامیونیتی."""
+    try:
+        membership = await community_service.change_member_role(
+            db,
+            community_id=community_id,
+            target_user_id=user_id,
+            new_role=role,
+            actor_user_id=current_user["user_id"]
+        )
+        return MembershipOut.model_validate(membership)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )
+
+
+@router.delete(
+    "/{community_id}/members/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="حذف عضو از کامیونیتی",
+    description="""
+حذف یک عضو از کامیونیتی.
+
+**Authentication**: الزامی  
+**Authorization**: owner یا manager کامیونیتی
+
+نکته: owner قابل حذف نیست.
+    """
+)
+async def remove_community_member(
+    community_id: int,
+    user_id: int,
+    current_user: CurrentUser = None,
+    db: DBSession = None
+) -> None:
+    """حذف عضو از کامیونیتی."""
+    try:
+        await community_service.remove_member(
+            db,
+            community_id=community_id,
+            target_user_id=user_id,
+            actor_user_id=current_user["user_id"]
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )
+

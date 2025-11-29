@@ -63,23 +63,37 @@ async def get_community(
     
     # اگر کاربری لاگین کرده است
     if user_id:
+        logger.debug(f"Checking community access: user_id={user_id}, community_id={community_id}, owner_id={community.owner_id}")
+        
         # بررسی ownership
         if community.owner_id == user_id:
             community.is_member = True
             community.my_role = "owner"
+            logger.debug(f"User {user_id} is owner of community {community_id}")
         else:
-            # بررسی عضویت
+            # بررسی عضویت (فقط عضویت‌های فعال)
             membership = await membership_repo.get_membership(db, user_id, community_id)
-            if membership and membership.is_active:
+            logger.debug(f"Membership check for user {user_id} in community {community_id}: found={membership is not None}")
+            
+            if membership:
                 community.is_member = True
                 # دریافت نام role از relation
-                community.my_role = membership.role.name if membership.role else "member"
+                if membership.role:
+                    community.my_role = membership.role.name
+                    logger.debug(f"User {user_id} has role '{membership.role.name}' in community {community_id}")
+                else:
+                    # fallback: check with is_manager
+                    is_mgr = await membership_repo.is_manager(db, user_id, community_id)
+                    community.my_role = "manager" if is_mgr else "member"
+                    logger.warning(f"Role relation not loaded for user {user_id} in community {community_id}, fallback: is_manager={is_mgr}")
             else:
                 community.is_member = False
                 community.my_role = None
+                logger.debug(f"User {user_id} has no active membership in community {community_id}")
     else:
         community.is_member = None
         community.my_role = None
+        logger.debug(f"No user_id provided for community {community_id} access check")
     
     return community
 
@@ -204,27 +218,36 @@ async def join_request(
         community_id: شناسه کامیونیتی
         
     Returns:
-        Request ایجادشده
+        Request ایجادشده یا بازنشانی‌شده
         
     Raises:
-        ValueError: اگر قبلاً عضو باشد یا درخواست داشته باشد
+        ValueError: اگر قبلاً عضو فعال باشد یا درخواست pending داشته باشد
     """
     # بررسی وجود کامیونیتی
     community = await community_repo.get_by_id(db, community_id)
     if not community:
         raise ValueError("کامیونیتی مورد نظر یافت نشد")
     
-    # بررسی عضویت فعلی
+    # بررسی عضویت فعال
     membership = await membership_repo.get_membership(db, user_id, community_id)
-    if membership and membership.is_active:
+    if membership:
         raise ValueError("شما قبلاً عضو این کامیونیتی هستید")
     
-    # بررسی درخواست تکراری
+    # بررسی درخواست تکراری pending
     if await membership_repo.has_pending_request(db, user_id, community_id):
         raise ValueError("شما قبلاً درخواست عضویت ارسال کرده‌اید")
     
-    # ساخت درخواست
-    request = await membership_repo.create_request(db, user_id, community_id)
+    # بررسی وجود درخواست قبلی (تایید/رد شده)
+    existing_request = await membership_repo.get_existing_request(db, user_id, community_id)
+    
+    if existing_request:
+        # درخواست قبلی وجود دارد - آن را به pending بازنشانی می‌کنیم
+        # این برای کاربرانی است که قبلاً عضو بودند و حذف شدند
+        request = await membership_repo.reset_request_to_pending(db, existing_request.id)
+        logger.info(f"Join request reset: user {user_id} → community {community_id} (re-request)")
+    else:
+        # درخواست جدید می‌سازیم
+        request = await membership_repo.create_request(db, user_id, community_id)
     
     # ثبت لاگ
     await log_service.log_event(
@@ -318,13 +341,30 @@ async def handle_request(
         # تایید درخواست
         await membership_repo.approve_request(db, request_id)
         
-        # ساخت membership
-        membership = await membership_repo.create_membership(
-            db,
-            user_id=request.user_id,
-            community_id=request.community_id,
-            role_name="member"
+        # بررسی آیا کاربر قبلاً عضو بوده (membership غیرفعال دارد)
+        existing_membership = await membership_repo.get_membership(
+            db, 
+            request.user_id, 
+            request.community_id,
+            include_inactive=True
         )
+        
+        if existing_membership and not existing_membership.is_active:
+            # فعال‌سازی مجدد عضویت قدیمی
+            membership = await membership_repo.reactivate_membership(
+                db,
+                membership_id=existing_membership.id,
+                role_name="member"
+            )
+            logger.info(f"Reactivated membership {existing_membership.id} for user {request.user_id}")
+        else:
+            # ساخت membership جدید
+            membership = await membership_repo.create_membership(
+                db,
+                user_id=request.user_id,
+                community_id=request.community_id,
+                role_name="member"
+            )
         
         # ثبت لاگ
         await log_service.log_event(
@@ -361,6 +401,53 @@ async def handle_request(
     return membership
 
 
+async def cancel_join_request(
+    db: AsyncSession,
+    request_id: int,
+    user_id: int
+):
+    """لغو درخواست عضویت توسط کاربر.
+    
+    فقط درخواست‌های pending قابل لغو هستند.
+    
+    Args:
+        db: Database session
+        request_id: شناسه درخواست
+        user_id: شناسه کاربر
+        
+    Raises:
+        ValueError: اگر درخواست یافت نشود یا pending نباشد
+        PermissionError: اگر کاربر مالک درخواست نباشد
+    """
+    # دریافت درخواست
+    request = await membership_repo.get_request_by_id(db, request_id)
+    if not request:
+        raise ValueError("درخواست یافت نشد")
+    
+    # بررسی مالکیت
+    if request.user_id != user_id:
+        raise PermissionError("شما مجاز به لغو این درخواست نیستید")
+    
+    # فقط درخواست‌های pending قابل لغو هستند
+    if request.is_approved is not None:
+        raise ValueError("فقط درخواست‌های در انتظار قابل لغو هستند")
+    
+    # حذف درخواست
+    await membership_repo.delete_request(db, request_id)
+    
+    # ثبت لاگ
+    await log_service.log_event(
+        db,
+        event_type="join_request_cancel",
+        actor_user_id=user_id,
+        community_id=request.community_id
+    )
+    
+    await db.commit()
+    
+    logger.info(f"Join request cancelled: request {request_id} by user {user_id}")
+
+
 async def get_members(
     db: AsyncSession,
     community_id: int,
@@ -394,4 +481,165 @@ async def get_members(
         page=page,
         page_size=page_size
     )
+
+
+async def change_member_role(
+    db: AsyncSession,
+    community_id: int,
+    target_user_id: int,
+    new_role: str,
+    actor_user_id: int
+):
+    """تغییر نقش یک عضو در کامیونیتی.
+    
+    فقط owner می‌تواند نقش اعضا را تغییر دهد.
+    نقش owner قابل تغییر نیست.
+    
+    Args:
+        db: Database session
+        community_id: شناسه کامیونیتی
+        target_user_id: شناسه کاربر هدف
+        new_role: نقش جدید (member یا manager)
+        actor_user_id: شناسه کاربر انجام‌دهنده
+        
+    Returns:
+        Membership آپدیت‌شده
+        
+    Raises:
+        ValueError: اگر عضویت یافت نشود یا نقش نامعتبر باشد
+        PermissionError: اگر کاربر مجاز نباشد
+    """
+    # بررسی وجود کامیونیتی
+    community = await community_repo.get_by_id(db, community_id)
+    if not community:
+        raise ValueError("کامیونیتی یافت نشد")
+    
+    # فقط owner می‌تواند نقش‌ها را تغییر دهد
+    if community.owner_id != actor_user_id:
+        raise PermissionError("فقط مالک کامیونیتی می‌تواند نقش اعضا را تغییر دهد")
+    
+    # نمی‌توان نقش owner را تغییر داد
+    if target_user_id == community.owner_id:
+        raise ValueError("نمی‌توان نقش مالک کامیونیتی را تغییر داد")
+    
+    # بررسی نقش معتبر (فقط member یا manager)
+    if new_role not in ["member", "manager"]:
+        raise ValueError("نقش نامعتبر است. فقط member یا manager مجاز است")
+    
+    # دریافت عضویت هدف
+    membership = await membership_repo.get_membership(db, target_user_id, community_id)
+    if not membership:
+        raise ValueError("این کاربر عضو کامیونیتی نیست")
+    
+    # دریافت role جدید
+    role = await membership_repo.get_role_by_name(db, new_role)
+    if not role:
+        raise ValueError(f"نقش {new_role} در سیستم یافت نشد")
+    
+    membership_id = membership.id
+    
+    # آپدیت نقش
+    await membership_repo.update_membership_role(
+        db,
+        membership_id,
+        role.id
+    )
+    
+    # ثبت لاگ
+    await log_service.log_event(
+        db,
+        event_type="role_change",
+        actor_user_id=actor_user_id,
+        target_user_id=target_user_id,
+        community_id=community_id,
+        payload={"new_role": new_role}
+    )
+    
+    await db.commit()
+    
+    # بارگذاری مجدد عضویت با داده‌های جدید (با استفاده از تابع get_membership)
+    # از refresh استفاده نمی‌کنیم چون async session ممکن است cache داشته باشد
+    from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
+    from ..models.membership import Membership
+    
+    query = (
+        select(Membership)
+        .where(Membership.id == membership_id)
+        .options(
+            selectinload(Membership.user),
+            selectinload(Membership.community),
+            selectinload(Membership.role)
+        )
+        .execution_options(populate_existing=True)  # Force refresh from DB
+    )
+    result = await db.execute(query)
+    updated_membership = result.scalar_one_or_none()
+    
+    logger.info(f"Role changed: user {target_user_id} in community {community_id} → {new_role} by {actor_user_id}")
+    return updated_membership
+
+
+async def remove_member(
+    db: AsyncSession,
+    community_id: int,
+    target_user_id: int,
+    actor_user_id: int
+):
+    """حذف عضو از کامیونیتی.
+    
+    owner یا manager می‌توانند اعضا را حذف کنند.
+    owner قابل حذف نیست.
+    
+    Args:
+        db: Database session
+        community_id: شناسه کامیونیتی
+        target_user_id: شناسه کاربر هدف
+        actor_user_id: شناسه کاربر انجام‌دهنده
+        
+    Raises:
+        ValueError: اگر عضویت یافت نشود
+        PermissionError: اگر کاربر مجاز نباشد
+    """
+    # بررسی وجود کامیونیتی
+    community = await community_repo.get_by_id(db, community_id)
+    if not community:
+        raise ValueError("کامیونیتی یافت نشد")
+    
+    # بررسی دسترسی (owner یا manager)
+    if not await membership_repo.is_manager(db, actor_user_id, community_id):
+        raise PermissionError("شما مجاز به حذف اعضا نیستید")
+    
+    # نمی‌توان owner را حذف کرد
+    if target_user_id == community.owner_id:
+        raise ValueError("نمی‌توان مالک کامیونیتی را حذف کرد")
+    
+    # دریافت عضویت هدف
+    membership = await membership_repo.get_membership(db, target_user_id, community_id)
+    if not membership:
+        raise ValueError("این کاربر عضو کامیونیتی نیست")
+    
+    # غیرفعال کردن عضویت (soft delete)
+    from sqlalchemy import update as sql_update
+    from ..models.membership import Membership
+    
+    stmt = (
+        sql_update(Membership)
+        .where(Membership.id == membership.id)
+        .values(is_active=False)
+    )
+    await db.execute(stmt)
+    
+    # ثبت لاگ
+    await log_service.log_event(
+        db,
+        event_type="member_remove",
+        actor_user_id=actor_user_id,
+        target_user_id=target_user_id,
+        community_id=community_id
+    )
+    
+    await db.commit()
+    
+    logger.info(f"Member removed: user {target_user_id} from community {community_id} by {actor_user_id}")
 

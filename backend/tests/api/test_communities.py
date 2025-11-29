@@ -690,3 +690,215 @@ class TestGetCommunityMembers:
         
         # Assert
         assert response.status_code == 404
+
+
+# ==================== DELETE /api/v1/communities/{id}/members/{user_id} ====================
+
+class TestRemoveCommunityMember:
+    """Test cases for removing community members."""
+
+    @pytest.mark.asyncio
+    async def test_remove_member_by_owner(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user2: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test owner can remove a member."""
+        # Arrange - Create join request and approve
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join", 
+            headers=auth_headers_user2
+        )
+        request_id = join_response.json()["id"]
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/requests/{request_id}/approve", 
+            headers=auth_headers
+        )
+        
+        # Act - Remove the member
+        response = await client.delete(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user2['user_id']}", 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 204
+
+    @pytest.mark.asyncio
+    async def test_remove_member_by_non_manager(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user: dict,
+        auth_headers_user2: dict
+    ):
+        """Test non-manager cannot remove members."""
+        # Act
+        response = await client.delete(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user['user_id']}", 
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_remove_owner_fails(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test owner cannot be removed."""
+        # Act - Try to remove owner (self)
+        response = await client.delete(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user['user_id']}", 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 400
+
+    @pytest.mark.asyncio
+    async def test_remove_member_without_auth(
+        self, 
+        client: AsyncClient, 
+        test_community: dict
+    ):
+        """Test removing member without auth returns 401."""
+        # Act
+        response = await client.delete(
+            f"/api/v1/communities/{test_community['id']}/members/1"
+        )
+        
+        # Assert
+        assert response.status_code == 401
+
+
+# ==================== PATCH /api/v1/communities/{id}/members/{user_id}/role ====================
+
+class TestChangeMemberRole:
+    """Test cases for changing member roles."""
+
+    @pytest.mark.asyncio
+    async def test_change_role_to_manager_by_owner(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user2: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test owner can promote member to manager."""
+        # Arrange - Create join request and approve
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join", 
+            headers=auth_headers_user2
+        )
+        request_id = join_response.json()["id"]
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/requests/{request_id}/approve", 
+            headers=auth_headers
+        )
+        
+        # Act - Promote to manager
+        response = await client.patch(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user2['user_id']}/role?role=manager", 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["role"]["name"] == "manager"
+
+    @pytest.mark.asyncio
+    async def test_change_role_by_non_owner(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user: dict,
+        auth_headers_user2: dict
+    ):
+        """Test non-owner cannot change roles."""
+        # Act
+        response = await client.patch(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user['user_id']}/role?role=manager", 
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_change_owner_role_fails(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test cannot change owner's role."""
+        # Act
+        response = await client.patch(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user['user_id']}/role?role=member", 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 400
+
+
+# ==================== Re-approval after removal ====================
+
+class TestReapproveAfterRemoval:
+    """Test cases for re-approving users who were previously removed."""
+
+    @pytest.mark.asyncio
+    async def test_rejoin_after_removal_reactivates_membership(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user2: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test that approving a user who was removed reactivates their membership."""
+        # Arrange - Join, approve, then remove
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join", 
+            headers=auth_headers_user2
+        )
+        request_id = join_response.json()["id"]
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/requests/{request_id}/approve", 
+            headers=auth_headers
+        )
+        await client.delete(
+            f"/api/v1/communities/{test_community['id']}/members/{test_user2['user_id']}", 
+            headers=auth_headers
+        )
+        
+        # Act - Re-join
+        rejoin_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join", 
+            headers=auth_headers_user2
+        )
+        assert rejoin_response.status_code == 201
+        new_request_id = rejoin_response.json()["id"]
+        
+        # Approve again
+        approve_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/requests/{new_request_id}/approve", 
+            headers=auth_headers
+        )
+        
+        # Assert - Should succeed (reactivate existing membership)
+        assert approve_response.status_code == 200
+        data = approve_response.json()
+        assert data["is_active"] is True
+        assert data["user"]["id"] == test_user2["user_id"]

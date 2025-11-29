@@ -53,11 +53,15 @@ async def get_current_user_optional(
     Returns:
         اطلاعات کاربر یا None
     """
+    from ..utils.logger import logger
+    
     if not authorization:
+        logger.debug(f"No authorization header for {request.url.path}")
         request.state.user = None
         return None
     
     if not authorization.startswith("Bearer "):
+        logger.warning(f"Invalid authorization format for {request.url.path}")
         request.state.user = None
         return None
     
@@ -68,6 +72,11 @@ async def get_current_user_optional(
     secret = getattr(settings, "SECRET_KEY", "dev-secret-key-change-in-production")
     
     payload = decode_token(token, secret)
+    
+    if payload:
+        logger.debug(f"Token decoded successfully for user_id={payload.get('user_id')}, path={request.url.path}")
+    else:
+        logger.warning(f"Token decode failed for {request.url.path}")
     
     # ذخیره user در request state برای rate limiting
     request.state.user = payload

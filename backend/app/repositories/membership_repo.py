@@ -37,7 +37,8 @@ async def get_user_memberships(
 async def get_membership(
     db: AsyncSession,
     user_id: int,
-    community_id: int
+    community_id: int,
+    include_inactive: bool = False
 ) -> Optional[Membership]:
     """دریافت عضویت خاص.
     
@@ -45,6 +46,7 @@ async def get_membership(
         db: Database session
         user_id: شناسه کاربر
         community_id: شناسه کامیونیتی
+        include_inactive: آیا عضویت‌های غیرفعال هم برگردد (پیش‌فرض: False)
         
     Returns:
         Membership یا None
@@ -55,6 +57,11 @@ async def get_membership(
         .where(Membership.community_id == community_id)
         .options(selectinload(Membership.role))
     )
+    
+    # فیلتر عضویت‌های فعال (مگر اینکه صراحتاً غیرفعال‌ها هم بخواهیم)
+    if not include_inactive:
+        query = query.where(Membership.is_active == True)
+    
     result = await db.execute(query)
     return result.scalar_one_or_none()
 
@@ -219,6 +226,91 @@ async def has_pending_request(
     return result.scalar_one_or_none() is not None
 
 
+async def get_existing_request(
+    db: AsyncSession,
+    user_id: int,
+    community_id: int
+) -> Optional[Request]:
+    """دریافت درخواست موجود (هر وضعیتی).
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر
+        community_id: شناسه کامیونیتی
+        
+    Returns:
+        Request یا None
+    """
+    query = (
+        select(Request)
+        .where(Request.user_id == user_id)
+        .where(Request.community_id == community_id)
+        .options(
+            selectinload(Request.user),
+            selectinload(Request.community)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def reset_request_to_pending(
+    db: AsyncSession,
+    request_id: int
+) -> Optional[Request]:
+    """بازنشانی درخواست به وضعیت pending.
+    
+    برای مواردی که کاربر قبلاً عضو بوده و حذف شده و می‌خواهد دوباره درخواست دهد.
+    
+    Args:
+        db: Database session
+        request_id: شناسه درخواست
+        
+    Returns:
+        Request آپدیت‌شده
+    """
+    stmt = (
+        update(Request)
+        .where(Request.id == request_id)
+        .values(is_approved=None)
+    )
+    await db.execute(stmt)
+    await db.flush()
+    
+    # بارگذاری مجدد با relationshipها
+    query = (
+        select(Request)
+        .where(Request.id == request_id)
+        .options(
+            selectinload(Request.user),
+            selectinload(Request.community)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def delete_request(
+    db: AsyncSession,
+    request_id: int
+) -> bool:
+    """حذف درخواست عضویت.
+    
+    Args:
+        db: Database session
+        request_id: شناسه درخواست
+        
+    Returns:
+        True در صورت موفقیت
+    """
+    from sqlalchemy import delete as sql_delete
+    
+    stmt = sql_delete(Request).where(Request.id == request_id)
+    result = await db.execute(stmt)
+    await db.flush()
+    return result.rowcount > 0
+
+
 async def approve_request(
     db: AsyncSession,
     request_id: int
@@ -316,4 +408,126 @@ async def get_user_requests(
     )
     result = await db.execute(query)
     return list(result.scalars().all())
+
+
+async def update_membership_role(
+    db: AsyncSession,
+    membership_id: int,
+    new_role_id: int
+) -> Optional[Membership]:
+    """تغییر نقش یک عضو در کامیونیتی.
+    
+    Args:
+        db: Database session
+        membership_id: شناسه عضویت
+        new_role_id: شناسه نقش جدید
+        
+    Returns:
+        Membership آپدیت‌شده یا None
+    """
+    stmt = (
+        update(Membership)
+        .where(Membership.id == membership_id)
+        .values(role_id=new_role_id)
+    )
+    await db.execute(stmt)
+    await db.flush()
+    
+    # بارگذاری مجدد با relationshipها
+    query = (
+        select(Membership)
+        .where(Membership.id == membership_id)
+        .options(
+            selectinload(Membership.user),
+            selectinload(Membership.community),
+            selectinload(Membership.role)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def get_membership_by_id(
+    db: AsyncSession,
+    membership_id: int
+) -> Optional[Membership]:
+    """دریافت عضویت با ID.
+    
+    Args:
+        db: Database session
+        membership_id: شناسه عضویت
+        
+    Returns:
+        Membership یا None
+    """
+    query = (
+        select(Membership)
+        .where(Membership.id == membership_id)
+        .options(
+            selectinload(Membership.user),
+            selectinload(Membership.community),
+            selectinload(Membership.role)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def get_role_by_name(db: AsyncSession, role_name: str) -> Optional[Role]:
+    """دریافت نقش با نام.
+    
+    Args:
+        db: Database session
+        role_name: نام نقش
+        
+    Returns:
+        Role یا None
+    """
+    query = select(Role).where(Role.name == role_name)
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def reactivate_membership(
+    db: AsyncSession,
+    membership_id: int,
+    role_name: str = "member"
+) -> Optional[Membership]:
+    """فعال‌سازی مجدد عضویت غیرفعال.
+    
+    برای مواردی که کاربر قبلاً عضو بوده و حذف شده و می‌خواهد دوباره عضو شود.
+    
+    Args:
+        db: Database session
+        membership_id: شناسه عضویت
+        role_name: نام نقش (پیش‌فرض: member)
+        
+    Returns:
+        Membership فعال‌شده
+    """
+    # پیدا کردن role_id
+    role_query = select(Role.id).where(Role.name == role_name)
+    role_result = await db.execute(role_query)
+    role_id = role_result.scalar_one()
+    
+    stmt = (
+        update(Membership)
+        .where(Membership.id == membership_id)
+        .values(is_active=True, role_id=role_id)
+    )
+    await db.execute(stmt)
+    await db.flush()
+    
+    # بارگذاری مجدد با relationshipها
+    query = (
+        select(Membership)
+        .where(Membership.id == membership_id)
+        .options(
+            selectinload(Membership.user),
+            selectinload(Membership.community),
+            selectinload(Membership.role)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
 

@@ -174,6 +174,7 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `PATCH` | `/me` | ویرایش پروفایل | ✅ |
 | `PUT` | `/me/password` | تغییر رمز عبور | ✅ |
 | `GET` | `/me/join-requests` | لیست درخواست‌های عضویت من | ✅ |
+| `DELETE` | `/me/join-requests/{id}` | لغو درخواست عضویت (فقط pending) | ✅ |
 
 ### Communities (`/api/v1/communities`)
 
@@ -188,8 +189,15 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `POST` | `/{id}/requests/{req_id}/approve` | تایید درخواست (manager) | ✅ |
 | `POST` | `/{id}/requests/{req_id}/reject` | رد درخواست (manager) | ✅ |
 | `GET` | `/{id}/members` | لیست اعضا (paginated) | ❌ |
+| `PATCH` | `/{id}/members/{user_id}/role?role=X` | تغییر نقش عضو (فقط owner) | ✅ |
+| `DELETE` | `/{id}/members/{user_id}` | حذف عضو از کامیونیتی (owner/manager) | ✅ |
 
 *اگر کاربر لاگین کرده باشد، `is_member` و `my_role` در response نمایش داده می‌شوند.
+
+**نقش‌های کامیونیتی**:
+- `owner`: مالک کامیونیتی (سازنده) - دسترسی کامل شامل تغییر نقش اعضا
+- `manager`: مدیر - می‌تواند درخواست‌ها را مدیریت و اعضا را حذف کند
+- `member`: عضو عادی
 
 ### Cards (`/api/v1/cards`)
 
@@ -525,6 +533,6 @@ pip install -r requirements.txt
 
 ---
 
-**نسخه**: 0.1.0  
-**آخرین به‌روزرسانی**: 2025-11-02
+**نسخه**: 0.2.0  
+**آخرین به‌روزرسانی**: 2025-11-29
 

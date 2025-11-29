@@ -44,24 +44,39 @@ export function useMyJoinRequests() {
 }
 
 /**
+ * Hook برای لغو درخواست عضویت
+ */
+export function useCancelJoinRequest() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (requestId: number) => apiService.cancelJoinRequest(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-join-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['communities'] })
+    },
+  })
+}
+
+/**
  * Hook برای دریافت اعضای کامیونیتی
  */
-export function useCommunityMembers(communityId: number, page: number = 1) {
+export function useCommunityMembers(communityId: number, page: number = 1, enabled: boolean = true) {
   return useQuery({
     queryKey: ['community-members', communityId, page],
     queryFn: () => apiService.getCommunityMembers(communityId, page),
-    enabled: !!communityId,
+    enabled: !!communityId && enabled,
   })
 }
 
 /**
  * Hook برای دریافت درخواست‌های عضویت
  */
-export function useJoinRequests(communityId: number, page: number = 1) {
+export function useJoinRequests(communityId: number, page: number = 1, enabled: boolean = true) {
   return useQuery({
     queryKey: ['join-requests', communityId, page],
     queryFn: () => apiService.getJoinRequests(communityId, page),
-    enabled: !!communityId,
+    enabled: !!communityId && enabled,
   })
 }
 
@@ -103,9 +118,11 @@ export function useJoinCommunity() {
   
   return useMutation({
     mutationFn: (communityId: number) => apiService.joinCommunityRequest(communityId),
-    onSuccess: () => {
+    onSuccess: (_, communityId) => {
       queryClient.invalidateQueries({ queryKey: ['communities'] })
+      queryClient.invalidateQueries({ queryKey: ['communities', communityId] })
       queryClient.invalidateQueries({ queryKey: ['my-communities'] })
+      queryClient.invalidateQueries({ queryKey: ['my-join-requests'] })
     },
   })
 }
@@ -122,6 +139,8 @@ export function useApproveJoinRequest() {
     onSuccess: (_, { communityId }) => {
       queryClient.invalidateQueries({ queryKey: ['join-requests', communityId] })
       queryClient.invalidateQueries({ queryKey: ['community-members', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['communities', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['my-join-requests'] })
     },
   })
 }
@@ -137,6 +156,7 @@ export function useRejectJoinRequest() {
       apiService.rejectJoinRequest(communityId, requestId),
     onSuccess: (_, { communityId }) => {
       queryClient.invalidateQueries({ queryKey: ['join-requests', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['my-join-requests'] })
     },
   })
 }
@@ -152,6 +172,24 @@ export function useRemoveCommunityMember() {
       apiService.removeCommunityMember(communityId, userId),
     onSuccess: (_, { communityId }) => {
       queryClient.invalidateQueries({ queryKey: ['community-members', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['communities', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['my-communities'] })
+    },
+  })
+}
+
+/**
+ * Hook برای تغییر نقش عضو در کامیونیتی
+ */
+export function useChangeMemberRole() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ communityId, userId, role }: { communityId: number; userId: number; role: 'member' | 'manager' }) =>
+      apiService.changeMemberRole(communityId, userId, role),
+    onSuccess: (_, { communityId }) => {
+      queryClient.invalidateQueries({ queryKey: ['community-members', communityId] })
+      queryClient.invalidateQueries({ queryKey: ['communities', communityId] })
     },
   })
 }

@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { useMyJoinRequests } from '@/hooks/useCommunities'
+import { useMyJoinRequests, useCancelJoinRequest } from '@/hooks/useCommunities'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import Badge from '@/components/Badge'
 import Input from '@/components/Input'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import Modal from '@/components/Modal'
+import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
 
@@ -17,6 +19,8 @@ export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading, isAuthenticated } = useAuth()
   const { data: joinRequests, isLoading: requestsLoading } = useMyJoinRequests()
+  const cancelRequestMutation = useCancelJoinRequest()
+  const { showToast } = useToast()
 
   // State برای فرم تغییر رمز عبور
   const [oldPassword, setOldPassword] = useState('')
@@ -25,12 +29,29 @@ export default function DashboardPage() {
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState('')
+  
+  // State برای لغو درخواست
+  const [cancelRequestId, setCancelRequestId] = useState<number | null>(null)
+  const [cancelCommunityName, setCancelCommunityName] = useState('')
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/auth/login')
     }
   }, [isLoading, isAuthenticated, router])
+  
+  const handleCancelRequest = async () => {
+    if (!cancelRequestId) return
+    
+    try {
+      await cancelRequestMutation.mutateAsync(cancelRequestId)
+      showToast('success', 'درخواست عضویت لغو شد')
+      setCancelRequestId(null)
+      setCancelCommunityName('')
+    } catch (error: any) {
+      showToast('error', extractErrorMessage(error))
+    }
+  }
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -180,25 +201,27 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {joinRequests.map((request) => (
-                <Link 
-                  key={request.id} 
-                  href={`/communities/${request.community.id}`}
-                  className="block"
+                <div 
+                  key={request.id}
+                  className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50/30 transition-all"
                 >
-                  <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50/30 transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-sand-100 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-neutral-900">{request.community.name}</p>
-                        <p className="text-sm text-neutral-600 font-light">
-                          {new Date(request.created_at).toLocaleDateString('fa-IR')}
-                        </p>
-                      </div>
+                  <Link 
+                    href={`/communities/${request.community.id}`}
+                    className="flex items-center gap-3 flex-1"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-sand-100 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
                     </div>
+                    <div>
+                      <p className="font-medium text-neutral-900">{request.community.name}</p>
+                      <p className="text-sm text-neutral-600 font-light">
+                        {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                      </p>
+                    </div>
+                  </Link>
+                  <div className="flex items-center gap-3">
                     <Badge 
                       variant={
                         request.is_approved === null 
@@ -214,8 +237,23 @@ export default function DashboardPage() {
                           ? 'تایید شده ✓' 
                           : 'رد شده ✗'}
                     </Badge>
+                    {/* دکمه لغو فقط برای درخواست‌های در انتظار */}
+                    {request.is_approved === null && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-600 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setCancelRequestId(request.id)
+                          setCancelCommunityName(request.community.name)
+                        }}
+                      >
+                        لغو
+                      </Button>
+                    )}
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
@@ -318,6 +356,45 @@ export default function DashboardPage() {
           </form>
         </Card>
       </main>
+      
+      {/* Modal لغو درخواست عضویت */}
+      <Modal
+        isOpen={cancelRequestId !== null}
+        onClose={() => {
+          setCancelRequestId(null)
+          setCancelCommunityName('')
+        }}
+        title="لغو درخواست عضویت"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-neutral-700">
+            آیا از لغو درخواست عضویت در کامیونیتی <span className="font-medium text-neutral-900">{cancelCommunityName}</span> اطمینان دارید؟
+          </p>
+          <p className="text-sm text-neutral-500">
+            پس از لغو، می‌توانید دوباره درخواست عضویت ارسال کنید.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setCancelRequestId(null)
+                setCancelCommunityName('')
+              }}
+            >
+              انصراف
+            </Button>
+            <Button
+              variant="primary"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleCancelRequest}
+              isLoading={cancelRequestMutation.isPending}
+            >
+              لغو درخواست
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
