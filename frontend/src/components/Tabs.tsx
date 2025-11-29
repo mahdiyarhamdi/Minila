@@ -17,20 +17,20 @@ interface TabsProps {
 }
 
 /**
- * Tabs با طراحی Notion-like
+ * Tabs با طراحی Notion-like و پشتیبانی از اسکرول افقی در موبایل
  */
 export default function Tabs({ tabs, activeTab, onChange, children }: TabsProps) {
   return (
     <div className="w-full">
-      {/* Tab Headers */}
+      {/* Tab Headers - با اسکرول افقی در موبایل */}
       <div className="border-b border-neutral-200">
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onChange(tab.id)}
               className={cn(
-                'px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all',
+                'px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-t-lg transition-all whitespace-nowrap flex-shrink-0',
                 'hover:bg-neutral-50',
                 {
                   'text-primary-600 border-b-2 border-primary-600 bg-primary-50/30':
@@ -43,7 +43,7 @@ export default function Tabs({ tabs, activeTab, onChange, children }: TabsProps)
               {tab.count !== undefined && (
                 <span
                   className={cn(
-                    'mr-2 px-2 py-0.5 rounded-md text-xs',
+                    'mr-1.5 sm:mr-2 px-1.5 sm:px-2 py-0.5 rounded-md text-xs',
                     activeTab === tab.id
                       ? 'bg-primary-100 text-primary-700'
                       : 'bg-neutral-100 text-neutral-600'

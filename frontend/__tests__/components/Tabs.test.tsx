@@ -45,5 +45,26 @@ describe('Tabs Component', () => {
     )
     expect(screen.getByText('Tab Content')).toBeInTheDocument()
   })
+
+  it('has horizontal scroll container for mobile', () => {
+    const { container } = render(
+      <Tabs tabs={mockTabs} activeTab="tab1" onChange={() => {}} />
+    )
+    // Check that the scrollable container exists with overflow-x-auto class
+    const scrollContainer = container.querySelector('.overflow-x-auto')
+    expect(scrollContainer).toBeInTheDocument()
+  })
+
+  it('tab buttons have flex-shrink-0 for proper scroll behavior', () => {
+    render(<Tabs tabs={mockTabs} activeTab="tab1" onChange={() => {}} />)
+    const tab1Button = screen.getByText('Tab 1').closest('button')
+    expect(tab1Button).toHaveClass('flex-shrink-0')
+  })
+
+  it('tab buttons have whitespace-nowrap to prevent wrapping', () => {
+    render(<Tabs tabs={mockTabs} activeTab="tab1" onChange={() => {}} />)
+    const tab1Button = screen.getByText('Tab 1').closest('button')
+    expect(tab1Button).toHaveClass('whitespace-nowrap')
+  })
 })
 

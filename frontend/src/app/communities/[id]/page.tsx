@@ -68,25 +68,25 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Back Button */}
         <Link
           href="/communities"
-          className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6"
+          className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-4 sm:mb-6"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          بازگشت به لیست کامیونیتی‌ها
+          <span className="text-sm sm:text-base">بازگشت به لیست کامیونیتی‌ها</span>
         </Link>
 
         {/* Header */}
-        <Card variant="elevated" className="p-8 mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            <div className="flex items-start gap-4">
+        <Card variant="elevated" className="p-4 sm:p-8 mb-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start gap-3 sm:gap-4">
               {/* Icon */}
-              <div className="w-20 h-20 rounded-2xl bg-sand-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-10 h-10 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-sand-100 flex items-center justify-center flex-shrink-0">
+                <svg className="w-7 h-7 sm:w-10 sm:h-10 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -96,9 +96,9 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                 </svg>
               </div>
 
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-extrabold text-neutral-900">{community.name}</h1>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                  <h1 className="text-xl sm:text-3xl font-extrabold text-neutral-900">{community.name}</h1>
                   {isOwner && (
                     <Badge variant="success" size="md">
                       مالک
@@ -110,8 +110,8 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                     </Badge>
                   )}
                 </div>
-                <p className="text-neutral-600 font-light mb-3">{community.bio}</p>
-                <div className="flex items-center gap-4 text-sm text-neutral-600">
+                <p className="text-sm sm:text-base text-neutral-600 font-light mb-2 sm:mb-3">{community.bio}</p>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-neutral-600">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -131,10 +131,10 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               {(isManager || isOwner) && (
-                <Link href={`/communities/${community.id}/manage`}>
-                  <Button variant="secondary">
+                <Link href={`/communities/${community.id}/manage`} className="flex-1 sm:flex-none">
+                  <Button variant="secondary" className="w-full sm:w-auto">
                     <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -154,14 +154,14 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                 </Link>
               )}
               {!user && (
-                <Link href="/auth/login">
-                  <Button variant="primary">
+                <Link href="/auth/login" className="flex-1 sm:flex-none">
+                  <Button variant="primary" className="w-full sm:w-auto">
                     ورود برای عضویت
                   </Button>
                 </Link>
               )}
               {user && !isMember && !isOwner && (
-                <Button onClick={handleJoin} isLoading={joinMutation.isPending}>
+                <Button onClick={handleJoin} isLoading={joinMutation.isPending} className="flex-1 sm:flex-none w-full sm:w-auto">
                   درخواست عضویت
                 </Button>
               )}

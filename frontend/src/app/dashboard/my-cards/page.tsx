@@ -57,20 +57,20 @@ export default function MyCardsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
               کارت‌های من
             </h1>
-            <p className="text-neutral-600 font-light">
+            <p className="text-sm sm:text-base text-neutral-600 font-light">
               مدیریت و مشاهده کارت‌های خودتان
             </p>
           </div>
 
-          <Link href="/cards/new">
-            <Button size="lg">
+          <Link href="/cards/new" className="w-full sm:w-auto self-start">
+            <Button size="lg" className="w-full sm:w-auto">
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -179,17 +179,18 @@ export default function MyCardsPage() {
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-neutral-700">
+          <p className="text-sm sm:text-base text-neutral-700">
             آیا از حذف این کارت اطمینان دارید؟ این عمل قابل بازگشت نیست.
           </p>
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setDeleteCardId(null)}>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <Button variant="ghost" onClick={() => setDeleteCardId(null)} className="w-full sm:w-auto">
               انصراف
             </Button>
             <Button
               variant="primary"
               onClick={handleDelete}
               isLoading={deleteCardMutation.isPending}
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
               حذف کارت
             </Button>

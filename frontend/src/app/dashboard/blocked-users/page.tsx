@@ -44,13 +44,13 @@ export default function BlockedUsersPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
             لیست کاربران بلاک شده
           </h1>
-          <p className="text-neutral-600 font-light">
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             کاربرانی که آن‌ها را بلاک کرده‌اید
           </p>
         </div>
@@ -85,19 +85,19 @@ export default function BlockedUsersPage() {
               {blockedUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between p-4 hover:bg-neutral-50"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 hover:bg-neutral-50"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-neutral-200 flex items-center justify-center">
-                      <span className="text-neutral-600 font-bold text-lg">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neutral-200 flex items-center justify-center flex-shrink-0">
+                      <span className="text-neutral-600 font-bold text-base sm:text-lg">
                         {user.first_name[0]}
                       </span>
                     </div>
-                    <div>
-                      <p className="font-medium text-neutral-900">
+                    <div className="min-w-0">
+                      <p className="font-medium text-neutral-900 truncate">
                         {user.first_name} {user.last_name}
                       </p>
-                      <p className="text-sm text-neutral-600 font-light" dir="ltr">
+                      <p className="text-xs sm:text-sm text-neutral-600 font-light truncate" dir="ltr">
                         {user.email}
                       </p>
                     </div>
@@ -106,6 +106,7 @@ export default function BlockedUsersPage() {
                     size="sm"
                     variant="secondary"
                     onClick={() => setUnblockUserId(user.id)}
+                    className="w-full sm:w-auto mr-13 sm:mr-0"
                   >
                     آنبلاک
                   </Button>
@@ -148,18 +149,19 @@ export default function BlockedUsersPage() {
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-neutral-700">
+          <p className="text-sm sm:text-base text-neutral-700">
             آیا از آنبلاک این کاربر اطمینان دارید؟ این کاربر دوباره می‌تواند به شما پیام ارسال
             کند.
           </p>
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setUnblockUserId(null)}>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <Button variant="ghost" onClick={() => setUnblockUserId(null)} className="w-full sm:w-auto">
               انصراف
             </Button>
             <Button
               variant="primary"
               onClick={handleUnblock}
               isLoading={unblockMutation.isPending}
+              className="w-full sm:w-auto"
             >
               آنبلاک
             </Button>

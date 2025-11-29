@@ -68,21 +68,21 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Back Button */}
-        <Link href="/cards" className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6">
+        <Link href="/cards" className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-4 sm:mb-6">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          بازگشت به لیست کارت‌ها
+          <span className="text-sm sm:text-base">بازگشت به لیست کارت‌ها</span>
         </Link>
 
         {/* Main Card */}
-        <Card variant="elevated" className="p-8 mb-6">
+        <Card variant="elevated" className="p-4 sm:p-8 mb-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+          <div className="flex flex-col gap-4 mb-6">
             <div className="flex-1">
-              <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+              <h1 className="text-xl sm:text-3xl font-extrabold text-neutral-900 mb-2">
                 {card.origin_city.name} → {card.destination_city.name}
               </h1>
               <div className="flex flex-wrap gap-2">
@@ -106,18 +106,18 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
 
             {/* Actions */}
             {isOwner ? (
-              <div className="flex gap-2">
-                <Link href={`/cards/${card.id}/edit`}>
-                  <Button variant="secondary" size="sm">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Link href={`/cards/${card.id}/edit`} className="flex-1 sm:flex-none">
+                  <Button variant="secondary" size="sm" className="w-full sm:w-auto">
                     ویرایش
                   </Button>
                 </Link>
-                <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(true)}>
+                <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(true)} className="flex-1 sm:flex-none">
                   حذف
                 </Button>
               </div>
             ) : (
-              <Button onClick={handleSendMessage}>
+              <Button onClick={handleSendMessage} className="w-full sm:w-auto">
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
@@ -245,12 +245,12 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-neutral-700">آیا از حذف این کارت اطمینان دارید؟ این عمل قابل بازگشت نیست.</p>
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setShowDeleteModal(false)}>
+          <p className="text-sm sm:text-base text-neutral-700">آیا از حذف این کارت اطمینان دارید؟ این عمل قابل بازگشت نیست.</p>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <Button variant="ghost" onClick={() => setShowDeleteModal(false)} className="w-full sm:w-auto">
               انصراف
             </Button>
-            <Button variant="primary" onClick={handleDelete} isLoading={deleteCardMutation.isPending}>
+            <Button variant="primary" onClick={handleDelete} isLoading={deleteCardMutation.isPending} className="w-full sm:w-auto bg-red-600 hover:bg-red-700">
               حذف کارت
             </Button>
           </div>

@@ -65,13 +65,13 @@ export default function NewCommunityPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
             ایجاد کامیونیتی جدید
           </h1>
-          <p className="text-neutral-600 font-light">
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             یک کامیونیتی برای گروه خود بسازید
           </p>
         </div>
@@ -126,11 +126,11 @@ export default function NewCommunityPage() {
           </Card>
 
           {/* Actions */}
-          <div className="flex gap-3 justify-end">
-            <Button type="button" variant="ghost" onClick={() => router.back()}>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <Button type="button" variant="ghost" onClick={() => router.back()} className="w-full sm:w-auto">
               انصراف
             </Button>
-            <Button type="submit" isLoading={createMutation.isPending}>
+            <Button type="submit" isLoading={createMutation.isPending} className="w-full sm:w-auto">
               ایجاد کامیونیتی
             </Button>
           </div>

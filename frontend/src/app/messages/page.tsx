@@ -32,11 +32,11 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">پیام‌ها</h1>
-          <p className="text-neutral-600 font-light">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">پیام‌ها</h1>
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             مکالمات خود را مدیریت کنید
           </p>
         </div>

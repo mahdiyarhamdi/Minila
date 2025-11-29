@@ -113,6 +113,15 @@
     text-wrap: balance;
   }
   
+  /* مخفی کردن scrollbar برای تب‌ها و لیست‌های افقی */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE و Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari و Opera */
+  }
+  
   /* کلاس‌های کمکی برای وزن‌ها */
   .font-thin {
     font-weight: 100;

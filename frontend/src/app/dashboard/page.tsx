@@ -115,12 +115,12 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-extrabold text-neutral-900 mb-2">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
             خوش آمدید، {user.first_name}!
           </h2>
-          <p className="text-neutral-600 font-light text-base">
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             از داشبورد خود می‌توانید کارت‌ها را مدیریت کنید و پیام‌های خود را مشاهده کنید.
           </p>
         </div>

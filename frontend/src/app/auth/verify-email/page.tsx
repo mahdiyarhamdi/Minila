@@ -80,15 +80,15 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
       {/* لوگو و عنوان */}
-      <div className="text-center mb-8">
-        <h1 className="text-5xl font-black text-neutral-900 mb-2">Minila</h1>
-        <p className="text-neutral-600 font-light text-base">پلتفرم هماهنگی مسافر و بار</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 mb-1 sm:mb-2">Minila</h1>
+        <p className="text-sm sm:text-base text-neutral-600 font-light">پلتفرم هماهنگی مسافر و بار</p>
       </div>
 
       {/* کارت اصلی */}
-      <Card variant="elevated" className="w-full max-w-md p-8">
+      <Card variant="elevated" className="w-full max-w-md p-5 sm:p-8">
         <div className="mb-6">
           <button
             onClick={() => router.push('/auth/signup')}

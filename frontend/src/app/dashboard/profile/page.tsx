@@ -93,13 +93,13 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
             ویرایش پروفایل
           </h1>
-          <p className="text-neutral-600 font-light">
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             اطلاعات حساب کاربری خود را مدیریت کنید
           </p>
         </div>
@@ -108,13 +108,13 @@ export default function ProfilePage() {
         <Card variant="elevated" className="p-6 sm:p-8 mb-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Avatar Placeholder */}
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center">
-                <span className="text-primary-600 font-extrabold text-3xl">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary-100 flex items-center justify-center">
+                <span className="text-primary-600 font-extrabold text-2xl sm:text-3xl">
                   {user.first_name[0]}
                 </span>
               </div>
-              <div>
+              <div className="text-center sm:text-right">
                 <p className="text-sm text-neutral-600 font-light mb-2">
                   عکس پروفایل (به زودی)
                 </p>
@@ -149,15 +149,16 @@ export default function ProfilePage() {
             />
 
             {/* Submit Button */}
-            <div className="flex gap-3 justify-end pt-4">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end pt-4">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => router.push('/dashboard')}
+                className="w-full sm:w-auto"
               >
                 انصراف
               </Button>
-              <Button type="submit" isLoading={isLoading}>
+              <Button type="submit" isLoading={isLoading} className="w-full sm:w-auto">
                 ذخیره تغییرات
               </Button>
             </div>

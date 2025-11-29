@@ -307,11 +307,11 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     <div className="min-h-screen bg-neutral-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
             ویرایش کارت
           </h1>
-          <p className="text-neutral-600 font-light">
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             اطلاعات کارت خود را به‌روزرسانی کنید
           </p>
         </div>
@@ -496,17 +496,19 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
           </Card>
 
           {/* Actions */}
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button
               type="button"
               variant="ghost"
               onClick={() => router.push(`/cards/${cardId}`)}
+              className="w-full sm:w-auto"
             >
               انصراف
             </Button>
             <Button
               type="submit"
               isLoading={updateCardMutation.isPending}
+              className="w-full sm:w-auto"
             >
               ذخیره تغییرات
             </Button>

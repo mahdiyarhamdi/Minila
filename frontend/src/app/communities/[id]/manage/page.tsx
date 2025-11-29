@@ -24,6 +24,7 @@ import { extractErrorMessage } from '@/utils/errors'
 
 /**
  * صفحه مدیریت کامیونیتی (فقط برای Manager)
+ * طراحی Mobile-First با layout واکنش‌گرا
  */
 export default function ManageCommunityPage({ params }: { params: { id: string } }) {
   const communityId = parseInt(params.id)
@@ -50,9 +51,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
   
   // Force refresh داده‌های کامیونیتی هنگام ورود به صفحه برای بررسی دسترسی
   useEffect(() => {
-    // همیشه داده‌های تازه بگیر برای بررسی دقیق دسترسی
     refetchCommunity()
-    console.log('🔄 Refetching community data for access check...')
   }, [communityId, refetchCommunity])
 
   // بررسی وجود token
@@ -122,46 +121,21 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
 
   if (!community) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <Card variant="bordered" className="p-6 max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+        <Card variant="bordered" className="p-6 max-w-md w-full">
           <p className="text-red-600 text-center">کامیونیتی یافت نشد</p>
         </Card>
       </div>
     )
   }
 
-  // Debug: بررسی اطلاعات کامیونیتی و Authentication
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
-  console.log('🔐 Auth Token exists?', !!token)
-  console.log('📊 Community Data:', {
-    id: community.id,
-    name: community.name,
-    owner_id: community.owner?.id,
-    owner_email: community.owner?.email,
-    my_role: community.my_role,
-    is_member: community.is_member,
-    member_count: community.member_count
-  })
-
-  // Check if user is manager or owner - استفاده از مقدار تازه‌شده
+  // Check if user is manager or owner
   const canManage = hasManageAccess
-  console.log('🔑 Can Manage?', canManage, '(my_role:', community.my_role, ', hasManageAccess:', hasManageAccess, ')')
   
   if (!canManage) {
     const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('access_token')
     const isTokenExpired = community.my_role === null && hasToken
     const isMemberWithoutAccess = community.my_role === 'member' && hasToken
-    
-    // Debug: نمایش دلیل عدم دسترسی در کنسول
-    console.warn('⚠️ Access denied:', {
-      hasToken,
-      my_role: community.my_role,
-      is_member: community.is_member,
-      expected_roles: ['manager', 'owner'],
-      canManage,
-      isTokenExpired,
-      isMemberWithoutAccess
-    })
     
     // تعیین پیام اصلی بر اساس وضعیت
     let mainMessage = 'لطفاً ابتدا وارد شوید'
@@ -179,8 +153,8 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
     }
     
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <Card variant="bordered" className="p-6 max-w-md text-center">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+        <Card variant="bordered" className="p-6 max-w-md w-full text-center">
           <div className={`mb-4 p-4 rounded-lg ${isTokenExpired ? 'bg-amber-50 border border-amber-200' : isMemberWithoutAccess ? 'bg-blue-50 border border-blue-200' : 'bg-red-50 border border-red-200'}`}>
             <p className={`font-medium mb-2 ${isTokenExpired ? 'text-amber-800' : isMemberWithoutAccess ? 'text-blue-800' : 'text-red-600'}`}>
               {mainMessage}
@@ -212,24 +186,24 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Back Button */}
         <Link
           href={`/communities/${communityId}`}
-          className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6"
+          className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-4 sm:mb-6"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          بازگشت به کامیونیتی
+          <span className="text-sm sm:text-base">بازگشت به کامیونیتی</span>
         </Link>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-neutral-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
             مدیریت {community.name}
           </h1>
-          <p className="text-neutral-600 font-light">
+          <p className="text-sm sm:text-base text-neutral-600 font-light">
             مدیریت درخواست‌ها و اعضای کامیونیتی
           </p>
         </div>
@@ -246,35 +220,39 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
         >
           {/* Requests Tab */}
           {activeTab === 'requests' && (
-            <Card variant="bordered" className="p-6">
+            <Card variant="bordered" className="p-4 sm:p-6">
               {pendingRequests.length > 0 ? (
                 <div className="space-y-3">
                   {pendingRequests.map((request) => (
                     <div
                       key={request.id}
-                      className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:bg-neutral-50"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors"
                     >
+                      {/* اطلاعات کاربر */}
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                           <span className="text-primary-600 font-bold">
                             {request.user.first_name[0]}
                           </span>
                         </div>
-                        <div>
-                          <p className="font-medium text-neutral-900">
+                        <div className="min-w-0">
+                          <p className="font-medium text-neutral-900 truncate">
                             {request.user.first_name} {request.user.last_name}
                           </p>
-                          <p className="text-sm text-neutral-600 font-light">
+                          <p className="text-xs sm:text-sm text-neutral-600 font-light">
                             {new Date(request.created_at).toLocaleDateString('fa-IR')}
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      
+                      {/* دکمه‌های اکشن */}
+                      <div className="flex gap-2 mr-13 sm:mr-0">
                         <Button
                           size="sm"
                           variant="secondary"
                           onClick={() => handleApprove(request.id)}
                           isLoading={approveMutation.isPending}
+                          className="flex-1 sm:flex-none"
                         >
                           تایید
                         </Button>
@@ -283,6 +261,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                           variant="ghost"
                           onClick={() => handleReject(request.id)}
                           isLoading={rejectMutation.isPending}
+                          className="flex-1 sm:flex-none"
                         >
                           رد
                         </Button>
@@ -301,7 +280,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
 
           {/* Members Tab */}
           {activeTab === 'members' && (
-            <Card variant="bordered" className="p-6">
+            <Card variant="bordered" className="p-4 sm:p-6">
               {members && members.items.length > 0 ? (
                 <div className="space-y-3">
                   {members.items.map((member) => {
@@ -319,34 +298,37 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                     return (
                       <div
                         key={member.id}
-                        className="flex items-center justify-between p-4 rounded-lg hover:bg-neutral-50 border border-neutral-100"
+                        className="flex flex-col gap-3 p-3 sm:p-4 rounded-lg hover:bg-neutral-50 border border-neutral-100 transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            isOwner ? 'bg-amber-100' : isManager ? 'bg-green-100' : 'bg-primary-100'
-                          }`}>
-                            <span className={`font-bold ${
-                              isOwner ? 'text-amber-600' : isManager ? 'text-green-600' : 'text-primary-600'
+                        {/* ردیف اول: اطلاعات کاربر و Badge */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              isOwner ? 'bg-amber-100' : isManager ? 'bg-green-100' : 'bg-primary-100'
                             }`}>
-                              {member.user.first_name?.[0] || '?'}
-                            </span>
+                              <span className={`font-bold ${
+                                isOwner ? 'text-amber-600' : isManager ? 'text-green-600' : 'text-primary-600'
+                              }`}>
+                                {member.user.first_name?.[0] || '?'}
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-neutral-900 truncate">
+                                {member.user.first_name} {member.user.last_name}
+                              </p>
+                              <p className="text-xs sm:text-sm text-neutral-600 font-light truncate" dir="ltr">
+                                {member.user.email}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-neutral-900">
-                              {member.user.first_name} {member.user.last_name}
-                            </p>
-                            <p className="text-sm text-neutral-600 font-light" dir="ltr">
-                              {member.user.email}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
                           <Badge variant={isOwner ? 'warning' : isManager ? 'success' : 'neutral'}>
                             {isOwner ? 'مالک' : isManager ? 'مدیر' : 'عضو'}
                           </Badge>
-                          
-                          {/* دکمه‌های مدیریت */}
-                          <div className="flex items-center gap-2">
+                        </div>
+                        
+                        {/* ردیف دوم: دکمه‌های مدیریت (فقط اگر دسترسی داشته باشد) */}
+                        {(canChangeRole || canManageThisMember) && (
+                          <div className="flex flex-wrap gap-2 pr-13 sm:pr-0 sm:justify-end">
                             {/* دکمه‌های تغییر نقش - فقط برای owner */}
                             {canChangeRole && isMember && (
                               <Button
@@ -357,6 +339,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                                   currentRole: 'member',
                                   userName: `${member.user.first_name} ${member.user.last_name}`
                                 })}
+                                className="text-xs sm:text-sm"
                               >
                                 ارتقا به مدیر
                               </Button>
@@ -370,6 +353,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                                   currentRole: 'manager',
                                   userName: `${member.user.first_name} ${member.user.last_name}`
                                 })}
+                                className="text-xs sm:text-sm"
                               >
                                 تنزل به عضو
                               </Button>
@@ -379,14 +363,14 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-red-600 hover:bg-red-50"
+                                className="text-red-600 hover:bg-red-50 text-xs sm:text-sm"
                                 onClick={() => setRemoveMemberId(member.user.id)}
                               >
                                 حذف
                               </Button>
                             )}
                           </div>
-                        </div>
+                        )}
                       </div>
                     )
                   })}
@@ -399,9 +383,9 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
 
           {/* Settings Tab */}
           {activeTab === 'settings' && (
-            <Card variant="bordered" className="p-6">
-              <h3 className="text-lg font-bold text-neutral-900 mb-4">تنظیمات کامیونیتی</h3>
-              <p className="text-neutral-600 font-light">
+            <Card variant="bordered" className="p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-3 sm:mb-4">تنظیمات کامیونیتی</h3>
+              <p className="text-sm sm:text-base text-neutral-600 font-light">
                 تنظیمات بیشتر به زودی اضافه خواهد شد...
               </p>
             </Card>
@@ -417,15 +401,16 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-neutral-700">
+          <p className="text-neutral-700 text-sm sm:text-base">
             آیا از حذف این عضو از کامیونیتی اطمینان دارید؟
           </p>
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setRemoveMemberId(null)}>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <Button variant="ghost" onClick={() => setRemoveMemberId(null)} className="w-full sm:w-auto">
               انصراف
             </Button>
             <Button
               variant="primary"
+              className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
               onClick={handleRemoveMember}
               isLoading={removeMutation.isPending}
             >
@@ -443,7 +428,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-neutral-700">
+          <p className="text-neutral-700 text-sm sm:text-base">
             {roleChangeTarget?.currentRole === 'member' 
               ? `آیا می‌خواهید ${roleChangeTarget?.userName} را به مدیر ارتقا دهید؟`
               : `آیا می‌خواهید نقش ${roleChangeTarget?.userName} را به عضو عادی تنزل دهید؟`
@@ -451,23 +436,24 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
           </p>
           
           {roleChangeTarget?.currentRole === 'member' && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-blue-800">
               <p className="font-medium mb-1">مدیران می‌توانند:</p>
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-disc list-inside space-y-1 mr-2">
                 <li>درخواست‌های عضویت را تایید یا رد کنند</li>
                 <li>اعضای عادی را از کامیونیتی حذف کنند</li>
               </ul>
             </div>
           )}
           
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setRoleChangeTarget(null)}>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <Button variant="ghost" onClick={() => setRoleChangeTarget(null)} className="w-full sm:w-auto">
               انصراف
             </Button>
             <Button
               variant={roleChangeTarget?.currentRole === 'member' ? 'primary' : 'secondary'}
               onClick={() => handleChangeRole(roleChangeTarget?.currentRole === 'member' ? 'manager' : 'member')}
               isLoading={changeRoleMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {roleChangeTarget?.currentRole === 'member' ? 'ارتقا به مدیر' : 'تنزل به عضو'}
             </Button>
@@ -477,4 +463,3 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
     </div>
   )
 }
-

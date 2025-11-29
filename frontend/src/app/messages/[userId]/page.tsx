@@ -157,14 +157,14 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
 
       {/* Input Box */}
       <div className="bg-white border-t border-neutral-200 sticky bottom-0">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <form onSubmit={handleSend} className="flex gap-3">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <form onSubmit={handleSend} className="flex gap-2 sm:gap-3">
             <Textarea
               placeholder="پیام خود را بنویسید..."
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
               rows={1}
-              className="flex-1 resize-none"
+              className="flex-1 resize-none text-sm sm:text-base"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
@@ -176,6 +176,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
               type="submit"
               isLoading={sendMutation.isPending}
               disabled={!messageContent.trim()}
+              className="flex-shrink-0"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -187,7 +188,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
               </svg>
             </Button>
           </form>
-          <p className="text-xs text-neutral-500 font-light mt-2">
+          <p className="text-xs text-neutral-500 font-light mt-1.5 sm:mt-2 hidden sm:block">
             Enter برای ارسال، Shift+Enter برای خط جدید
           </p>
         </div>

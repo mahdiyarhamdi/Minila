@@ -177,22 +177,35 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-neutral-200">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              {/* User Info on Mobile */}
+              {user && (
+                <div className="px-4 py-3 mb-2 bg-neutral-50 rounded-lg">
+                  <p className="text-sm font-medium text-neutral-900">
+                    {user.first_name} {user.last_name}
+                  </p>
+                  <p className="text-xs text-neutral-600 font-light" dir="ltr">
+                    {user.email}
+                  </p>
+                </div>
+              )}
+              
+              {/* Navigation Links */}
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'relative px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'relative px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between',
                     pathname === link.href
                       ? 'bg-primary-50 text-primary-600'
                       : 'text-neutral-700 hover:bg-neutral-100'
                   )}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
                   {link.badge !== undefined && link.badge > 0 && (
-                    <span className="absolute top-1 left-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center font-bold">
+                    <span className="bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center font-bold">
                       {link.badge > 99 ? '99+' : link.badge}
                     </span>
                   )}
@@ -202,18 +215,41 @@ export default function Navbar() {
               {user && (
                 <>
                   <div className="border-t border-neutral-200 my-2"></div>
+                  <p className="px-4 py-1 text-xs text-neutral-500 font-medium">حساب کاربری</p>
                   <Link
                     href="/dashboard/profile"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+                    className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                   >
                     ویرایش پروفایل
                   </Link>
+                  <Link
+                    href="/dashboard/my-cards"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+                  >
+                    کارت‌های من
+                  </Link>
+                  <Link
+                    href="/dashboard/my-communities"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+                  >
+                    کامیونیتی‌های من
+                  </Link>
+                  <Link
+                    href="/dashboard/blocked-users"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+                  >
+                    بلاک لیست
+                  </Link>
+                  <div className="border-t border-neutral-200 my-2"></div>
                   <button
                     onClick={handleLogout}
-                    className="text-right px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
+                    className="text-right px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
                   >
-                    خروج
+                    خروج از حساب
                   </button>
                 </>
               )}
