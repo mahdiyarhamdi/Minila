@@ -6,6 +6,7 @@ export interface CurrencyInfo {
   code: string
   name: string
   nameFa: string
+  nameAr?: string
   symbol: string
 }
 

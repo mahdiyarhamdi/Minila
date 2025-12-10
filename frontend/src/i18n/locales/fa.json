@@ -1,0 +1,438 @@
+{
+  "common": {
+    "loading": "در حال بارگذاری...",
+    "error": "خطایی رخ داد",
+    "save": "ذخیره",
+    "cancel": "انصراف",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "back": "بازگشت",
+    "next": "بعدی",
+    "submit": "ارسال",
+    "confirm": "تایید",
+    "close": "بستن",
+    "search": "جست‌وجو",
+    "filters": "فیلترها",
+    "clear": "پاک کردن",
+    "all": "همه",
+    "optional": "اختیاری",
+    "required": "الزامی",
+    "yes": "بله",
+    "no": "خیر",
+    "or": "یا",
+    "and": "و",
+    "more": "بیشتر",
+    "less": "کمتر",
+    "showMore": "نمایش بیشتر",
+    "showLess": "نمایش کمتر",
+    "moreOptions": "گزینه‌های بیشتر",
+    "noResults": "نتیجه‌ای یافت نشد",
+    "tryAgain": "دوباره تلاش کنید",
+    "goBack": "بازگشت",
+    "viewAll": "مشاهده همه",
+    "page": "صفحه",
+    "of": "از",
+    "showing": "نمایش",
+    "from": "از",
+    "to": "تا",
+    "total": "کل",
+    "user": "کاربر"
+  },
+  "app": {
+    "name": "مینیلا",
+    "tagline": "پلتفرم هماهنگی مسافر و بار",
+    "description": "پلتفرم هوشمند برای هماهنگی بین مسافران و فرستندگان بار"
+  },
+  "nav": {
+    "dashboard": "داشبورد",
+    "cards": "کارت‌ها",
+    "communities": "کامیونیتی‌ها",
+    "messages": "پیام‌ها",
+    "profile": "پروفایل",
+    "settings": "تنظیمات",
+    "logout": "خروج",
+    "login": "ورود",
+    "signup": "ثبت‌نام"
+  },
+  "auth": {
+    "login": {
+      "title": "ورود به حساب",
+      "subtitle": "با رمز عبور یا کد یکبار مصرف وارد شوید",
+      "passwordTab": "رمز عبور",
+      "otpTab": "کد یکبار مصرف",
+      "emailLabel": "آدرس ایمیل",
+      "emailPlaceholder": "example@gmail.com",
+      "passwordLabel": "رمز عبور",
+      "passwordPlaceholder": "••••••••",
+      "submitPassword": "ورود",
+      "submitOtp": "ارسال کد تایید",
+      "forgotPassword": "رمز عبور را فراموش کرده‌اید؟",
+      "noAccount": "حساب کاربری ندارید؟",
+      "signupLink": "ثبت‌نام کنید",
+      "termsNotice": "با ورود به سیستم، شما",
+      "termsLink": "قوانین و مقررات را می‌پذیرید"
+    },
+    "signup": {
+      "title": "ساخت حساب کاربری",
+      "subtitle": "برای شروع، اطلاعات خود را وارد کنید",
+      "firstNameLabel": "نام",
+      "firstNamePlaceholder": "علی",
+      "lastNameLabel": "نام خانوادگی",
+      "lastNamePlaceholder": "احمدی",
+      "emailLabel": "آدرس ایمیل",
+      "passwordLabel": "رمز عبور",
+      "passwordHelper": "حداقل 8 کاراکتر",
+      "confirmPasswordLabel": "تکرار رمز عبور",
+      "submitButton": "ثبت‌نام",
+      "hasAccount": "قبلاً ثبت‌نام کرده‌اید؟",
+      "loginLink": "وارد شوید",
+      "termsNotice": "با ثبت‌نام، شما",
+      "success": "ثبت‌نام موفق!",
+      "successMessage": "کد تایید به ایمیل شما ارسال شد. در حال انتقال به صفحه تایید..."
+    },
+    "otp": {
+      "title": "کد تایید را وارد کنید",
+      "subtitle": "کد 6 رقمی ارسال شده به {{email}} را وارد کنید",
+      "codeLabel": "کد تایید",
+      "codePlaceholder": "123456",
+      "submitButton": "تایید و ورود",
+      "resendButton": "ارسال مجدد کد"
+    },
+    "validation": {
+      "emailRequired": "لطفاً یک ایمیل معتبر وارد کنید",
+      "passwordMin": "رمز عبور باید حداقل 8 کاراکتر باشد",
+      "passwordMatch": "رمز عبور و تکرار آن یکسان نیستند",
+      "firstNameRequired": "نام الزامی است",
+      "lastNameRequired": "نام خانوادگی الزامی است",
+      "otpLength": "کد OTP باید 6 رقم باشد",
+      "invalidCredentials": "ایمیل یا رمز عبور نادرست است"
+    }
+  },
+  "dashboard": {
+    "welcome": "خوش آمدید، {{name}}!",
+    "subtitle": "از داشبورد خود می‌توانید کارت‌ها را مدیریت کنید و پیام‌های خود را مشاهده کنید",
+    "myCards": "کارت‌های من",
+    "activeCards": "کارت فعال",
+    "receivedMessages": "پیام‌های دریافتی",
+    "newMessages": "پیام جدید",
+    "myCommunities": "کامیونیتی‌ها",
+    "activeMemberships": "عضویت فعال",
+    "quickStart": {
+      "title": "شروع سریع",
+      "createCard": {
+        "title": "ایجاد کارت جدید",
+        "description": "یک کارت سفر یا بار جدید بسازید"
+      },
+      "joinCommunity": {
+        "title": "پیوستن به کامیونیتی",
+        "description": "به یک کامیونیتی بپیوندید یا کامیونیتی جدید بسازید"
+      }
+    },
+    "joinRequests": {
+      "title": "درخواست‌های عضویت",
+      "myRequests": "درخواست‌های من",
+      "managedRequests": "درخواست‌های کامیونیتی‌ها",
+      "noRequests": "شما هیچ درخواست عضویتی ندارید",
+      "noManagedRequests": "درخواست عضویتی برای کامیونیتی‌های شما وجود ندارد",
+      "managedRequestsHint": "اگر مالک یا مدیر کامیونیتی هستید، درخواست‌های جدید اینجا نمایش داده می‌شوند",
+      "viewCommunities": "مشاهده کامیونیتی‌ها",
+      "pending": "در انتظار",
+      "approved": "تایید شده ✓",
+      "rejected": "رد شده ✗",
+      "cancelRequest": "لغو",
+      "approve": "تایید",
+      "reject": "رد",
+      "membershipRequest": "درخواست عضویت در"
+    },
+    "accountInfo": {
+      "title": "اطلاعات حساب",
+      "email": "ایمیل:",
+      "name": "نام:",
+      "emailStatus": "وضعیت ایمیل:",
+      "verified": "تایید شده ✓",
+      "pendingVerification": "در انتظار تایید",
+      "joinDate": "تاریخ عضویت:"
+    },
+    "changePassword": {
+      "title": "تغییر رمز عبور",
+      "currentPassword": "رمز عبور فعلی",
+      "currentPasswordPlaceholder": "رمز عبور فعلی خود را وارد کنید",
+      "newPassword": "رمز عبور جدید",
+      "newPasswordPlaceholder": "حداقل 8 کاراکتر",
+      "confirmPassword": "تکرار رمز عبور جدید",
+      "confirmPasswordPlaceholder": "رمز عبور جدید را دوباره وارد کنید",
+      "submitButton": "تغییر رمز عبور",
+      "submitting": "در حال تغییر...",
+      "success": "رمز عبور با موفقیت تغییر کرد",
+      "errors": {
+        "fillAll": "لطفاً همه فیلدها را پر کنید",
+        "minLength": "رمز عبور جدید باید حداقل 8 کاراکتر باشد",
+        "mismatch": "رمز عبور جدید و تکرار آن یکسان نیستند",
+        "sameAsOld": "رمز عبور جدید نباید با رمز عبور فعلی یکسان باشد"
+      }
+    },
+    "modals": {
+      "cancelRequest": {
+        "title": "لغو درخواست عضویت",
+        "message": "آیا از لغو درخواست عضویت در کامیونیتی {{community}} اطمینان دارید؟",
+        "note": "پس از لغو، می‌توانید دوباره درخواست عضویت ارسال کنید.",
+        "cancel": "انصراف",
+        "confirm": "لغو درخواست"
+      },
+      "approveRequest": {
+        "title": "تایید درخواست عضویت",
+        "message": "آیا می‌خواهید درخواست عضویت {{user}} در کامیونیتی {{community}} را تایید کنید؟",
+        "note": "کاربر پس از تایید به‌عنوان عضو به کامیونیتی اضافه می‌شود."
+      },
+      "rejectRequest": {
+        "title": "رد درخواست عضویت",
+        "message": "آیا می‌خواهید درخواست عضویت {{user}} در کامیونیتی {{community}} را رد کنید؟",
+        "note": "کاربر می‌تواند در آینده دوباره درخواست عضویت ارسال کند."
+      }
+    }
+  },
+  "cards": {
+    "title": "کارت‌های سفر و بار",
+    "subtitle": "جست‌وجو و مشاهده تمام کارت‌های موجود",
+    "createButton": "ایجاد کارت جدید",
+    "noCards": "کارتی یافت نشد",
+    "noCardsDescription": "هیچ کارتی با فیلترهای انتخابی شما پیدا نشد. فیلترها را تغییر دهید یا کارت جدید ایجاد کنید.",
+    "createFirst": "ایجاد اولین کارت",
+    "error": "خطا در دریافت کارت‌ها",
+    "pagination": {
+      "showing": "نمایش {{count}} از {{total}} کارت",
+      "page": "صفحه {{page}}"
+    },
+    "filters": {
+      "title": "فیلترها",
+      "clear": "پاک کردن",
+      "origin": "مبدأ",
+      "originPlaceholder": "شهر مبدأ",
+      "destination": "مقصد",
+      "destinationPlaceholder": "شهر مقصد",
+      "dateRange": "بازه تاریخ",
+      "fromDate": "از تاریخ",
+      "toDate": "تا تاریخ",
+      "capacity": "ظرفیت (کیلوگرم)",
+      "minCapacity": "حداقل",
+      "maxCapacity": "حداکثر",
+      "category": "دسته‌بندی کالا",
+      "packagingStatus": "وضعیت بسته‌بندی",
+      "categories": {
+        "all": "همه",
+        "clothing": "پوشاک",
+        "food": "خوراکی",
+        "electronics": "الکترونیک",
+        "household": "لوازم خانگی",
+        "other": "سایر"
+      },
+      "packaging": {
+        "all": "همه",
+        "packed": "بسته‌بندی شده",
+        "unpacked": "بدون بسته‌بندی"
+      }
+    },
+    "new": {
+      "title": "ایجاد کارت جدید",
+      "subtitle": "اطلاعات سفر یا بار خود را وارد کنید",
+      "originCountry": "کشور مبدأ",
+      "originCity": "شهر مبدأ",
+      "destinationCountry": "کشور مقصد",
+      "destinationCity": "شهر مقصد",
+      "searchCountry": "جستجوی کشور...",
+      "searchCity": "جستجوی شهر...",
+      "selectCountryFirst": "ابتدا کشور را انتخاب کنید",
+      "cardType": "نوع کارت",
+      "traveler": "مسافر (حمل بار)",
+      "sender": "فرستنده بار",
+      "dateNotSpecified": "تاریخ دقیق سفرم مشخص نیست",
+      "exactDate": "تاریخ دقیق سفر",
+      "exactDateHelper": "اختیاری - تاریخ و ساعت مورد نظر برای سفر",
+      "startTimeFrame": "شروع بازه زمانی",
+      "endTimeFrame": "پایان بازه زمانی",
+      "weight": "وزن (کیلوگرم)",
+      "weightPlaceholder": "مثال: 5.5",
+      "price": "قیمت پیشنهادی",
+      "pricePlaceholder": "مثال: 50",
+      "currency": "واحد پول",
+      "packagingStatus": "وضعیت بسته‌بندی",
+      "doesntMatter": "فرقی ندارد",
+      "packed": "بسته‌بندی شده",
+      "unpacked": "بدون بسته‌بندی",
+      "description": "توضیحات",
+      "descriptionPlaceholder": "توضیحات تکمیلی درباره کارت...",
+      "descriptionHelper": "اختیاری - هر اطلاعات اضافی که فکر می‌کنید مفید باشد",
+      "communities": "نمایش در کامیونیتی‌ها",
+      "communitiesHint": "اگر هیچ کامیونیتی انتخاب نکنید، کارت برای همه نمایش داده می‌شود",
+      "submit": "ایجاد کارت",
+      "validation": {
+        "originCountry": "کشور مبدأ الزامی است",
+        "originCity": "شهر مبدأ الزامی است",
+        "destinationCountry": "کشور مقصد الزامی است",
+        "destinationCity": "شهر مقصد الزامی است",
+        "fillRequired": "لطفاً تمام فیلدهای الزامی را پر کنید"
+      },
+      "success": "کارت با موفقیت ایجاد شد"
+    },
+    "detail": {
+      "type": {
+        "traveler": "مسافر",
+        "sender": "فرستنده بار"
+      },
+      "route": "{{origin}} ← {{destination}}",
+      "weight": "وزن",
+      "kg": "کیلوگرم",
+      "price": "قیمت",
+      "date": "تاریخ",
+      "timeFrame": "بازه زمانی",
+      "packaging": "بسته‌بندی",
+      "packed": "بسته‌بندی شده",
+      "unpacked": "بدون بسته‌بندی",
+      "description": "توضیحات",
+      "owner": "صاحب کارت",
+      "sendMessage": "ارسال پیام",
+      "editCard": "ویرایش کارت",
+      "deleteCard": "حذف کارت",
+      "communities": "قابل مشاهده در کامیونیتی‌ها"
+    }
+  },
+  "communities": {
+    "title": "کامیونیتی‌ها",
+    "subtitle": "به کامیونیتی‌های مختلف بپیوندید یا کامیونیتی جدید بسازید",
+    "createButton": "ایجاد کامیونیتی",
+    "searchPlaceholder": "جست‌وجو در کامیونیتی‌ها...",
+    "noCommunities": "کامیونیتی یافت نشد",
+    "noCommunitiesSearch": "کامیونیتی با این نام پیدا نشد. جست‌وجو را تغییر دهید.",
+    "noCommunitiesEmpty": "هنوز کامیونیتی ایجاد نشده است. اولین کامیونیتی را بسازید.",
+    "createFirst": "ایجاد اولین کامیونیتی",
+    "error": "خطا در دریافت کامیونیتی‌ها",
+    "pagination": {
+      "showing": "نمایش {{count}} از {{total}} کامیونیتی",
+      "page": "صفحه {{page}}"
+    },
+    "card": {
+      "members": "{{count}} عضو",
+      "viewDetails": "مشاهده جزئیات"
+    },
+    "new": {
+      "title": "ایجاد کامیونیتی جدید",
+      "subtitle": "یک کامیونیتی جدید بسازید و اعضا را دعوت کنید",
+      "name": "نام کامیونیتی",
+      "namePlaceholder": "مثال: مسافران تهران",
+      "slug": "آیدی کامیونیتی",
+      "slugPlaceholder": "مثال: tehran-travelers",
+      "slugHelper": "شناسه یکتا برای آدرس کامیونیتی شما",
+      "bio": "توضیحات",
+      "bioPlaceholder": "توضیح کوتاه درباره کامیونیتی...",
+      "submit": "ایجاد کامیونیتی",
+      "success": "کامیونیتی با موفقیت ایجاد شد"
+    },
+    "detail": {
+      "members": "{{count}} عضو",
+      "owner": "مالک",
+      "manager": "مدیر",
+      "member": "عضو",
+      "joinButton": "درخواست عضویت",
+      "leaveButton": "ترک کامیونیتی",
+      "manageButton": "مدیریت",
+      "pendingRequest": "درخواست در انتظار",
+      "cards": "کارت‌های کامیونیتی",
+      "noCards": "کارتی در این کامیونیتی وجود ندارد"
+    },
+    "manage": {
+      "title": "مدیریت {{name}}",
+      "members": "اعضا",
+      "requests": "درخواست‌های عضویت",
+      "settings": "تنظیمات",
+      "noMembers": "هنوز عضوی وجود ندارد",
+      "noRequests": "درخواست معلقی وجود ندارد",
+      "roles": {
+        "owner": "مالک",
+        "manager": "مدیر",
+        "member": "عضو"
+      },
+      "actions": {
+        "makeManager": "ارتقا به مدیر",
+        "removeMember": "حذف",
+        "approve": "تایید",
+        "reject": "رد"
+      }
+    }
+  },
+  "messages": {
+    "title": "پیام‌ها",
+    "subtitle": "مکالمات خود را مدیریت کنید",
+    "searchPlaceholder": "جست‌وجو در مکالمات...",
+    "noConversations": "هیچ مکالمه‌ای یافت نشد",
+    "noConversationsSearch": "مکالمه‌ای با این نام پیدا نشد",
+    "noConversationsEmpty": "هنوز با کسی چت نکرده‌اید. برای شروع چت، از طریق کارت‌ها پیام ارسال کنید.",
+    "viewCards": "مشاهده کارت‌ها",
+    "error": "خطا در دریافت مکالمات",
+    "blocked": "بلاک شده",
+    "block": "بلاک کردن",
+    "unblock": "آنبلاک کردن",
+    "blockModal": {
+      "title": "بلاک کردن کاربر",
+      "warning": "توجه!",
+      "message": "با بلاک کردن {{name}}، این کاربر دیگر نمی‌تواند به شما پیام ارسال کند.",
+      "confirm": "آیا مطمئن هستید که می‌خواهید این کاربر را بلاک کنید؟",
+      "cancel": "انصراف",
+      "submit": "بلاک کردن"
+    },
+    "unblockModal": {
+      "title": "آنبلاک کردن کاربر",
+      "message": "آیا از آنبلاک کردن {{name}} اطمینان دارید؟ این کاربر دوباره می‌تواند به شما پیام ارسال کند.",
+      "cancel": "انصراف",
+      "submit": "آنبلاک کردن"
+    },
+    "chat": {
+      "inputPlaceholder": "پیام خود را بنویسید...",
+      "send": "ارسال",
+      "typing": "در حال نوشتن...",
+      "online": "آنلاین",
+      "offline": "آفلاین",
+      "delivered": "ارسال شد",
+      "read": "خوانده شد"
+    },
+    "toast": {
+      "blocked": "کاربر بلاک شد",
+      "unblocked": "کاربر آنبلاک شد"
+    }
+  },
+  "profile": {
+    "title": "ویرایش پروفایل",
+    "subtitle": "اطلاعات شخصی خود را به‌روز کنید",
+    "firstName": "نام",
+    "lastName": "نام خانوادگی",
+    "email": "ایمیل",
+    "phone": "شماره تلفن",
+    "bio": "بیو",
+    "save": "ذخیره تغییرات",
+    "success": "پروفایل با موفقیت به‌روز شد",
+    "myCards": "کارت‌های من",
+    "myCommunities": "کامیونیتی‌های من",
+    "blockedUsers": "بلاک لیست"
+  },
+  "errors": {
+    "generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید.",
+    "network": "خطای شبکه. لطفاً اتصال اینترنت خود را بررسی کنید.",
+    "unauthorized": "لطفاً وارد حساب کاربری خود شوید.",
+    "forbidden": "شما به این بخش دسترسی ندارید.",
+    "notFound": "مورد درخواستی یافت نشد.",
+    "validation": "لطفاً اطلاعات وارد شده را بررسی کنید."
+  },
+  "toast": {
+    "success": "موفقیت",
+    "error": "خطا",
+    "warning": "هشدار",
+    "info": "اطلاع"
+  },
+  "time": {
+    "justNow": "همین الان",
+    "minutesAgo": "{{count}} دقیقه پیش",
+    "hoursAgo": "{{count}} ساعت پیش",
+    "daysAgo": "{{count}} روز پیش",
+    "weeksAgo": "{{count}} هفته پیش"
+  }
+}
+

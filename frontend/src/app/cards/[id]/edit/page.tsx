@@ -10,7 +10,7 @@ import Input from '@/components/Input'
 import Select from '@/components/Select'
 import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
-import Autocomplete from '@/components/Autocomplete'
+import Autocomplete, { AutocompleteOption } from '@/components/Autocomplete'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import DateTimePicker from '@/components/DateTimePicker'
 // Toggle removed - using checkbox instead
@@ -20,13 +20,6 @@ import { extractErrorMessage } from '@/utils/errors'
 import { getCurrencyOptions } from '@/utils/currency'
 import type { Country, City } from '@/types/location'
 import type { CardUpdate } from '@/types/card'
-
-interface AutocompleteOption {
-  id: number
-  label: string
-  value: string
-  isoCode?: string // برای ذخیره کد کشور جهت واحد پول
-}
 
 interface CardFormData {
   is_sender: boolean
@@ -170,7 +163,11 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
   
   // گزینه‌های واحد پول بر اساس کشورهای مبدأ و مقصد (و ارز فعلی کارت)
   const currencyOptions = useMemo(() => {
-    return getCurrencyOptions(originCountry?.isoCode, destinationCountry?.isoCode, formData.currency)
+    return getCurrencyOptions(
+      originCountry?.isoCode as string | undefined, 
+      destinationCountry?.isoCode as string | undefined, 
+      formData.currency
+    )
   }, [originCountry?.isoCode, destinationCountry?.isoCode, formData.currency])
 
   // جستجوی شهرها

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import { useMyJoinRequests, useCancelJoinRequest, useMyCommunities, useManagedCommunityRequests, useApproveJoinRequest, useRejectJoinRequest } from '@/hooks/useCommunities'
 import { useMyCards } from '@/hooks/useCards'
 import { useUnreadCount } from '@/hooks/useMessages'
@@ -21,6 +22,7 @@ import { extractErrorMessage } from '@/utils/errors'
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading, isAuthenticated } = useAuth()
+  const { t, formatDate } = useTranslation()
   const { data: joinRequests, isLoading: requestsLoading } = useMyJoinRequests()
   const { data: managedRequests, isLoading: managedRequestsLoading } = useManagedCommunityRequests()
   const { data: myCards } = useMyCards()
@@ -31,10 +33,10 @@ export default function DashboardPage() {
   const rejectRequestMutation = useRejectJoinRequest()
   const { showToast } = useToast()
 
-  // State برای تب درخواست‌ها
+  // State for requests tab
   const [requestsTab, setRequestsTab] = useState<'my' | 'managed'>('my')
 
-  // State برای فرم تغییر رمز عبور
+  // State for change password form
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -42,11 +44,11 @@ export default function DashboardPage() {
   const [passwordError, setPasswordError] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState('')
   
-  // State برای لغو درخواست
+  // State for cancel request modal
   const [cancelRequestId, setCancelRequestId] = useState<number | null>(null)
   const [cancelCommunityName, setCancelCommunityName] = useState('')
   
-  // State برای تایید/رد درخواست عضویت
+  // State for approve/reject request modal
   const [actionRequest, setActionRequest] = useState<{
     id: number
     communityId: number
@@ -66,7 +68,7 @@ export default function DashboardPage() {
     
     try {
       await cancelRequestMutation.mutateAsync(cancelRequestId)
-      showToast('success', 'درخواست عضویت لغو شد')
+      showToast('success', t('dashboard.joinRequests.cancelRequest'))
       setCancelRequestId(null)
       setCancelCommunityName('')
     } catch (error: unknown) {
@@ -83,13 +85,13 @@ export default function DashboardPage() {
           communityId: actionRequest.communityId,
           requestId: actionRequest.id
         })
-        showToast('success', `درخواست ${actionRequest.userName} تایید شد`)
+        showToast('success', `${t('dashboard.joinRequests.approve')} - ${actionRequest.userName}`)
       } else {
         await rejectRequestMutation.mutateAsync({
           communityId: actionRequest.communityId,
           requestId: actionRequest.id
         })
-        showToast('success', `درخواست ${actionRequest.userName} رد شد`)
+        showToast('success', `${t('dashboard.joinRequests.reject')} - ${actionRequest.userName}`)
       }
       setActionRequest(null)
     } catch (error: unknown) {
@@ -102,24 +104,23 @@ export default function DashboardPage() {
     setPasswordError('')
     setPasswordSuccess('')
 
-    // Validation
     if (!oldPassword || !newPassword || !confirmPassword) {
-      setPasswordError('لطفاً همه فیلدها را پر کنید')
+      setPasswordError(t('dashboard.changePassword.errors.fillAll'))
       return
     }
 
     if (newPassword.length < 8) {
-      setPasswordError('رمز عبور جدید باید حداقل 8 کاراکتر باشد')
+      setPasswordError(t('dashboard.changePassword.errors.minLength'))
       return
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError('رمز عبور جدید و تکرار آن یکسان نیستند')
+      setPasswordError(t('dashboard.changePassword.errors.mismatch'))
       return
     }
 
     if (oldPassword === newPassword) {
-      setPasswordError('رمز عبور جدید نباید با رمز عبور فعلی یکسان باشد')
+      setPasswordError(t('dashboard.changePassword.errors.sameAsOld'))
       return
     }
 
@@ -131,8 +132,7 @@ export default function DashboardPage() {
         new_password: newPassword,
       })
 
-      setPasswordSuccess('رمز عبور با موفقیت تغییر کرد')
-      // پاک کردن فیلدها
+      setPasswordSuccess(t('dashboard.changePassword.success'))
       setOldPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -162,46 +162,46 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            خوش آمدید، {user.first_name}!
+            {t('dashboard.welcome', { name: user.first_name })}
           </h2>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
-            از داشبورد خود می‌توانید کارت‌ها را مدیریت کنید و پیام‌های خود را مشاهده کنید.
+            {t('dashboard.subtitle')}
           </p>
         </div>
 
-        {/* کارت‌های اطلاعاتی */}
+        {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link href="/dashboard/my-cards">
             <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer">
-              <h3 className="text-lg font-bold text-neutral-900 mb-2">کارت‌های من</h3>
+              <h3 className="text-lg font-bold text-neutral-900 mb-2">{t('dashboard.myCards')}</h3>
               <p className="text-3xl font-extrabold text-primary-600">{myCards?.total ?? 0}</p>
-              <p className="text-sm text-neutral-600 font-light mt-2">کارت فعال</p>
+              <p className="text-sm text-neutral-600 font-light mt-2">{t('dashboard.activeCards')}</p>
             </Card>
           </Link>
 
           <Link href="/messages">
             <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer">
-              <h3 className="text-lg font-bold text-neutral-900 mb-2">پیام‌های دریافتی</h3>
+              <h3 className="text-lg font-bold text-neutral-900 mb-2">{t('dashboard.receivedMessages')}</h3>
               <p className="text-3xl font-extrabold text-sand-400">{unreadCount ?? 0}</p>
-              <p className="text-sm text-neutral-600 font-light mt-2">پیام جدید</p>
+              <p className="text-sm text-neutral-600 font-light mt-2">{t('dashboard.newMessages')}</p>
             </Card>
           </Link>
 
           <Link href="/dashboard/my-communities">
             <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer">
-              <h3 className="text-lg font-bold text-neutral-900 mb-2">کامیونیتی‌ها</h3>
+              <h3 className="text-lg font-bold text-neutral-900 mb-2">{t('dashboard.myCommunities')}</h3>
               <p className="text-3xl font-extrabold text-neutral-700">{myCommunities?.total ?? 0}</p>
-              <p className="text-sm text-neutral-600 font-light mt-2">عضویت فعال</p>
+              <p className="text-sm text-neutral-600 font-light mt-2">{t('dashboard.activeMemberships')}</p>
             </Card>
           </Link>
         </div>
 
-        {/* اکشن‌ها */}
+        {/* Quick Start */}
         <Card variant="elevated" className="p-6">
-          <h3 className="text-xl font-bold text-neutral-900 mb-4">شروع سریع</h3>
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">{t('dashboard.quickStart.title')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link href="/cards/new">
-              <div className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-primary-500 hover:bg-primary-50 transition-all text-right cursor-pointer">
+              <div className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-primary-100">
                     <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,15 +209,15 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-neutral-900 mb-1">ایجاد کارت جدید</h4>
-                    <p className="text-sm text-neutral-600 font-light">یک کارت سفر یا بار جدید بسازید</p>
+                    <h4 className="font-semibold text-neutral-900 mb-1">{t('dashboard.quickStart.createCard.title')}</h4>
+                    <p className="text-sm text-neutral-600 font-light">{t('dashboard.quickStart.createCard.description')}</p>
                   </div>
                 </div>
               </div>
             </Link>
 
             <Link href="/communities">
-              <div className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-sand-400 hover:bg-sand-50 transition-all text-right cursor-pointer">
+              <div className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-sand-400 hover:bg-sand-50 transition-all cursor-pointer">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-sand-100">
                     <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,8 +225,8 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-neutral-900 mb-1">پیوستن به کامیونیتی</h4>
-                    <p className="text-sm text-neutral-600 font-light">به یک کامیونیتی بپیوندید یا کامیونیتی جدید بسازید</p>
+                    <h4 className="font-semibold text-neutral-900 mb-1">{t('dashboard.quickStart.joinCommunity.title')}</h4>
+                    <p className="text-sm text-neutral-600 font-light">{t('dashboard.quickStart.joinCommunity.description')}</p>
                   </div>
                 </div>
               </div>
@@ -234,19 +234,19 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        {/* درخواست‌های عضویت */}
+        {/* Join Requests */}
         <Card variant="bordered" className="mt-6 p-6">
-          <h3 className="text-xl font-bold text-neutral-900 mb-4">درخواست‌های عضویت</h3>
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">{t('dashboard.joinRequests.title')}</h3>
           
           <Tabs
             tabs={[
-              { id: 'my', label: 'درخواست‌های من', count: joinRequests?.filter(r => r.is_approved === null).length },
-              { id: 'managed', label: 'درخواست‌های کامیونیتی‌ها', count: managedRequests?.length },
+              { id: 'my', label: t('dashboard.joinRequests.myRequests'), count: joinRequests?.filter(r => r.is_approved === null).length },
+              { id: 'managed', label: t('dashboard.joinRequests.managedRequests'), count: managedRequests?.length },
             ]}
             activeTab={requestsTab}
             onChange={(tab) => setRequestsTab(tab as 'my' | 'managed')}
           >
-            {/* تب درخواست‌های من */}
+            {/* My Requests Tab */}
             {requestsTab === 'my' && (
               <>
                 {requestsLoading ? (
@@ -258,9 +258,9 @@ export default function DashboardPage() {
                     <svg className="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <p className="text-neutral-600 font-light mb-4">شما هیچ درخواست عضویتی ندارید</p>
+                    <p className="text-neutral-600 font-light mb-4">{t('dashboard.joinRequests.noRequests')}</p>
                     <Link href="/communities">
-                      <Button variant="ghost">مشاهده کامیونیتی‌ها</Button>
+                      <Button variant="ghost">{t('dashboard.joinRequests.viewCommunities')}</Button>
                     </Link>
                   </div>
                 ) : (
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                           <div>
                             <p className="font-medium text-neutral-900">{request.community.name}</p>
                             <p className="text-sm text-neutral-600 font-light">
-                              {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                              {formatDate(request.created_at)}
                             </p>
                           </div>
                         </Link>
@@ -297,12 +297,11 @@ export default function DashboardPage() {
                             }
                           >
                             {request.is_approved === null 
-                              ? 'در انتظار' 
+                              ? t('dashboard.joinRequests.pending')
                               : request.is_approved 
-                                ? 'تایید شده ✓' 
-                                : 'رد شده ✗'}
+                                ? t('dashboard.joinRequests.approved')
+                                : t('dashboard.joinRequests.rejected')}
                           </Badge>
-                          {/* دکمه لغو فقط برای درخواست‌های در انتظار */}
                           {request.is_approved === null && (
                             <Button
                               size="sm"
@@ -314,7 +313,7 @@ export default function DashboardPage() {
                                 setCancelCommunityName(request.community.name)
                               }}
                             >
-                              لغو
+                              {t('dashboard.joinRequests.cancelRequest')}
                             </Button>
                           )}
                         </div>
@@ -325,7 +324,7 @@ export default function DashboardPage() {
               </>
             )}
 
-            {/* تب درخواست‌های کامیونیتی‌ها (برای owner/manager) */}
+            {/* Managed Requests Tab */}
             {requestsTab === 'managed' && (
               <>
                 {managedRequestsLoading ? (
@@ -337,8 +336,8 @@ export default function DashboardPage() {
                     <svg className="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <p className="text-neutral-600 font-light mb-4">درخواست عضویتی برای کامیونیتی‌های شما وجود ندارد</p>
-                    <p className="text-sm text-neutral-500">اگر مالک یا مدیر کامیونیتی هستید، درخواست‌های جدید اینجا نمایش داده می‌شوند</p>
+                    <p className="text-neutral-600 font-light mb-4">{t('dashboard.joinRequests.noManagedRequests')}</p>
+                    <p className="text-sm text-neutral-500">{t('dashboard.joinRequests.managedRequestsHint')}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -358,10 +357,10 @@ export default function DashboardPage() {
                               {request.user.first_name} {request.user.last_name}
                             </p>
                             <p className="text-sm text-neutral-600 font-light">
-                              درخواست عضویت در <span className="font-medium">{request.community.name}</span>
+                              {t('dashboard.joinRequests.membershipRequest')} <span className="font-medium">{request.community.name}</span>
                             </p>
                             <p className="text-xs text-neutral-500">
-                              {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                              {formatDate(request.created_at)}
                             </p>
                           </div>
                         </div>
@@ -377,7 +376,7 @@ export default function DashboardPage() {
                               action: 'approve'
                             })}
                           >
-                            تایید
+                            {t('dashboard.joinRequests.approve')}
                           </Button>
                           <Button
                             size="sm"
@@ -391,7 +390,7 @@ export default function DashboardPage() {
                               action: 'reject'
                             })}
                           >
-                            رد
+                            {t('dashboard.joinRequests.reject')}
                           </Button>
                         </div>
                       </div>
@@ -403,76 +402,76 @@ export default function DashboardPage() {
           </Tabs>
         </Card>
 
-        {/* اطلاعات کاربر */}
+        {/* Account Info */}
         <Card variant="bordered" className="mt-6 p-6">
-          <h3 className="text-xl font-bold text-neutral-900 mb-4">اطلاعات حساب</h3>
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">{t('dashboard.accountInfo.title')}</h3>
           <div className="space-y-3">
             <div className="flex justify-between py-2 border-b border-neutral-100">
-              <span className="text-neutral-600 font-light">ایمیل:</span>
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.email')}</span>
               <span className="font-medium text-neutral-900" dir="ltr">{user.email}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-neutral-100">
-              <span className="text-neutral-600 font-light">نام:</span>
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.name')}</span>
               <span className="font-medium text-neutral-900">{user.first_name} {user.last_name}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-neutral-100">
-              <span className="text-neutral-600 font-light">وضعیت ایمیل:</span>
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.emailStatus')}</span>
               <span className={`font-medium ${user.is_email_verified ? 'text-green-600' : 'text-yellow-600'}`}>
-                {user.is_email_verified ? 'تایید شده ✓' : 'در انتظار تایید'}
+                {user.is_email_verified ? t('dashboard.accountInfo.verified') : t('dashboard.accountInfo.pendingVerification')}
               </span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-neutral-600 font-light">تاریخ عضویت:</span>
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.joinDate')}</span>
               <span className="font-medium text-neutral-900">
-                {new Date(user.created_at).toLocaleDateString('fa-IR')}
+                {formatDate(user.created_at)}
               </span>
             </div>
           </div>
         </Card>
 
-        {/* تغییر رمز عبور */}
+        {/* Change Password */}
         <Card variant="bordered" className="mt-6 p-6">
-          <h3 className="text-xl font-bold text-neutral-900 mb-4">تغییر رمز عبور</h3>
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">{t('dashboard.changePassword.title')}</h3>
           
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
               <label htmlFor="old-password" className="block text-sm font-medium text-neutral-700 mb-2">
-                رمز عبور فعلی
+                {t('dashboard.changePassword.currentPassword')}
               </label>
               <Input
                 id="old-password"
                 type="password"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
-                placeholder="رمز عبور فعلی خود را وارد کنید"
+                placeholder={t('dashboard.changePassword.currentPasswordPlaceholder')}
                 disabled={passwordLoading}
               />
             </div>
 
             <div>
               <label htmlFor="new-password" className="block text-sm font-medium text-neutral-700 mb-2">
-                رمز عبور جدید
+                {t('dashboard.changePassword.newPassword')}
               </label>
               <Input
                 id="new-password"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="حداقل 8 کاراکتر"
+                placeholder={t('dashboard.changePassword.newPasswordPlaceholder')}
                 disabled={passwordLoading}
               />
             </div>
 
             <div>
               <label htmlFor="confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
-                تکرار رمز عبور جدید
+                {t('dashboard.changePassword.confirmPassword')}
               </label>
               <Input
                 id="confirm-password"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="رمز عبور جدید را دوباره وارد کنید"
+                placeholder={t('dashboard.changePassword.confirmPasswordPlaceholder')}
                 disabled={passwordLoading}
               />
             </div>
@@ -495,28 +494,28 @@ export default function DashboardPage() {
               disabled={passwordLoading}
               className="w-full"
             >
-              {passwordLoading ? 'در حال تغییر...' : 'تغییر رمز عبور'}
+              {passwordLoading ? t('dashboard.changePassword.submitting') : t('dashboard.changePassword.submitButton')}
             </Button>
           </form>
         </Card>
       </main>
       
-      {/* Modal لغو درخواست عضویت */}
+      {/* Cancel Request Modal */}
       <Modal
         isOpen={cancelRequestId !== null}
         onClose={() => {
           setCancelRequestId(null)
           setCancelCommunityName('')
         }}
-        title="لغو درخواست عضویت"
+        title={t('dashboard.modals.cancelRequest.title')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-neutral-700">
-            آیا از لغو درخواست عضویت در کامیونیتی <span className="font-medium text-neutral-900">{cancelCommunityName}</span> اطمینان دارید؟
+            {t('dashboard.modals.cancelRequest.message', { community: cancelCommunityName })}
           </p>
           <p className="text-sm text-neutral-500">
-            پس از لغو، می‌توانید دوباره درخواست عضویت ارسال کنید.
+            {t('dashboard.modals.cancelRequest.note')}
           </p>
           <div className="flex gap-3 justify-end">
             <Button 
@@ -526,7 +525,7 @@ export default function DashboardPage() {
                 setCancelCommunityName('')
               }}
             >
-              انصراف
+              {t('dashboard.modals.cancelRequest.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -534,36 +533,31 @@ export default function DashboardPage() {
               onClick={handleCancelRequest}
               isLoading={cancelRequestMutation.isPending}
             >
-              لغو درخواست
+              {t('dashboard.modals.cancelRequest.confirm')}
             </Button>
           </div>
         </div>
       </Modal>
 
-      {/* Modal تایید/رد درخواست عضویت */}
+      {/* Approve/Reject Request Modal */}
       <Modal
         isOpen={actionRequest !== null}
         onClose={() => setActionRequest(null)}
-        title={actionRequest?.action === 'approve' ? 'تایید درخواست عضویت' : 'رد درخواست عضویت'}
+        title={actionRequest?.action === 'approve' ? t('dashboard.modals.approveRequest.title') : t('dashboard.modals.rejectRequest.title')}
         size="sm"
       >
         {actionRequest && (
           <div className="space-y-4">
             <p className="text-neutral-700">
-              {actionRequest.action === 'approve' ? (
-                <>
-                  آیا می‌خواهید درخواست عضویت <span className="font-medium text-neutral-900">{actionRequest.userName}</span> در کامیونیتی <span className="font-medium text-neutral-900">{actionRequest.communityName}</span> را تایید کنید؟
-                </>
-              ) : (
-                <>
-                  آیا می‌خواهید درخواست عضویت <span className="font-medium text-neutral-900">{actionRequest.userName}</span> در کامیونیتی <span className="font-medium text-neutral-900">{actionRequest.communityName}</span> را رد کنید؟
-                </>
-              )}
+              {actionRequest.action === 'approve' 
+                ? t('dashboard.modals.approveRequest.message', { user: actionRequest.userName, community: actionRequest.communityName })
+                : t('dashboard.modals.rejectRequest.message', { user: actionRequest.userName, community: actionRequest.communityName })
+              }
             </p>
             <p className="text-sm text-neutral-500">
               {actionRequest.action === 'approve' 
-                ? 'کاربر پس از تایید به‌عنوان عضو به کامیونیتی اضافه می‌شود.'
-                : 'کاربر می‌تواند در آینده دوباره درخواست عضویت ارسال کند.'
+                ? t('dashboard.modals.approveRequest.note')
+                : t('dashboard.modals.rejectRequest.note')
               }
             </p>
             <div className="flex gap-3 justify-end">
@@ -571,7 +565,7 @@ export default function DashboardPage() {
                 variant="ghost" 
                 onClick={() => setActionRequest(null)}
               >
-                انصراف
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -579,7 +573,7 @@ export default function DashboardPage() {
                 onClick={handleRequestAction}
                 isLoading={approveRequestMutation.isPending || rejectRequestMutation.isPending}
               >
-                {actionRequest.action === 'approve' ? 'تایید' : 'رد درخواست'}
+                {actionRequest.action === 'approve' ? t('dashboard.joinRequests.approve') : t('dashboard.joinRequests.reject')}
               </Button>
             </div>
           </div>
@@ -588,4 +582,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-

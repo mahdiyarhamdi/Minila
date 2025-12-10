@@ -9,7 +9,7 @@ import Input from '@/components/Input'
 import Select from '@/components/Select'
 import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
-import Autocomplete from '@/components/Autocomplete'
+import Autocomplete, { AutocompleteOption } from '@/components/Autocomplete'
 import DateTimePicker from '@/components/DateTimePicker'
 // Toggle removed - using checkbox instead
 import { useToast } from '@/components/Toast'
@@ -17,13 +17,6 @@ import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
 import { getCurrencyOptions } from '@/utils/currency'
 import type { Country, City } from '@/types/location'
-
-interface AutocompleteOption {
-  id: number
-  label: string
-  value: string
-  isoCode?: string // برای ذخیره کد کشور جهت واحد پول
-}
 
 interface CardFormData {
   is_sender: boolean
@@ -99,7 +92,10 @@ export default function NewCardPage() {
   
   // گزینه‌های واحد پول بر اساس کشورهای مبدأ و مقصد
   const currencyOptions = useMemo(() => {
-    return getCurrencyOptions(originCountry?.isoCode, destinationCountry?.isoCode)
+    return getCurrencyOptions(
+      originCountry?.isoCode as string | undefined, 
+      destinationCountry?.isoCode as string | undefined
+    )
   }, [originCountry?.isoCode, destinationCountry?.isoCode])
 
   // جستجوی شهرها

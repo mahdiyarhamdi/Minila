@@ -9,25 +9,27 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
 import { apiService } from '@/lib/api'
-
-// Schema برای validation
-const signupSchema = z.object({
-  email: z.string().email('لطفاً یک ایمیل معتبر وارد کنید'),
-  password: z.string().min(8, 'رمز عبور باید حداقل 8 کاراکتر باشد'),
-  confirm_password: z.string(),
-  first_name: z.string().min(1, 'نام الزامی است'),
-  last_name: z.string().min(1, 'نام خانوادگی الزامی است'),
-}).refine((data) => data.password === data.confirm_password, {
-  message: 'رمز عبور و تکرار آن یکسان نیستند',
-  path: ['confirm_password'],
-})
-
-type SignupFormData = z.infer<typeof signupSchema>
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function SignupPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  // Schema with translated messages
+  const signupSchema = z.object({
+    email: z.string().email(t('auth.validation.emailRequired')),
+    password: z.string().min(8, t('auth.validation.passwordMin')),
+    confirm_password: z.string(),
+    first_name: z.string().min(1, t('auth.validation.firstNameRequired')),
+    last_name: z.string().min(1, t('auth.validation.lastNameRequired')),
+  }).refine((data) => data.password === data.confirm_password, {
+    message: t('auth.validation.passwordMatch'),
+    path: ['confirm_password'],
+  })
+
+  type SignupFormData = z.infer<typeof signupSchema>
 
   const {
     register,
@@ -48,24 +50,23 @@ export default function SignupPage() {
       })
       setSuccess(true)
       
-      // هدایت به صفحه تایید ایمیل
       setTimeout(() => {
         router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`)
       }, 1500)
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.')
+      setError(err.response?.data?.detail || t('errors.generic'))
     }
   }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
-      {/* لوگو و عنوان */}
+      {/* Logo and Title */}
       <div className="text-center mb-6 sm:mb-8">
-        <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 mb-1 sm:mb-2">Minila</h1>
-        <p className="text-sm sm:text-base text-neutral-600 font-light">پلتفرم هماهنگی مسافر و بار</p>
+        <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 mb-1 sm:mb-2">{t('app.name')}</h1>
+        <p className="text-sm sm:text-base text-neutral-600 font-light">{t('app.tagline')}</p>
       </div>
 
-      {/* کارت اصلی */}
+      {/* Main Card */}
       <Card variant="elevated" className="w-full max-w-md p-5 sm:p-8">
         {success ? (
           <div className="text-center py-8">
@@ -74,39 +75,39 @@ export default function SignupPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">ثبت‌نام موفق!</h2>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.signup.success')}</h2>
             <p className="text-neutral-600 font-light">
-              کد تایید به ایمیل شما ارسال شد. در حال انتقال به صفحه تایید...
+              {t('auth.signup.successMessage')}
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">ساخت حساب کاربری</h2>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.signup.title')}</h2>
             <p className="text-neutral-600 font-light mb-6">
-              برای شروع، اطلاعات خود را وارد کنید.
+              {t('auth.signup.subtitle')}
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Input
                   {...register('first_name')}
-                  label="نام"
+                  label={t('auth.signup.firstNameLabel')}
                   type="text"
-                  placeholder="علی"
+                  placeholder={t('auth.signup.firstNamePlaceholder')}
                   error={errors.first_name?.message}
                 />
                 <Input
                   {...register('last_name')}
-                  label="نام خانوادگی"
+                  label={t('auth.signup.lastNameLabel')}
                   type="text"
-                  placeholder="احمدی"
+                  placeholder={t('auth.signup.lastNamePlaceholder')}
                   error={errors.last_name?.message}
                 />
               </div>
 
               <Input
                 {...register('email')}
-                label="آدرس ایمیل"
+                label={t('auth.signup.emailLabel')}
                 type="email"
                 placeholder="example@gmail.com"
                 error={errors.email?.message}
@@ -115,16 +116,16 @@ export default function SignupPage() {
 
               <Input
                 {...register('password')}
-                label="رمز عبور"
+                label={t('auth.signup.passwordLabel')}
                 type="password"
                 placeholder="••••••••"
                 error={errors.password?.message}
-                helperText="حداقل 8 کاراکتر"
+                helperText={t('auth.signup.passwordHelper')}
               />
 
               <Input
                 {...register('confirm_password')}
-                label="تکرار رمز عبور"
+                label={t('auth.signup.confirmPasswordLabel')}
                 type="password"
                 placeholder="••••••••"
                 error={errors.confirm_password?.message}
@@ -143,18 +144,18 @@ export default function SignupPage() {
                 className="w-full"
                 isLoading={isSubmitting}
               >
-                ثبت‌نام
+                {t('auth.signup.submitButton')}
               </Button>
             </form>
 
             <div className="mt-6 pt-6 border-t border-neutral-200">
               <p className="text-center text-sm text-neutral-600 font-normal">
-                قبلاً ثبت‌نام کرده‌اید؟{' '}
+                {t('auth.signup.hasAccount')}{' '}
                 <a
                   href="/auth/login"
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  وارد شوید
+                  {t('auth.signup.loginLink')}
                 </a>
               </p>
             </div>
@@ -162,15 +163,13 @@ export default function SignupPage() {
         )}
       </Card>
 
-      {/* فوتر */}
+      {/* Footer */}
       <p className="mt-8 text-sm text-neutral-500 text-center font-light">
-        با ثبت‌نام، شما{' '}
+        {t('auth.signup.termsNotice')}{' '}
         <a href="#" className="text-primary-600 hover:underline font-normal">
-          قوانین و مقررات
-        </a>{' '}
-        را می‌پذیرید.
+          {t('auth.login.termsLink')}
+        </a>
       </p>
     </div>
   )
 }
-

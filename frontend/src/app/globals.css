@@ -2,7 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* IRANYekan Font Family - تمام وزن‌ها */
+/* ============================================
+   FONT DEFINITIONS
+   ============================================ */
+
+/* Inter Font Family - English (from Google Fonts CDN) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&display=swap');
+
+/* Noto Sans Arabic Font Family - Arabic (from Google Fonts CDN) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;300;400;500;600;700;800;900&display=swap');
+
+/* IRANYekan Font Family - Persian (local) */
 @font-face {
   font-family: 'IRANYekan';
   src: url('/fonts/iranyekanwebthin.woff') format('woff');
@@ -59,19 +69,42 @@
   font-display: swap;
 }
 
+/* ============================================
+   CSS VARIABLES FOR DYNAMIC FONT
+   ============================================ */
+:root {
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Language-specific font families */
+html.lang-en {
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html.lang-ar {
+  --font-family: 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html.lang-fa {
+  --font-family: 'IRANYekan', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
 @layer base {
   html {
     @apply antialiased;
     font-feature-settings: 'cv11', 'ss01';
-    font-family: 'IRANYekan', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: var(--font-family);
   }
   
   body {
     @apply bg-neutral-50 text-neutral-900;
-    font-weight: 400; /* Regular برای متن اصلی */
+    font-weight: 400;
   }
   
-  /* عنوان‌های اصلی - Bold تا Black */
+  /* Headings */
   h1 {
     @apply font-bold;
     font-weight: 700;
@@ -92,37 +125,40 @@
     font-weight: 500;
   }
   
-  /* دکمه‌ها - Medium */
+  /* Buttons */
   button {
     font-weight: 500;
   }
   
-  /* لیبل‌ها و متن‌های مهم - Medium */
+  /* Labels and important text */
   label, strong, b {
     font-weight: 500;
   }
   
-  /* متن‌های کمک‌رسان - Light */
+  /* Helper text */
   small, .text-helper {
     font-weight: 300;
   }
 }
 
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
   
-  /* مخفی کردن scrollbar برای تب‌ها و لیست‌های افقی */
+  /* Hide scrollbar for tabs and horizontal lists */
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE و Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari و Opera */
+    display: none;
   }
   
-  /* کلاس‌های کمکی برای وزن‌ها */
+  /* Font weight helpers */
   .font-thin {
     font-weight: 100;
   }
@@ -156,3 +192,32 @@
   }
 }
 
+/* ============================================
+   RTL/LTR SPECIFIC STYLES
+   ============================================ */
+
+/* Ensure correct text alignment based on direction */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Fix input fields that should always be LTR */
+input[type="email"],
+input[type="url"],
+input[type="tel"],
+input[type="number"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* In RTL mode, these inputs should still align left but with right padding */
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="url"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="number"] {
+  text-align: left;
+}

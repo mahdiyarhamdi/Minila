@@ -1,21 +1,24 @@
 # Minila Frontend
 
-> رابط کاربری مدرن برای پلتفرم هماهنگی مسافر و بار
+> Modern UI for Traveler & Cargo Coordination Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38bdf8)](https://tailwindcss.com/)
+[![i18n](https://img.shields.io/badge/i18n-EN%20|%20AR%20|%20FA-green)](.)
 
 ---
 
-## 🎨 ویژگی‌های طراحی
+## 🎨 Design Features
 
-- **طراحی مدرن شبیه Notion**: رابط کاربری تمیز، مینیمال و کاربرپسند
-- **پالت رنگی اختصاصی**: استفاده از رنگ‌های آبی، بژ و خاکستری با هماهنگی کامل
-- **Mobile-First Design**: طراحی اول-موبایل با Breakpoints بهینه
-- **Responsive Design**: سازگار با موبایل، تبلت و دسکتاپ
-- **Dark Mode Ready**: آماده برای پشتیبانی از حالت تاریک
-- **Design System جامع**: مستند در [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
+- **Modern Notion-like Design**: Clean, minimal and user-friendly interface
+- **Custom Color Palette**: Blue, beige and gray colors with perfect harmony
+- **Mobile-First Design**: Optimized mobile-first with proper breakpoints
+- **Responsive Design**: Compatible with mobile, tablet and desktop
+- **RTL/LTR Support**: Full support for right-to-left and left-to-right languages
+- **Tri-lingual**: English (default), Arabic, Persian
+- **Dark Mode Ready**: Ready for dark mode support
+- **Comprehensive Design System**: Documented in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 
 ---
 
@@ -48,6 +51,52 @@ yarn dev
 ```
 
 پروژه در `http://localhost:3000` در دسترس خواهد بود.
+
+---
+
+## 🌍 Internationalization (i18n)
+
+The application supports three languages with automatic RTL/LTR switching:
+
+| Language | Code | Direction | Font |
+|----------|------|-----------|------|
+| English (default) | `en` | LTR | Inter |
+| العربية | `ar` | RTL | Noto Sans Arabic |
+| فارسی | `fa` | RTL | IRANYekan |
+
+### Language Selection
+Users can change the language from the dropdown in the Navbar. The selection is persisted in `localStorage`.
+
+### Adding Translations
+1. Add translations to all files in `src/i18n/locales/`:
+   - `en.json` (English)
+   - `ar.json` (Arabic)  
+   - `fa.json` (Persian)
+
+2. Use the translation hook in components:
+
+```tsx
+import { useTranslation } from '@/hooks/useTranslation';
+
+function MyComponent() {
+  const { t, formatDate, formatNumber } = useTranslation();
+  
+  return (
+    <div>
+      <h1>{t('nav.dashboard')}</h1>
+      <p>{t('dashboard.welcome', { name: 'Ali' })}</p>
+      <span>{formatDate(new Date())}</span>
+    </div>
+  );
+}
+```
+
+### RTL-Aware Styling
+Use logical Tailwind properties for RTL compatibility:
+- `text-start` / `text-end` instead of `text-left` / `text-right`
+- `ms-*` / `me-*` instead of `ml-*` / `mr-*`
+- `ps-*` / `pe-*` instead of `pl-*` / `pr-*`
+- Use `locale.dir` from `useLanguage()` for conditional positioning
 
 ---
 
@@ -104,9 +153,10 @@ frontend/
 │   │   ├── Modal.tsx                    # دیالوگ
 │   │   ├── Tabs.tsx                     # تب‌ها
 │   │   ├── Toast.tsx                    # نوتیفیکیشن
-│   │   ├── Navbar.tsx                   # نوار ناوبری
-│   │   ├── EmptyState.tsx               # حالت خالی
-│   │   ├── LoadingSpinner.tsx           # لودینگ
+│   │   ├── Navbar.tsx                   # Navigation bar
+│   │   ├── LanguageSelector.tsx         # Language picker dropdown
+│   │   ├── EmptyState.tsx               # Empty state
+│   │   ├── LoadingSpinner.tsx           # Loading spinner
 │   │   ├── Providers.tsx                # Provider wrapper
 │   │   ├── cards/                       # کامپوننت‌های کارت
 │   │   │   ├── CardItem.tsx             # آیتم کارت
@@ -115,20 +165,31 @@ frontend/
 │   │   │   └── CommunityCard.tsx        # کارت کامیونیتی
 │   │   └── messages/                    # کامپوننت‌های پیام
 │   │       └── MessageBubble.tsx        # حباب پیام
+│   ├── contexts/                        # React Contexts
+│   │   ├── AuthContext.tsx              # Authentication state
+│   │   └── LanguageContext.tsx          # i18n & RTL management
 │   ├── hooks/                           # Custom React Hooks
-│   │   ├── useAuth.ts                   # مدیریت authentication
-│   │   ├── useCards.ts                  # مدیریت کارت‌ها
-│   │   ├── useCommunities.ts            # مدیریت کامیونیتی‌ها
-│   │   └── useMessages.ts               # مدیریت پیام‌ها
-│   ├── lib/                             # Utilities و Services
-│   │   ├── api.ts                       # سرویس API کامل
+│   │   ├── useAuth.ts                   # Authentication management
+│   │   ├── useCards.ts                  # Cards management
+│   │   ├── useCommunities.ts            # Communities management
+│   │   ├── useMessages.ts               # Messages management
+│   │   └── useTranslation.ts            # Translation hook
+│   ├── i18n/                            # Internationalization
+│   │   ├── config.ts                    # Language configuration
+│   │   └── locales/                     # Translation files
+│   │       ├── en.json                  # English (default)
+│   │       ├── ar.json                  # Arabic
+│   │       └── fa.json                  # Persian
+│   ├── lib/                             # Utilities & Services
+│   │   ├── api.ts                       # Full API service
 │   │   ├── queryClient.ts               # TanStack Query client
-│   │   └── utils.ts                     # توابع کمکی
+│   │   └── utils.ts                     # Helper functions
 │   └── types/                           # TypeScript Types
-│       ├── auth.ts                      # تایپ‌های احراز هویت
-│       ├── card.ts                      # تایپ‌های کارت
-│       ├── community.ts                 # تایپ‌های کامیونیتی
-│       └── message.ts                   # تایپ‌های پیام
+│       ├── auth.ts                      # Auth types
+│       ├── card.ts                      # Card types
+│       ├── community.ts                 # Community types
+│       ├── location.ts                  # Location types
+│       └── message.ts                   # Message types
 ├── public/                              # فایل‌های استاتیک
 │   └── fonts/                           # فونت IRANYekan
 ├── package.json                         # Dependencies
@@ -391,24 +452,28 @@ npm run lint
 
 ---
 
-## 🌟 Features پیاده‌سازی شده اخیر
+## 🌟 Recently Implemented Features
 
-- [x] **Mobile-First Redesign**: بازطراحی کامل ۲۰+ صفحه برای موبایل
-- [x] **Design System**: ایجاد سند هویت بصری جامع (`DESIGN_SYSTEM.md`)
-- [x] **Horizontal Scroll Tabs**: اسکرول افقی برای تب‌ها در موبایل
-- [x] **Responsive Layouts**: گریدهای واکنش‌گرا با `grid-cols-1 → md:grid-cols-2`
-- [x] انتخابگر تاریخ و ساعت سفارشی با فیلدهای جداگانه
-- [x] Validation تاریخ‌های گذشته برای کارت‌های مسافر و ارسال‌کننده
-- [x] Circular behavior برای فیلدهای روز، ساعت و دقیقه
-- [x] پشتیبانی از تقویم میلادی با نام‌های فارسی ماه‌ها
-- [x] **بررسی کامیونیتی مشترک**: قبل از ارسال پیام، بررسی اتوماتیک کامیونیتی مشترک
-- [x] **صفحه عضویت**: هدایت به صفحه عضویت در صورت نبود کامیونیتی مشترک
+- [x] **Tri-lingual Support**: Full i18n with English (default), Arabic, Persian
+- [x] **RTL/LTR Auto-switching**: Automatic direction change based on language
+- [x] **Dynamic Fonts**: Inter (EN), Noto Sans Arabic (AR), IRANYekan (FA)
+- [x] **Locale-aware Formatting**: Dates, numbers with proper localization
+- [x] **Mobile-First Redesign**: Complete redesign of 20+ pages for mobile
+- [x] **Design System**: Comprehensive design system (`DESIGN_SYSTEM.md`)
+- [x] **Horizontal Scroll Tabs**: Horizontal scrolling for tabs on mobile
+- [x] **Responsive Layouts**: Responsive grids with `grid-cols-1 → md:grid-cols-2`
+- [x] Custom date/time picker with separate fields
+- [x] Past date validation for traveler and sender cards
+- [x] Circular behavior for day, hour and minute fields
+- [x] Gregorian calendar support with localized month names
+- [x] **Shared Community Check**: Auto-check for shared community before messaging
+- [x] **Join Community Page**: Redirect to join page if no shared community
 
-## 🌟 Features به زودی
+## 🌟 Upcoming Features
 
-- [ ] نوتیفیکیشن‌های real-time
-- [ ] آپلود تصاویر برای کارت‌ها
-- [ ] نقشه برای انتخاب مکان
+- [ ] Real-time notifications
+- [ ] Image upload for cards
+- [ ] Map for location selection
 
 ---
 
@@ -431,6 +496,6 @@ npm run lint
 
 ---
 
-**نسخه**: 0.3.1  
-**آخرین به‌روزرسانی**: 2025-12-10
+**Version**: 0.4.0  
+**Last Update**: 2025-12-10
 

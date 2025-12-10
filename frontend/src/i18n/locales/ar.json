@@ -1,0 +1,438 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "search": "بحث",
+    "filters": "الفلاتر",
+    "clear": "مسح",
+    "all": "الكل",
+    "optional": "اختياري",
+    "required": "مطلوب",
+    "yes": "نعم",
+    "no": "لا",
+    "or": "أو",
+    "and": "و",
+    "more": "المزيد",
+    "less": "أقل",
+    "showMore": "عرض المزيد",
+    "showLess": "عرض أقل",
+    "moreOptions": "خيارات أخرى",
+    "noResults": "لم يتم العثور على نتائج",
+    "tryAgain": "حاول مرة أخرى",
+    "goBack": "العودة",
+    "viewAll": "عرض الكل",
+    "page": "صفحة",
+    "of": "من",
+    "showing": "عرض",
+    "from": "من",
+    "to": "إلى",
+    "total": "المجموع",
+    "user": "مستخدم"
+  },
+  "app": {
+    "name": "مينيلا",
+    "tagline": "منصة تنسيق المسافرين والشحن",
+    "description": "منصة ذكية للتنسيق بين المسافرين ومرسلي الشحنات"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "cards": "البطاقات",
+    "communities": "المجتمعات",
+    "messages": "الرسائل",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "سجل دخولك بكلمة المرور أو رمز التحقق",
+      "passwordTab": "كلمة المرور",
+      "otpTab": "رمز التحقق",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "example@gmail.com",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "••••••••",
+      "submitPassword": "تسجيل الدخول",
+      "submitOtp": "إرسال رمز التحقق",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "noAccount": "ليس لديك حساب؟",
+      "signupLink": "إنشاء حساب",
+      "termsNotice": "بتسجيل الدخول، أنت توافق على",
+      "termsLink": "الشروط والأحكام"
+    },
+    "signup": {
+      "title": "إنشاء حساب",
+      "subtitle": "أدخل معلوماتك للبدء",
+      "firstNameLabel": "الاسم الأول",
+      "firstNamePlaceholder": "أحمد",
+      "lastNameLabel": "اسم العائلة",
+      "lastNamePlaceholder": "محمد",
+      "emailLabel": "البريد الإلكتروني",
+      "passwordLabel": "كلمة المرور",
+      "passwordHelper": "8 أحرف على الأقل",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "submitButton": "إنشاء حساب",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "loginLink": "تسجيل الدخول",
+      "termsNotice": "بالتسجيل، أنت توافق على",
+      "success": "تم التسجيل بنجاح!",
+      "successMessage": "تم إرسال رمز التحقق إلى بريدك الإلكتروني. جاري التحويل..."
+    },
+    "otp": {
+      "title": "أدخل رمز التحقق",
+      "subtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى {{email}}",
+      "codeLabel": "رمز التحقق",
+      "codePlaceholder": "123456",
+      "submitButton": "تأكيد وتسجيل الدخول",
+      "resendButton": "إعادة إرسال الرمز"
+    },
+    "validation": {
+      "emailRequired": "يرجى إدخال بريد إلكتروني صحيح",
+      "passwordMin": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+      "passwordMatch": "كلمتا المرور غير متطابقتين",
+      "firstNameRequired": "الاسم الأول مطلوب",
+      "lastNameRequired": "اسم العائلة مطلوب",
+      "otpLength": "رمز التحقق يجب أن يكون 6 أرقام",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+    }
+  },
+  "dashboard": {
+    "welcome": "مرحباً، {{name}}!",
+    "subtitle": "يمكنك إدارة بطاقاتك وعرض رسائلك من لوحة التحكم",
+    "myCards": "بطاقاتي",
+    "activeCards": "بطاقات نشطة",
+    "receivedMessages": "الرسائل المستلمة",
+    "newMessages": "رسائل جديدة",
+    "myCommunities": "المجتمعات",
+    "activeMemberships": "عضويات نشطة",
+    "quickStart": {
+      "title": "بداية سريعة",
+      "createCard": {
+        "title": "إنشاء بطاقة جديدة",
+        "description": "أنشئ بطاقة سفر أو شحن جديدة"
+      },
+      "joinCommunity": {
+        "title": "انضم إلى مجتمع",
+        "description": "انضم إلى مجتمع أو أنشئ مجتمعاً جديداً"
+      }
+    },
+    "joinRequests": {
+      "title": "طلبات الانضمام",
+      "myRequests": "طلباتي",
+      "managedRequests": "طلبات المجتمعات",
+      "noRequests": "ليس لديك طلبات انضمام",
+      "noManagedRequests": "لا توجد طلبات انضمام لمجتمعاتك",
+      "managedRequestsHint": "إذا كنت مالكاً أو مديراً لمجتمع، ستظهر الطلبات الجديدة هنا",
+      "viewCommunities": "عرض المجتمعات",
+      "pending": "قيد الانتظار",
+      "approved": "تمت الموافقة ✓",
+      "rejected": "مرفوض ✗",
+      "cancelRequest": "إلغاء",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "membershipRequest": "طلب انضمام في"
+    },
+    "accountInfo": {
+      "title": "معلومات الحساب",
+      "email": "البريد الإلكتروني:",
+      "name": "الاسم:",
+      "emailStatus": "حالة البريد:",
+      "verified": "تم التحقق ✓",
+      "pendingVerification": "في انتظار التحقق",
+      "joinDate": "تاريخ الانضمام:"
+    },
+    "changePassword": {
+      "title": "تغيير كلمة المرور",
+      "currentPassword": "كلمة المرور الحالية",
+      "currentPasswordPlaceholder": "أدخل كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "8 أحرف على الأقل",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+      "submitButton": "تغيير كلمة المرور",
+      "submitting": "جاري التغيير...",
+      "success": "تم تغيير كلمة المرور بنجاح",
+      "errors": {
+        "fillAll": "يرجى ملء جميع الحقول",
+        "minLength": "كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل",
+        "mismatch": "كلمة المرور الجديدة والتأكيد غير متطابقين",
+        "sameAsOld": "كلمة المرور الجديدة يجب أن تختلف عن الحالية"
+      }
+    },
+    "modals": {
+      "cancelRequest": {
+        "title": "إلغاء طلب الانضمام",
+        "message": "هل أنت متأكد من إلغاء طلب انضمامك لمجتمع {{community}}؟",
+        "note": "يمكنك تقديم طلب جديد لاحقاً.",
+        "cancel": "رجوع",
+        "confirm": "إلغاء الطلب"
+      },
+      "approveRequest": {
+        "title": "الموافقة على طلب الانضمام",
+        "message": "هل تريد الموافقة على طلب انضمام {{user}} لمجتمع {{community}}؟",
+        "note": "سيتم إضافة المستخدم كعضو بعد الموافقة."
+      },
+      "rejectRequest": {
+        "title": "رفض طلب الانضمام",
+        "message": "هل تريد رفض طلب انضمام {{user}} لمجتمع {{community}}؟",
+        "note": "يمكن للمستخدم تقديم طلب جديد لاحقاً."
+      }
+    }
+  },
+  "cards": {
+    "title": "بطاقات السفر والشحن",
+    "subtitle": "ابحث واعرض جميع البطاقات المتاحة",
+    "createButton": "إنشاء بطاقة جديدة",
+    "noCards": "لم يتم العثور على بطاقات",
+    "noCardsDescription": "لا توجد بطاقات تطابق الفلاتر. غيّر الفلاتر أو أنشئ بطاقة جديدة.",
+    "createFirst": "إنشاء أول بطاقة",
+    "error": "خطأ في تحميل البطاقات",
+    "pagination": {
+      "showing": "عرض {{count}} من {{total}} بطاقة",
+      "page": "صفحة {{page}}"
+    },
+    "filters": {
+      "title": "الفلاتر",
+      "clear": "مسح",
+      "origin": "المصدر",
+      "originPlaceholder": "مدينة المصدر",
+      "destination": "الوجهة",
+      "destinationPlaceholder": "مدينة الوجهة",
+      "dateRange": "نطاق التاريخ",
+      "fromDate": "من تاريخ",
+      "toDate": "إلى تاريخ",
+      "capacity": "السعة (كغ)",
+      "minCapacity": "الحد الأدنى",
+      "maxCapacity": "الحد الأقصى",
+      "category": "فئة المنتج",
+      "packagingStatus": "حالة التغليف",
+      "categories": {
+        "all": "الكل",
+        "clothing": "ملابس",
+        "food": "طعام",
+        "electronics": "إلكترونيات",
+        "household": "أدوات منزلية",
+        "other": "أخرى"
+      },
+      "packaging": {
+        "all": "الكل",
+        "packed": "معبأ",
+        "unpacked": "غير معبأ"
+      }
+    },
+    "new": {
+      "title": "إنشاء بطاقة جديدة",
+      "subtitle": "أدخل معلومات سفرك أو شحنتك",
+      "originCountry": "بلد المصدر",
+      "originCity": "مدينة المصدر",
+      "destinationCountry": "بلد الوجهة",
+      "destinationCity": "مدينة الوجهة",
+      "searchCountry": "بحث عن بلد...",
+      "searchCity": "بحث عن مدينة...",
+      "selectCountryFirst": "اختر البلد أولاً",
+      "cardType": "نوع البطاقة",
+      "traveler": "مسافر (حمل شحنة)",
+      "sender": "مرسل شحنة",
+      "dateNotSpecified": "تاريخ سفري غير محدد",
+      "exactDate": "تاريخ السفر الدقيق",
+      "exactDateHelper": "اختياري - تاريخ ووقت السفر المخطط",
+      "startTimeFrame": "بداية الفترة الزمنية",
+      "endTimeFrame": "نهاية الفترة الزمنية",
+      "weight": "الوزن (كغ)",
+      "weightPlaceholder": "مثال: 5.5",
+      "price": "السعر المقترح",
+      "pricePlaceholder": "مثال: 50",
+      "currency": "العملة",
+      "packagingStatus": "حالة التغليف",
+      "doesntMatter": "لا يهم",
+      "packed": "معبأ",
+      "unpacked": "غير معبأ",
+      "description": "الوصف",
+      "descriptionPlaceholder": "تفاصيل إضافية عن البطاقة...",
+      "descriptionHelper": "اختياري - أي معلومات إضافية تعتقد أنها مفيدة",
+      "communities": "عرض في المجتمعات",
+      "communitiesHint": "إذا لم يتم اختيار مجتمع، ستكون البطاقة مرئية للجميع",
+      "submit": "إنشاء البطاقة",
+      "validation": {
+        "originCountry": "بلد المصدر مطلوب",
+        "originCity": "مدينة المصدر مطلوبة",
+        "destinationCountry": "بلد الوجهة مطلوب",
+        "destinationCity": "مدينة الوجهة مطلوبة",
+        "fillRequired": "يرجى ملء جميع الحقول المطلوبة"
+      },
+      "success": "تم إنشاء البطاقة بنجاح"
+    },
+    "detail": {
+      "type": {
+        "traveler": "مسافر",
+        "sender": "مرسل شحنة"
+      },
+      "route": "{{origin}} ← {{destination}}",
+      "weight": "الوزن",
+      "kg": "كغ",
+      "price": "السعر",
+      "date": "التاريخ",
+      "timeFrame": "الفترة الزمنية",
+      "packaging": "التغليف",
+      "packed": "معبأ",
+      "unpacked": "غير معبأ",
+      "description": "الوصف",
+      "owner": "صاحب البطاقة",
+      "sendMessage": "إرسال رسالة",
+      "editCard": "تعديل البطاقة",
+      "deleteCard": "حذف البطاقة",
+      "communities": "مرئي في المجتمعات"
+    }
+  },
+  "communities": {
+    "title": "المجتمعات",
+    "subtitle": "انضم إلى مجتمعات مختلفة أو أنشئ مجتمعاً جديداً",
+    "createButton": "إنشاء مجتمع",
+    "searchPlaceholder": "بحث في المجتمعات...",
+    "noCommunities": "لم يتم العثور على مجتمع",
+    "noCommunitiesSearch": "لم يتم العثور على مجتمع بهذا الاسم. جرب بحثاً مختلفاً.",
+    "noCommunitiesEmpty": "لم يتم إنشاء أي مجتمعات بعد. أنشئ الأول!",
+    "createFirst": "إنشاء أول مجتمع",
+    "error": "خطأ في تحميل المجتمعات",
+    "pagination": {
+      "showing": "عرض {{count}} من {{total}} مجتمع",
+      "page": "صفحة {{page}}"
+    },
+    "card": {
+      "members": "{{count}} أعضاء",
+      "viewDetails": "عرض التفاصيل"
+    },
+    "new": {
+      "title": "إنشاء مجتمع جديد",
+      "subtitle": "أنشئ مجتمعاً جديداً وادعُ الأعضاء",
+      "name": "اسم المجتمع",
+      "namePlaceholder": "مثال: مسافرو دبي",
+      "slug": "معرّف المجتمع",
+      "slugPlaceholder": "مثال: dubai-travelers",
+      "slugHelper": "معرّف فريد لرابط مجتمعك",
+      "bio": "الوصف",
+      "bioPlaceholder": "وصف قصير للمجتمع...",
+      "submit": "إنشاء المجتمع",
+      "success": "تم إنشاء المجتمع بنجاح"
+    },
+    "detail": {
+      "members": "{{count}} أعضاء",
+      "owner": "المالك",
+      "manager": "مدير",
+      "member": "عضو",
+      "joinButton": "طلب الانضمام",
+      "leaveButton": "مغادرة المجتمع",
+      "manageButton": "إدارة",
+      "pendingRequest": "الطلب قيد الانتظار",
+      "cards": "بطاقات المجتمع",
+      "noCards": "لا توجد بطاقات في هذا المجتمع"
+    },
+    "manage": {
+      "title": "إدارة {{name}}",
+      "members": "الأعضاء",
+      "requests": "طلبات الانضمام",
+      "settings": "الإعدادات",
+      "noMembers": "لا يوجد أعضاء بعد",
+      "noRequests": "لا توجد طلبات معلقة",
+      "roles": {
+        "owner": "مالك",
+        "manager": "مدير",
+        "member": "عضو"
+      },
+      "actions": {
+        "makeManager": "ترقية لمدير",
+        "removeMember": "إزالة",
+        "approve": "موافقة",
+        "reject": "رفض"
+      }
+    }
+  },
+  "messages": {
+    "title": "الرسائل",
+    "subtitle": "أدر محادثاتك",
+    "searchPlaceholder": "بحث في المحادثات...",
+    "noConversations": "لم يتم العثور على محادثات",
+    "noConversationsSearch": "لم يتم العثور على محادثة بهذا الاسم",
+    "noConversationsEmpty": "لم تتحدث مع أحد بعد. ابدأ محادثة عن طريق إرسال رسالة من البطاقات.",
+    "viewCards": "عرض البطاقات",
+    "error": "خطأ في تحميل المحادثات",
+    "blocked": "محظور",
+    "block": "حظر",
+    "unblock": "إلغاء الحظر",
+    "blockModal": {
+      "title": "حظر المستخدم",
+      "warning": "تنبيه!",
+      "message": "بحظر {{name}}، لن يتمكن هذا المستخدم من إرسال رسائل إليك.",
+      "confirm": "هل أنت متأكد من حظر هذا المستخدم؟",
+      "cancel": "رجوع",
+      "submit": "حظر"
+    },
+    "unblockModal": {
+      "title": "إلغاء حظر المستخدم",
+      "message": "هل أنت متأكد من إلغاء حظر {{name}}؟ سيتمكن هذا المستخدم من إرسال رسائل إليك مرة أخرى.",
+      "cancel": "رجوع",
+      "submit": "إلغاء الحظر"
+    },
+    "chat": {
+      "inputPlaceholder": "اكتب رسالتك...",
+      "send": "إرسال",
+      "typing": "يكتب...",
+      "online": "متصل",
+      "offline": "غير متصل",
+      "delivered": "تم التوصيل",
+      "read": "تمت القراءة"
+    },
+    "toast": {
+      "blocked": "تم حظر المستخدم",
+      "unblocked": "تم إلغاء حظر المستخدم"
+    }
+  },
+  "profile": {
+    "title": "تعديل الملف الشخصي",
+    "subtitle": "حدّث معلوماتك الشخصية",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "bio": "نبذة عنك",
+    "save": "حفظ التغييرات",
+    "success": "تم تحديث الملف الشخصي بنجاح",
+    "myCards": "بطاقاتي",
+    "myCommunities": "مجتمعاتي",
+    "blockedUsers": "قائمة المحظورين"
+  },
+  "errors": {
+    "generic": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "network": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "unauthorized": "يرجى تسجيل الدخول للمتابعة.",
+    "forbidden": "ليس لديك صلاحية الوصول لهذا المورد.",
+    "notFound": "لم يتم العثور على العنصر المطلوب.",
+    "validation": "يرجى التحقق من المعلومات المدخلة."
+  },
+  "toast": {
+    "success": "نجاح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومة"
+  },
+  "time": {
+    "justNow": "الآن",
+    "minutesAgo": "منذ {{count}} دقيقة",
+    "hoursAgo": "منذ {{count}} ساعة",
+    "daysAgo": "منذ {{count}} يوم",
+    "weeksAgo": "منذ {{count}} أسبوع"
+  }
+}
+

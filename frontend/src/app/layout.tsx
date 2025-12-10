@@ -4,8 +4,8 @@ import Providers from '@/components/Providers'
 import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Minila - پلتفرم هماهنگی مسافر و بار',
-  description: 'پلتفرم هوشمند برای هماهنگی بین مسافران و فرستندگان بار',
+  title: 'Minila - Traveler & Cargo Coordination Platform',
+  description: 'Smart platform for coordination between travelers and cargo senders',
 }
 
 export default function RootLayout({
@@ -13,9 +13,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Note: The actual lang and dir attributes are set dynamically by LanguageContext
+  // We start with 'en' and 'ltr' as defaults which will be updated client-side
   return (
-    <html lang="fa" dir="rtl">
-      <body>
+    <html lang="en" dir="ltr" className="lang-en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>
           <Navbar />
           {children}
@@ -24,4 +26,3 @@ export default function RootLayout({
     </html>
   )
 }
-

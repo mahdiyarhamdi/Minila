@@ -250,8 +250,8 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                           </p>
                         </div>
                       </div>
-                      <Badge variant={member.role === 'manager' ? 'success' : 'neutral'}>
-                        {member.role === 'manager' ? 'مدیر' : member.role === 'moderator' ? 'ناظر' : 'عضو'}
+                      <Badge variant={member.role.name === 'manager' ? 'success' : 'neutral'}>
+                        {member.role.name === 'manager' ? 'مدیر' : member.role.name === 'moderator' ? 'ناظر' : 'عضو'}
                       </Badge>
                     </div>
                   ))}

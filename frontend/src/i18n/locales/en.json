@@ -1,0 +1,438 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "close": "Close",
+    "search": "Search",
+    "filters": "Filters",
+    "clear": "Clear",
+    "all": "All",
+    "optional": "Optional",
+    "required": "Required",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and",
+    "more": "More",
+    "less": "Less",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "moreOptions": "More options",
+    "noResults": "No results found",
+    "tryAgain": "Try again",
+    "goBack": "Go back",
+    "viewAll": "View all",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "from": "from",
+    "to": "to",
+    "total": "Total",
+    "user": "User"
+  },
+  "app": {
+    "name": "Minila",
+    "tagline": "Traveler & Cargo Coordination Platform",
+    "description": "Smart platform for coordination between travelers and cargo senders"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "cards": "Cards",
+    "communities": "Communities",
+    "messages": "Messages",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign up"
+  },
+  "auth": {
+    "login": {
+      "title": "Login to your account",
+      "subtitle": "Login with password or one-time code",
+      "passwordTab": "Password",
+      "otpTab": "One-time code",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "example@gmail.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitPassword": "Login",
+      "submitOtp": "Send verification code",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "termsNotice": "By logging in, you accept the",
+      "termsLink": "Terms and Conditions"
+    },
+    "signup": {
+      "title": "Create account",
+      "subtitle": "Enter your information to get started",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "John",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Doe",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "passwordHelper": "Minimum 8 characters",
+      "confirmPasswordLabel": "Confirm password",
+      "submitButton": "Sign up",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login",
+      "termsNotice": "By signing up, you accept the",
+      "success": "Registration successful!",
+      "successMessage": "Verification code sent to your email. Redirecting to verification page..."
+    },
+    "otp": {
+      "title": "Enter verification code",
+      "subtitle": "Enter the 6-digit code sent to {{email}}",
+      "codeLabel": "Verification code",
+      "codePlaceholder": "123456",
+      "submitButton": "Verify and login",
+      "resendButton": "Resend code"
+    },
+    "validation": {
+      "emailRequired": "Please enter a valid email",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordMatch": "Passwords do not match",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "otpLength": "OTP code must be 6 digits",
+      "invalidCredentials": "Invalid email or password"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "subtitle": "Manage your cards and view messages from your dashboard",
+    "myCards": "My Cards",
+    "activeCards": "Active cards",
+    "receivedMessages": "Received Messages",
+    "newMessages": "New messages",
+    "myCommunities": "Communities",
+    "activeMemberships": "Active memberships",
+    "quickStart": {
+      "title": "Quick Start",
+      "createCard": {
+        "title": "Create new card",
+        "description": "Create a new travel or cargo card"
+      },
+      "joinCommunity": {
+        "title": "Join a community",
+        "description": "Join a community or create a new one"
+      }
+    },
+    "joinRequests": {
+      "title": "Join Requests",
+      "myRequests": "My Requests",
+      "managedRequests": "Community Requests",
+      "noRequests": "You don't have any join requests",
+      "noManagedRequests": "No join requests for your communities",
+      "managedRequestsHint": "If you're an owner or manager of a community, new requests will appear here",
+      "viewCommunities": "View communities",
+      "pending": "Pending",
+      "approved": "Approved ✓",
+      "rejected": "Rejected ✗",
+      "cancelRequest": "Cancel",
+      "approve": "Approve",
+      "reject": "Reject",
+      "membershipRequest": "Membership request in"
+    },
+    "accountInfo": {
+      "title": "Account Information",
+      "email": "Email:",
+      "name": "Name:",
+      "emailStatus": "Email status:",
+      "verified": "Verified ✓",
+      "pendingVerification": "Pending verification",
+      "joinDate": "Join date:"
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "currentPassword": "Current password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Minimum 8 characters",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Re-enter new password",
+      "submitButton": "Change password",
+      "submitting": "Changing...",
+      "success": "Password changed successfully",
+      "errors": {
+        "fillAll": "Please fill in all fields",
+        "minLength": "New password must be at least 8 characters",
+        "mismatch": "New password and confirmation do not match",
+        "sameAsOld": "New password must be different from current password"
+      }
+    },
+    "modals": {
+      "cancelRequest": {
+        "title": "Cancel join request",
+        "message": "Are you sure you want to cancel your membership request for {{community}}?",
+        "note": "You can submit a new request later.",
+        "cancel": "Go back",
+        "confirm": "Cancel request"
+      },
+      "approveRequest": {
+        "title": "Approve join request",
+        "message": "Do you want to approve {{user}}'s membership request for {{community}}?",
+        "note": "The user will be added as a member after approval."
+      },
+      "rejectRequest": {
+        "title": "Reject join request",
+        "message": "Do you want to reject {{user}}'s membership request for {{community}}?",
+        "note": "The user can submit a new request later."
+      }
+    }
+  },
+  "cards": {
+    "title": "Travel & Cargo Cards",
+    "subtitle": "Search and view all available cards",
+    "createButton": "Create new card",
+    "noCards": "No cards found",
+    "noCardsDescription": "No cards match your filters. Change the filters or create a new card.",
+    "createFirst": "Create first card",
+    "error": "Error loading cards",
+    "pagination": {
+      "showing": "Showing {{count}} of {{total}} cards",
+      "page": "Page {{page}}"
+    },
+    "filters": {
+      "title": "Filters",
+      "clear": "Clear",
+      "origin": "Origin",
+      "originPlaceholder": "Origin city",
+      "destination": "Destination",
+      "destinationPlaceholder": "Destination city",
+      "dateRange": "Date range",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "capacity": "Capacity (kg)",
+      "minCapacity": "Minimum",
+      "maxCapacity": "Maximum",
+      "category": "Product category",
+      "packagingStatus": "Packaging status",
+      "categories": {
+        "all": "All",
+        "clothing": "Clothing",
+        "food": "Food",
+        "electronics": "Electronics",
+        "household": "Household",
+        "other": "Other"
+      },
+      "packaging": {
+        "all": "All",
+        "packed": "Packed",
+        "unpacked": "Unpacked"
+      }
+    },
+    "new": {
+      "title": "Create New Card",
+      "subtitle": "Enter your travel or cargo information",
+      "originCountry": "Origin country",
+      "originCity": "Origin city",
+      "destinationCountry": "Destination country",
+      "destinationCity": "Destination city",
+      "searchCountry": "Search country...",
+      "searchCity": "Search city...",
+      "selectCountryFirst": "Select country first",
+      "cardType": "Card type",
+      "traveler": "Traveler (carrying cargo)",
+      "sender": "Cargo sender",
+      "dateNotSpecified": "My exact travel date is not set",
+      "exactDate": "Exact travel date",
+      "exactDateHelper": "Optional - Your planned travel date and time",
+      "startTimeFrame": "Start of time frame",
+      "endTimeFrame": "End of time frame",
+      "weight": "Weight (kg)",
+      "weightPlaceholder": "e.g., 5.5",
+      "price": "Suggested price",
+      "pricePlaceholder": "e.g., 50",
+      "currency": "Currency",
+      "packagingStatus": "Packaging status",
+      "doesntMatter": "Doesn't matter",
+      "packed": "Packed",
+      "unpacked": "Unpacked",
+      "description": "Description",
+      "descriptionPlaceholder": "Additional details about the card...",
+      "descriptionHelper": "Optional - Any additional information you think is useful",
+      "communities": "Display in communities",
+      "communitiesHint": "If no community is selected, the card will be visible to everyone",
+      "submit": "Create card",
+      "validation": {
+        "originCountry": "Origin country is required",
+        "originCity": "Origin city is required",
+        "destinationCountry": "Destination country is required",
+        "destinationCity": "Destination city is required",
+        "fillRequired": "Please fill in all required fields"
+      },
+      "success": "Card created successfully"
+    },
+    "detail": {
+      "type": {
+        "traveler": "Traveler",
+        "sender": "Cargo Sender"
+      },
+      "route": "{{origin}} → {{destination}}",
+      "weight": "Weight",
+      "kg": "kg",
+      "price": "Price",
+      "date": "Date",
+      "timeFrame": "Time frame",
+      "packaging": "Packaging",
+      "packed": "Packed",
+      "unpacked": "Unpacked",
+      "description": "Description",
+      "owner": "Card owner",
+      "sendMessage": "Send message",
+      "editCard": "Edit card",
+      "deleteCard": "Delete card",
+      "communities": "Visible in communities"
+    }
+  },
+  "communities": {
+    "title": "Communities",
+    "subtitle": "Join different communities or create a new one",
+    "createButton": "Create community",
+    "searchPlaceholder": "Search communities...",
+    "noCommunities": "No community found",
+    "noCommunitiesSearch": "No community found with this name. Try a different search.",
+    "noCommunitiesEmpty": "No communities have been created yet. Create the first one!",
+    "createFirst": "Create first community",
+    "error": "Error loading communities",
+    "pagination": {
+      "showing": "Showing {{count}} of {{total}} communities",
+      "page": "Page {{page}}"
+    },
+    "card": {
+      "members": "{{count}} members",
+      "viewDetails": "View details"
+    },
+    "new": {
+      "title": "Create New Community",
+      "subtitle": "Create a new community and invite members",
+      "name": "Community name",
+      "namePlaceholder": "e.g., Tehran Travelers",
+      "slug": "Community ID",
+      "slugPlaceholder": "e.g., tehran-travelers",
+      "slugHelper": "Unique identifier for your community URL",
+      "bio": "Description",
+      "bioPlaceholder": "A short description of the community...",
+      "submit": "Create community",
+      "success": "Community created successfully"
+    },
+    "detail": {
+      "members": "{{count}} members",
+      "owner": "Owner",
+      "manager": "Manager",
+      "member": "Member",
+      "joinButton": "Request to join",
+      "leaveButton": "Leave community",
+      "manageButton": "Manage",
+      "pendingRequest": "Request pending",
+      "cards": "Community Cards",
+      "noCards": "No cards in this community"
+    },
+    "manage": {
+      "title": "Manage {{name}}",
+      "members": "Members",
+      "requests": "Join Requests",
+      "settings": "Settings",
+      "noMembers": "No members yet",
+      "noRequests": "No pending requests",
+      "roles": {
+        "owner": "Owner",
+        "manager": "Manager",
+        "member": "Member"
+      },
+      "actions": {
+        "makeManager": "Make manager",
+        "removeMember": "Remove",
+        "approve": "Approve",
+        "reject": "Reject"
+      }
+    }
+  },
+  "messages": {
+    "title": "Messages",
+    "subtitle": "Manage your conversations",
+    "searchPlaceholder": "Search conversations...",
+    "noConversations": "No conversations found",
+    "noConversationsSearch": "No conversation found with this name",
+    "noConversationsEmpty": "You haven't chatted with anyone yet. Start a chat by sending a message through cards.",
+    "viewCards": "View cards",
+    "error": "Error loading conversations",
+    "blocked": "Blocked",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blockModal": {
+      "title": "Block user",
+      "warning": "Warning!",
+      "message": "By blocking {{name}}, this user will not be able to send you messages.",
+      "confirm": "Are you sure you want to block this user?",
+      "cancel": "Go back",
+      "submit": "Block"
+    },
+    "unblockModal": {
+      "title": "Unblock user",
+      "message": "Are you sure you want to unblock {{name}}? This user will be able to send you messages again.",
+      "cancel": "Go back",
+      "submit": "Unblock"
+    },
+    "chat": {
+      "inputPlaceholder": "Type your message...",
+      "send": "Send",
+      "typing": "Typing...",
+      "online": "Online",
+      "offline": "Offline",
+      "delivered": "Delivered",
+      "read": "Read"
+    },
+    "toast": {
+      "blocked": "User blocked",
+      "unblocked": "User unblocked"
+    }
+  },
+  "profile": {
+    "title": "Edit Profile",
+    "subtitle": "Update your personal information",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone number",
+    "bio": "Bio",
+    "save": "Save changes",
+    "success": "Profile updated successfully",
+    "myCards": "My Cards",
+    "myCommunities": "My Communities",
+    "blockedUsers": "Block List"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "Please login to continue.",
+    "forbidden": "You don't have access to this resource.",
+    "notFound": "The requested item was not found.",
+    "validation": "Please check the entered information."
+  },
+  "toast": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} minutes ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago",
+    "weeksAgo": "{{count}} weeks ago"
+  }
+}
+

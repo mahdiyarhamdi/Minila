@@ -1,13 +1,18 @@
+'use client'
+
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '../Card'
 import Badge from '../Badge'
 import type { Card as CardType } from '@/types/card'
 import { getCurrencyByCode } from '@/utils/currency'
 
 /**
- * CardItem - نمایش کارت در لیست
+ * CardItem - Card display in list
  */
 export default function CardItem(card: CardType) {
+  const { t, formatDate, formatNumber, language } = useTranslation()
+  
   const {
     id,
     origin_city,
@@ -25,8 +30,23 @@ export default function CardItem(card: CardType) {
     owner,
   } = card
 
-  // محاسبه تاریخ سفر
+  // Calculate travel date
   const travelDate = ticket_date_time || start_time_frame
+  
+  // Get currency name based on language
+  const getCurrencyName = (code: string | undefined) => {
+    const currencyInfo = getCurrencyByCode(code || 'USD')
+    if (!currencyInfo) return code || 'USD'
+    
+    switch (language) {
+      case 'fa':
+        return currencyInfo.nameFa
+      case 'ar':
+        return currencyInfo.nameAr || currencyInfo.name
+      default:
+        return currencyInfo.name
+    }
+  }
   
   return (
     <Link href={`/cards/${id}`}>
@@ -40,11 +60,11 @@ export default function CardItem(card: CardType) {
             <p className="text-sm text-neutral-600 font-light">
               {owner.first_name && owner.last_name
                 ? `${owner.first_name} ${owner.last_name}`
-                : 'کاربر'}
+                : t('common.user')}
             </p>
           </div>
           <Badge variant={is_sender ? "warning" : "info"} size="sm">
-            {is_sender ? 'فرستنده' : 'مسافر'}
+            {is_sender ? t('cards.detail.type.sender') : t('cards.detail.type.traveler')}
           </Badge>
         </div>
 
@@ -55,7 +75,7 @@ export default function CardItem(card: CardType) {
               <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="text-neutral-700">{new Date(travelDate).toLocaleDateString('fa-IR')}</span>
+              <span className="text-neutral-700">{formatDate(travelDate)}</span>
             </div>
           )}
           
@@ -64,7 +84,7 @@ export default function CardItem(card: CardType) {
               <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              <span className="text-neutral-700">{weight} کیلوگرم</span>
+              <span className="text-neutral-700">{formatNumber(weight)} {t('cards.detail.kg')}</span>
             </div>
           )}
 
@@ -74,7 +94,7 @@ export default function CardItem(card: CardType) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="text-neutral-700 font-medium">
-                {price_aed.toLocaleString('fa-IR')} {getCurrencyByCode(currency || 'USD')?.nameFa || currency || 'دلار'}
+                {formatNumber(price_aed)} {getCurrencyName(currency)}
               </span>
             </div>
           )}
@@ -99,13 +119,12 @@ export default function CardItem(card: CardType) {
             is_packed === false ? "neutral" : 
             "neutral"
           } size="sm">
-            {is_packed === true ? 'بسته‌بندی شده' : 
-             is_packed === false ? 'بسته‌بندی نشده' : 
-             'فرقی ندارد'}
+            {is_packed === true ? t('cards.detail.packed') : 
+             is_packed === false ? t('cards.detail.unpacked') : 
+             t('cards.new.doesntMatter')}
           </Badge>
         </div>
       </Card>
     </Link>
   )
 }
-

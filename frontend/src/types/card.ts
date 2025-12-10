@@ -81,7 +81,7 @@ export interface CardUpdate {
   end_time_frame?: string
   ticket_date_time?: string
   weight?: number
-  is_packed?: boolean
+  is_packed?: boolean | null
   price_aed?: number
   currency?: string
   description?: string

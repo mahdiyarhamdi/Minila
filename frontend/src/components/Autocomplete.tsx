@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 // Base interface - allows extra properties
-interface AutocompleteOption {
+export interface AutocompleteOption {
   id: number
   label: string
   value: string
@@ -196,17 +196,17 @@ export default function Autocomplete({
           `}
         />
         
-        {/* Loading spinner - RTL: positioned on left */}
+        {/* Loading spinner */}
         {isLoading && (
-          <div className="absolute left-10 top-1/2 -translate-y-1/2">
+          <div className="absolute ltr:right-10 rtl:left-10 top-1/2 -translate-y-1/2">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
           </div>
         )}
 
-        {/* Dropdown icon - RTL: positioned on left */}
+        {/* Dropdown icon */}
         {!isLoading && (
           <svg
-            className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none transition-transform ${
+            className={`absolute ltr:right-3 rtl:left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none transition-transform ${
               isOpen ? 'rotate-180' : ''
             }`}
             fill="none"
@@ -223,12 +223,12 @@ export default function Autocomplete({
         <div className="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-60 overflow-auto">
           {options.length > 0 ? (
             options.map((option, index) => (
-              <button
+                <button
                 key={option.id}
                 type="button"
                 onClick={() => handleOptionClick(option)}
                 className={`
-                  w-full px-4 py-2.5 text-right transition-colors
+                  w-full px-4 py-2.5 text-start transition-colors
                   ${index === selectedIndex
                     ? 'bg-primary-50 text-primary-700'
                     : 'hover:bg-neutral-50 text-neutral-900'

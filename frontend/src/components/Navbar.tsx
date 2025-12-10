@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { useUnreadCount } from '@/hooks/useMessages'
 import Button from './Button'
+import LanguageSelector from './LanguageSelector'
 
 /**
  * Navbar - نوار ناوبری اصلی
@@ -15,11 +17,12 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const { data: unreadCount, refetch } = useUnreadCount(!!user)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
-  // بستن منوها هنگام تغییر وضعیت کاربر (login/logout)
+  // Close menus when user state changes (login/logout)
   useEffect(() => {
     setProfileMenuOpen(false)
     setMobileMenuOpen(false)
@@ -32,7 +35,7 @@ export default function Navbar() {
     }
   }, [user, refetch])
 
-  // بستن منو پروفایل با کلیک خارج از آن
+  // Close profile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
@@ -47,7 +50,7 @@ export default function Navbar() {
     }
   }, [profileMenuOpen])
 
-  // صفحات احراز هویت Navbar ندارند
+  // Auth pages don't show Navbar
   if (pathname?.startsWith('/auth')) {
     return null
   }
@@ -60,10 +63,10 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: '/dashboard', label: 'داشبورد' },
-    { href: '/cards', label: 'کارت‌ها' },
-    { href: '/communities', label: 'کامیونیتی‌ها' },
-    { href: '/messages', label: 'پیام‌ها', badge: unreadCount || 0 },
+    { href: '/dashboard', label: t('nav.dashboard') },
+    { href: '/cards', label: t('nav.cards') },
+    { href: '/communities', label: t('nav.communities') },
+    { href: '/messages', label: t('nav.messages'), badge: unreadCount || 0 },
   ]
 
   return (
@@ -90,7 +93,7 @@ export default function Navbar() {
               >
                 {link.label}
                 {link.badge !== undefined && link.badge > 0 && (
-                  <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center font-bold shadow-sm">
+                  <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center font-bold shadow-sm">
                     {link.badge > 99 ? '99+' : link.badge}
                   </span>
                 )}
@@ -98,66 +101,72 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* User Menu */}
-          {user && (
-            <div className="hidden md:flex items-center gap-4">
-              <span className="text-sm text-neutral-600 font-medium">
-                {user.first_name} {user.last_name}
-              </span>
-              
-              {/* Profile Dropdown */}
-              <div className="relative" data-profile-menu>
-                <button
-                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                  className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
-                >
-                  <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </button>
+          {/* Desktop Right Section */}
+          <div className="hidden md:flex items-center gap-2">
+            {/* Language Selector */}
+            <LanguageSelector variant="desktop" />
+            
+            {/* User Menu */}
+            {user && (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-neutral-600 font-medium">
+                  {user.first_name} {user.last_name}
+                </span>
+                
+                {/* Profile Dropdown */}
+                <div className="relative" data-profile-menu>
+                  <button
+                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </button>
 
-                {profileMenuOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-strong border border-neutral-200 py-2">
-                    <Link
-                      href="/dashboard/profile"
-                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      ویرایش پروفایل
-                    </Link>
-                    <Link
-                      href="/dashboard/my-cards"
-                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      کارت‌های من
-                    </Link>
-                    <Link
-                      href="/dashboard/my-communities"
-                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      کامیونیتی‌های من
-                    </Link>
-                    <Link
-                      href="/dashboard/blocked-users"
-                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      بلاک لیست
-                    </Link>
-                    <div className="border-t border-neutral-200 my-2"></div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      خروج
-                    </button>
-                  </div>
-                )}
+                  {profileMenuOpen && (
+                    <div className="absolute ltr:right-0 rtl:left-0 mt-2 w-48 bg-white rounded-xl shadow-strong border border-neutral-200 py-2">
+                      <Link
+                        href="/dashboard/profile"
+                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        {t('profile.title')}
+                      </Link>
+                      <Link
+                        href="/dashboard/my-cards"
+                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        {t('profile.myCards')}
+                      </Link>
+                      <Link
+                        href="/dashboard/my-communities"
+                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        {t('profile.myCommunities')}
+                      </Link>
+                      <Link
+                        href="/dashboard/blocked-users"
+                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        {t('profile.blockedUsers')}
+                      </Link>
+                      <div className="border-t border-neutral-200 my-2"></div>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full ltr:text-left rtl:text-right px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        {t('nav.logout')}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -212,44 +221,50 @@ export default function Navbar() {
                 </Link>
               ))}
               
+              {/* Language Selector (Mobile) */}
+              <div className="border-t border-neutral-200 my-2"></div>
+              <LanguageSelector variant="mobile" />
+              
               {user && (
                 <>
                   <div className="border-t border-neutral-200 my-2"></div>
-                  <p className="px-4 py-1 text-xs text-neutral-500 font-medium">حساب کاربری</p>
+                  <p className="px-4 py-1 text-xs text-neutral-500 font-medium">
+                    {t('nav.profile')}
+                  </p>
                   <Link
                     href="/dashboard/profile"
                     onClick={() => setMobileMenuOpen(false)}
                     className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                   >
-                    ویرایش پروفایل
+                    {t('profile.title')}
                   </Link>
                   <Link
                     href="/dashboard/my-cards"
                     onClick={() => setMobileMenuOpen(false)}
                     className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                   >
-                    کارت‌های من
+                    {t('profile.myCards')}
                   </Link>
                   <Link
                     href="/dashboard/my-communities"
                     onClick={() => setMobileMenuOpen(false)}
                     className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                   >
-                    کامیونیتی‌های من
+                    {t('profile.myCommunities')}
                   </Link>
                   <Link
                     href="/dashboard/blocked-users"
                     onClick={() => setMobileMenuOpen(false)}
                     className="px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                   >
-                    بلاک لیست
+                    {t('profile.blockedUsers')}
                   </Link>
                   <div className="border-t border-neutral-200 my-2"></div>
                   <button
                     onClick={handleLogout}
-                    className="text-right px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
+                    className="ltr:text-left rtl:text-right px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
                   >
-                    خروج از حساب
+                    {t('nav.logout')}
                   </button>
                 </>
               )}
@@ -260,4 +275,3 @@ export default function Navbar() {
     </nav>
   )
 }
-

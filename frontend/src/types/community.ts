@@ -53,15 +53,20 @@ export interface CommunityListResponse {
 
 export interface Member {
   id: number
-  user_id: number
+  user_id?: number
   user: {
     id: number
     first_name: string
     last_name: string
     email: string
   }
-  role: 'member' | 'manager' | 'moderator'
-  joined_at: string
+  role: {
+    id?: number
+    name: 'owner' | 'member' | 'manager' | 'moderator'
+  }
+  is_active?: boolean
+  joined_at?: string
+  created_at?: string
 }
 
 export interface JoinRequest {
@@ -74,7 +79,13 @@ export interface JoinRequest {
     email: string
   }
   community_id: number
+  community: {
+    id: number
+    name: string
+    slug?: string
+  }
   status: 'pending' | 'approved' | 'rejected'
+  is_approved: boolean | null  // null = pending, true = approved, false = rejected
   created_at: string
   updated_at: string
 }

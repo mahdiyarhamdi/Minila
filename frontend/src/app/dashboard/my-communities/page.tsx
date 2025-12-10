@@ -88,7 +88,7 @@ export default function MyCommunitiesPage() {
                 {(community.my_role === 'owner' || community.my_role === 'manager') && (
                   <Link
                     href={`/communities/${community.id}/manage`}
-                    className="absolute top-4 left-4"
+                    className="absolute top-4 ltr:right-4 rtl:left-4"
                   >
                     <Button size="sm" variant="secondary" className="shadow-soft hover:shadow-medium">
                       <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

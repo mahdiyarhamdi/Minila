@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useCommunities } from '@/hooks/useCommunities'
+import { useTranslation } from '@/hooks/useTranslation'
 import CommunityCard from '@/components/communities/CommunityCard'
 import EmptyState from '@/components/EmptyState'
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -11,14 +12,15 @@ import Card from '@/components/Card'
 import Input from '@/components/Input'
 
 /**
- * صفحه لیست کامیونیتی‌ها
+ * Communities listing page
  */
 export default function CommunitiesPage() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const { data, isLoading, error } = useCommunities(page, 20)
 
-  // فیلتر بر اساس جست‌وجو (نام، آیدی یا توضیحات)
+  // Filter by search (name, id, or bio)
   const filteredCommunities = data?.items.filter((community) =>
     community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     community.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -32,19 +34,19 @@ export default function CommunitiesPage() {
         <div className="flex flex-col gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-              کامیونیتی‌ها
+              {t('communities.title')}
             </h1>
             <p className="text-sm sm:text-base text-neutral-600 font-light">
-              به کامیونیتی‌های مختلف بپیوندید یا کامیونیتی جدید بسازید
+              {t('communities.subtitle')}
             </p>
           </div>
 
           <Link href="/communities/new" className="w-full sm:w-auto self-start">
             <Button size="lg" className="w-full sm:w-auto">
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ltr:mr-2 rtl:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              ایجاد کامیونیتی
+              {t('communities.createButton')}
             </Button>
           </Link>
         </div>
@@ -53,7 +55,7 @@ export default function CommunitiesPage() {
         <div className="mb-6">
           <Input
             type="search"
-            placeholder="جست‌وجو در کامیونیتی‌ها..."
+            placeholder={t('communities.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -68,7 +70,7 @@ export default function CommunitiesPage() {
 
         {error && (
           <Card variant="bordered" className="p-6">
-            <p className="text-red-600 text-center">خطا در دریافت کامیونیتی‌ها</p>
+            <p className="text-red-600 text-center">{t('communities.error')}</p>
           </Card>
         )}
 
@@ -84,15 +86,15 @@ export default function CommunitiesPage() {
                 />
               </svg>
             }
-            title="کامیونیتی یافت نشد"
+            title={t('communities.noCommunities')}
             description={
               searchQuery
-                ? 'کامیونیتی با این نام پیدا نشد. جست‌وجو را تغییر دهید.'
-                : 'هنوز کامیونیتی ایجاد نشده است. اولین کامیونیتی را بسازید.'
+                ? t('communities.noCommunitiesSearch')
+                : t('communities.noCommunitiesEmpty')
             }
             action={
               <Link href="/communities/new">
-                <Button>ایجاد اولین کامیونیتی</Button>
+                <Button>{t('communities.createFirst')}</Button>
               </Link>
             }
           />
@@ -111,9 +113,12 @@ export default function CommunitiesPage() {
               <Card variant="bordered" className="p-4">
                 <div className="flex justify-between items-center text-sm text-neutral-600">
                   <span>
-                    نمایش {filteredCommunities.length} از {data.total} کامیونیتی
+                    {t('communities.pagination.showing', { 
+                      count: filteredCommunities.length.toString(), 
+                      total: data.total.toString() 
+                    })}
                   </span>
-                  <span>صفحه {data.page}</span>
+                  <span>{t('communities.pagination.page', { page: data.page.toString() })}</span>
                 </div>
               </Card>
             )}
@@ -123,4 +128,3 @@ export default function CommunitiesPage() {
     </div>
   )
 }
-

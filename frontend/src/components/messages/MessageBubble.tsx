@@ -1,3 +1,7 @@
+'use client'
+
+import { useLanguage } from '@/contexts/LanguageContext'
+
 interface MessageBubbleProps {
   content: string
   isOwn: boolean
@@ -18,6 +22,8 @@ export default function MessageBubble({
   status = 'sent',
   isRead = false 
 }: MessageBubbleProps) {
+  const { formatTime } = useLanguage()
+  
   // آیکون وضعیت برای پیام‌های خودی
   const StatusIcon = () => {
     if (!isOwn) return null
@@ -51,9 +57,9 @@ export default function MessageBubble({
   }
 
   return (
-    <div className={`flex ${isOwn ? 'justify-start' : 'justify-end'} mb-4`}>
-      <div className={`max-w-[70%] ${isOwn ? 'order-1' : 'order-2'}`}>
-        {/* Sender Name (برای پیام‌های دیگران) */}
+    <div className={`flex ${isOwn ? 'ltr:justify-end rtl:justify-start' : 'ltr:justify-start rtl:justify-end'} mb-4`}>
+      <div className={`max-w-[70%]`}>
+        {/* Sender Name (for other's messages) */}
         {!isOwn && senderName && (
           <p className="text-xs text-neutral-500 font-medium mb-1 px-1">{senderName}</p>
         )}
@@ -62,20 +68,17 @@ export default function MessageBubble({
         <div
           className={`rounded-2xl px-4 py-2.5 ${
             isOwn
-              ? 'bg-primary-600 text-white rounded-br-sm'
-              : 'bg-neutral-100 text-neutral-900 rounded-bl-sm'
+              ? 'bg-primary-600 text-white ltr:rounded-br-sm rtl:rounded-bl-sm'
+              : 'bg-neutral-100 text-neutral-900 ltr:rounded-bl-sm rtl:rounded-br-sm'
           }`}
         >
           <p className="text-sm whitespace-pre-wrap break-words">{content}</p>
         </div>
 
         {/* Timestamp & Status */}
-        <div className={`flex items-center gap-1 mt-1 px-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+        <div className={`flex items-center gap-1 mt-1 px-1 ${isOwn ? 'ltr:justify-end rtl:justify-start' : 'ltr:justify-start rtl:justify-end'}`}>
           <p className="text-xs text-neutral-400">
-            {new Date(timestamp).toLocaleTimeString('fa-IR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {formatTime(timestamp)}
           </p>
           <StatusIcon />
         </div>
@@ -83,4 +86,3 @@ export default function MessageBubble({
     </div>
   )
 }
-

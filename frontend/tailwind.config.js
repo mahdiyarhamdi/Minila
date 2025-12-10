@@ -8,14 +8,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // پالت رنگی Minila از تصویر
         primary: {
           50: '#E6F7FF',
           100: '#BAE7FF',
           200: '#91D5FF',
           300: '#69C0FF',
           400: '#40A9FF',
-          500: '#00A8E8',  // آبی اصلی
+          500: '#00A8E8',
           600: '#0098D9',
           700: '#007EA7',
           800: '#005F7F',
@@ -25,7 +24,7 @@ module.exports = {
           50: '#FAF7F2',
           100: '#F5EFE6',
           200: '#ECE0C8',
-          300: '#E5C189',  // بژ/طلایی
+          300: '#E5C189',
           400: '#D4AF89',
           500: '#C19A6B',
           600: '#A8864F',
@@ -46,7 +45,12 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['IRANYekan', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        // Dynamic font via CSS variable
+        sans: ['var(--font-family)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        // Individual font families for specific use
+        inter: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        arabic: ['Noto Sans Arabic', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        persian: ['IRANYekan', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       fontWeight: {
         thin: '100',
@@ -71,4 +75,3 @@ module.exports = {
   },
   plugins: [],
 }
-
