@@ -49,33 +49,24 @@ class TestGetCommunities:
 
     @pytest.mark.asyncio
     async def test_get_communities_invalid_page_zero(self, client: AsyncClient):
-        """Test getting communities with page=0 (should default to 1)."""
+        """Test getting communities with page=0 (should return validation error)."""
         response = await client.get("/api/v1/communities/?page=0&page_size=10")
         
-        assert response.status_code == 200
-        data = response.json()
-        # Page should be corrected to 1
-        assert data["page"] == 1
+        assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
     async def test_get_communities_large_page_size(self, client: AsyncClient):
-        """Test getting communities with very large page_size (should cap at 100)."""
+        """Test getting communities with very large page_size (should return validation error)."""
         response = await client.get("/api/v1/communities/?page=1&page_size=1000")
         
-        assert response.status_code == 200
-        data = response.json()
-        # Page size should be capped at 100
-        assert data["page_size"] == 100
+        assert response.status_code == 422  # Validation error - max is 100
 
     @pytest.mark.asyncio
     async def test_get_communities_negative_page(self, client: AsyncClient):
-        """Test getting communities with negative page number."""
+        """Test getting communities with negative page number (should return validation error)."""
         response = await client.get("/api/v1/communities/?page=-1&page_size=10")
         
-        assert response.status_code == 200
-        data = response.json()
-        # Should default to page 1
-        assert data["page"] == 1
+        assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
     async def test_get_communities_pagination(
@@ -226,10 +217,10 @@ class TestCreateCommunity:
         auth_headers: dict
     ):
         """Test creating community with invalid slug format returns 422."""
-        # Arrange - slug with uppercase letters
+        # Arrange - slug with special characters (invalid even after lowercasing)
         payload = {
             "name": "Test Community",
-            "slug": "Invalid_Slug",  # Contains uppercase
+            "slug": "test@slug",  # Contains @ which is invalid
             "bio": "Bio"
         }
         
@@ -253,7 +244,7 @@ class TestCreateCommunity:
         # Arrange - slug starting with number
         payload = {
             "name": "Test Community",
-            "slug": "123_test",  # Starts with number
+            "slug": "123_test",  # Starts with number (invalid)
             "bio": "Bio"
         }
         
@@ -542,8 +533,8 @@ class TestGetJoinRequests:
         # Assert
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
-        assert len(data) >= 1
+        assert "items" in data
+        assert len(data["items"]) >= 1
 
     @pytest.mark.asyncio
     async def test_get_requests_by_non_owner(

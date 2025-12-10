@@ -107,7 +107,9 @@ class TestCreateCard:
                     origin_country_id=1,
                     origin_city_id=1,
                     destination_country_id=2,
-                    destination_city_id=2
+                    destination_city_id=2,
+                    start_time_frame="2024-01-01",  # Required for sender card
+                    end_time_frame="2024-01-15"
                 )
         
         assert card.id == 1
@@ -135,6 +137,8 @@ class TestCreateCard:
                     origin_city_id=1,
                     destination_country_id=2,
                     destination_city_id=2,
+                    start_time_frame="2024-01-01",  # Required for sender card
+                    end_time_frame="2024-01-15",
                     community_ids=[1, 2, 3]
                 )
         

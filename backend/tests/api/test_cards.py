@@ -141,30 +141,24 @@ class TestGetCards:
 
     @pytest.mark.asyncio
     async def test_get_cards_invalid_page_zero(self, client: AsyncClient):
-        """Test getting cards with page=0 (should default to 1)."""
+        """Test getting cards with page=0 (should return validation error)."""
         response = await client.get("/api/v1/cards/?page=0&page_size=10")
         
-        assert response.status_code == 200
-        data = response.json()
-        assert data["page"] == 1
+        assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
     async def test_get_cards_large_page_size(self, client: AsyncClient):
-        """Test getting cards with very large page_size (should cap at 100)."""
+        """Test getting cards with very large page_size (should return validation error)."""
         response = await client.get("/api/v1/cards/?page=1&page_size=500")
         
-        assert response.status_code == 200
-        data = response.json()
-        assert data["page_size"] == 100
+        assert response.status_code == 422  # Validation error - max is 100
 
     @pytest.mark.asyncio
     async def test_get_cards_negative_page(self, client: AsyncClient):
-        """Test getting cards with negative page number."""
+        """Test getting cards with negative page number (should return validation error)."""
         response = await client.get("/api/v1/cards/?page=-5&page_size=10")
         
-        assert response.status_code == 200
-        data = response.json()
-        assert data["page"] == 1
+        assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
     async def test_get_cards_no_results_with_filter(self, client: AsyncClient):

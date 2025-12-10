@@ -10,7 +10,7 @@ class TestLocationAPI:
     """تست‌های location API."""
     
     @pytest.fixture
-    async def setup_locations(self, db_session: AsyncSession):
+    async def setup_locations(self, test_db: AsyncSession):
         """ایجاد داده‌های تست برای location."""
         # ایجاد کشورها
         iran = Country(
@@ -28,8 +28,8 @@ class TestLocationAPI:
             iso_code="AE"
         )
         
-        db_session.add_all([iran, uae])
-        await db_session.flush()
+        test_db.add_all([iran, uae])
+        await test_db.flush()
         
         # ایجاد شهرها
         tehran = City(
@@ -57,8 +57,8 @@ class TestLocationAPI:
             country_id=uae.id
         )
         
-        db_session.add_all([tehran, dubai, abu_dhabi])
-        await db_session.commit()
+        test_db.add_all([tehran, dubai, abu_dhabi])
+        await test_db.commit()
         
         return {
             'iran': iran,
@@ -338,7 +338,7 @@ class TestLocationCurrency:
     """تست‌های currency_code برای کشورها."""
     
     @pytest.fixture
-    async def setup_locations_with_currency(self, db_session: AsyncSession):
+    async def setup_locations_with_currency(self, test_db: AsyncSession):
         """ایجاد کشورها با currency_code."""
         iran = Country(
             name="Iran",
@@ -365,8 +365,8 @@ class TestLocationCurrency:
             currency_code="USD"
         )
         
-        db_session.add_all([iran, uae, usa])
-        await db_session.commit()
+        test_db.add_all([iran, uae, usa])
+        await test_db.commit()
         
         return {
             'iran': iran,

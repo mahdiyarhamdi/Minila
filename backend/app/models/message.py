@@ -1,4 +1,5 @@
 """Message model."""
+from typing import Optional
 from datetime import datetime
 from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -29,7 +30,7 @@ class Message(BaseModel):
     # Fields
     body: Mapped[str] = mapped_column(Text, nullable=False)
     is_read: Mapped[bool] = mapped_column(default=False, nullable=False)
-    read_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    read_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="sent", nullable=False)
     
     # Relationships

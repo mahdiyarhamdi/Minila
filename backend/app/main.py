@@ -113,11 +113,19 @@ async def validation_exception_handler(
         پاسخ JSON با جزئیات خطا
     """
     logger.warning(f"Validation error: {exc.errors()}")
+    # Convert errors to JSON-serializable format
+    errors = []
+    for error in exc.errors():
+        err_dict = dict(error)
+        # Ensure all values are JSON serializable
+        if 'ctx' in err_dict and err_dict['ctx']:
+            err_dict['ctx'] = {k: str(v) if not isinstance(v, (str, int, float, bool, type(None))) else v 
+                              for k, v in err_dict['ctx'].items()}
+        errors.append(err_dict)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
-            "detail": exc.errors(),
-            "body": exc.body
+            "detail": errors
         }
     )
 

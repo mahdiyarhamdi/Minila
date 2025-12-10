@@ -16,9 +16,17 @@ from app.core.security import create_access_token
 
 
 # Test database URL (PostgreSQL test container)
-# استفاده از service name برای اجرای تست‌ها داخل Docker
-TEST_DATABASE_URL = "postgresql+psycopg://postgres:postgres@db_test:5432/minila_test"
-TEST_REDIS_URL = "redis://redis_test:6379/0"
+# استفاده از localhost برای اجرای تست‌ها خارج از Docker
+# Port 5433 برای test database و Port 6380 برای test Redis
+import os
+TEST_DATABASE_URL = os.environ.get(
+    "TEST_DATABASE_URL",
+    "postgresql+psycopg://postgres:postgres@localhost:5433/minila_test"
+)
+TEST_REDIS_URL = os.environ.get(
+    "TEST_REDIS_URL", 
+    "redis://localhost:6380/0"
+)
 
 settings = get_settings()
 
@@ -47,9 +55,18 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
     Yields:
         AsyncSession: Test database session
     """
-    # Create tables
+    from sqlalchemy import text
+    
+    # Completely drop and recreate the public schema for a clean slate
     async with test_engine.begin() as conn:
-        await conn.run_sync(BaseModel.metadata.create_all)
+        await conn.execute(text("DROP SCHEMA public CASCADE"))
+        await conn.execute(text("CREATE SCHEMA public"))
+        await conn.execute(text("GRANT ALL ON SCHEMA public TO postgres"))
+        await conn.execute(text("GRANT ALL ON SCHEMA public TO public"))
+    
+    # Create tables with checkfirst=True to avoid duplicate errors
+    async with test_engine.begin() as conn:
+        await conn.run_sync(lambda sync_conn: BaseModel.metadata.create_all(sync_conn, checkfirst=True))
     
     # ایجاد session معمولی بدون transaction wrapper
     session = TestSessionLocal()
@@ -90,15 +107,41 @@ async def seed_locations(test_db: AsyncSession) -> dict:
     """Create minimal Country and City data for card tests."""
     from app.models.location import Country, City
     
-    # Create countries
-    country1 = Country(id=1, name="Test Country 1")
-    country2 = Country(id=2, name="Test Country 2")
+    # Create countries with all required fields
+    country1 = Country(
+        id=1, 
+        name="Test Country 1",
+        name_en="Test Country 1",
+        name_fa="کشور تست 1",
+        name_ar="دولة الاختبار 1"
+    )
+    country2 = Country(
+        id=2, 
+        name="Test Country 2",
+        name_en="Test Country 2",
+        name_fa="کشور تست 2",
+        name_ar="دولة الاختبار 2"
+    )
     test_db.add_all([country1, country2])
     await test_db.flush()
     
-    # Create cities
-    city1 = City(id=1, name="Test City 1", country_id=1)
-    city2 = City(id=2, name="Test City 2", country_id=2)
+    # Create cities with all required fields
+    city1 = City(
+        id=1, 
+        name="Test City 1", 
+        name_en="Test City 1",
+        name_fa="شهر تست 1",
+        name_ar="مدينة الاختبار 1",
+        country_id=1
+    )
+    city2 = City(
+        id=2, 
+        name="Test City 2",
+        name_en="Test City 2",
+        name_fa="شهر تست 2",
+        name_ar="مدينة الاختبار 2",
+        country_id=2
+    )
     test_db.add_all([city1, city2])
     await test_db.commit()
     

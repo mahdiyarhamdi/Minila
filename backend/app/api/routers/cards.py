@@ -103,6 +103,7 @@ async def create_card(
             weight=data.weight,
             is_packed=data.is_packed,
             price_aed=data.price_aed,
+            currency=data.currency,
             description=data.description,
             product_classification_id=data.product_classification_id,
             community_ids=data.community_ids

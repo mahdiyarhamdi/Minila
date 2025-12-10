@@ -1,4 +1,5 @@
 """Message schemas برای پیام‌رسانی."""
+from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from .user import UserBasicOut
@@ -29,7 +30,7 @@ class MessageOut(BaseModel):
     body: str
     created_at: datetime
     is_read: bool = False
-    read_at: datetime | None = None
+    read_at: Optional[datetime] = None
     status: str = "sent"
     
     model_config = ConfigDict(

@@ -74,6 +74,7 @@ async def create_card(
     weight: Optional[float] = None,
     is_packed: Optional[bool] = None,
     price_aed: Optional[float] = None,
+    currency: Optional[str] = "USD",
     description: Optional[str] = None,
     product_classification_id: Optional[int] = None,
     community_ids: Optional[list[int]] = None
@@ -120,6 +121,7 @@ async def create_card(
         "weight": weight,
         "is_packed": is_packed,
         "price_aed": price_aed,
+        "currency": currency,
         "description": description,
         "product_classification_id": product_classification_id
     }

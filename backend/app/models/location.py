@@ -9,12 +9,6 @@ class Country(BaseModel):
     """مدل کشور با پشتیبانی سه زبان."""
     
     __tablename__ = "country"
-    __table_args__ = (
-        # Index برای جستجوی سریع در نام‌های مختلف
-        Index("ix_country_name_en", "name_en"),
-        Index("ix_country_name_fa", "name_fa"),
-        Index("ix_country_name_ar", "name_ar"),
-    )
     
     # Fields - نام به زبان‌های مختلف
     name: Mapped[str] = mapped_column(String(100), nullable=False)  # نام اصلی (انگلیسی)
@@ -44,12 +38,11 @@ class City(BaseModel):
     
     __tablename__ = "city"
     __table_args__ = (
-        # Index برای جستجوی سریع
+        # Composite indexes for country-based searches
         Index("ix_city_country_name", "country_id", "name"),
         Index("ix_city_country_name_en", "country_id", "name_en"),
         Index("ix_city_country_name_fa", "country_id", "name_fa"),
         Index("ix_city_country_name_ar", "country_id", "name_ar"),
-        Index("ix_city_airport_code", "airport_code"),
     )
     
     # Fields - نام به زبان‌های مختلف
