@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useCard, useDeleteCard } from '@/hooks/useCards'
+import { useSharedCommunities } from '@/hooks/useCommunities'
 import { useAuth } from '@/contexts/AuthContext'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
@@ -25,6 +26,15 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
   const { data: card, isLoading, error } = useCard(cardId)
   const deleteCardMutation = useDeleteCard()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [checkingShared, setCheckingShared] = useState(false)
+
+  // Hook برای بررسی کامیونیتی مشترک - فقط وقتی کاربر لاگین کرده و کارت بارگذاری شده
+  const ownerId = card?.owner?.id
+  const shouldCheckShared = !!user && !!ownerId && user.id !== ownerId
+  const { data: sharedData, isLoading: sharedLoading } = useSharedCommunities(
+    ownerId || 0,
+    shouldCheckShared
+  )
 
   const handleDelete = async () => {
     try {
@@ -37,10 +47,46 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
   }
 
   const handleSendMessage = () => {
-    if (card) {
+    if (!card || !user) {
+      // اگر لاگین نکرده به صفحه لاگین هدایت شود
+      router.push('/auth/login')
+      return
+    }
+
+    // اگر صاحب کارت خود کاربر است
+    if (user.id === card.owner.id) {
+      showToast('warning', 'نمی‌توانید به خودتان پیام ارسال کنید')
+      return
+    }
+
+    setCheckingShared(true)
+    
+    // اگر داده‌ها هنوز بارگذاری نشده، صبر کنید
+    if (sharedLoading) {
+      return
+    }
+
+    // بررسی کامیونیتی مشترک
+    if (sharedData?.has_shared_community) {
+      // کامیونیتی مشترک دارند - به صفحه پیام هدایت شود
       router.push(`/messages/${card.owner.id}`)
+    } else {
+      // کامیونیتی مشترک ندارند - به صفحه عضویت هدایت شود
+      router.push(`/cards/${cardId}/join-community`)
     }
   }
+
+  // وقتی داده‌های shared بارگذاری شد و در حالت checking هستیم
+  useEffect(() => {
+    if (checkingShared && !sharedLoading && sharedData && card) {
+      if (sharedData.has_shared_community) {
+        router.push(`/messages/${card.owner.id}`)
+      } else {
+        router.push(`/cards/${cardId}/join-community`)
+      }
+      setCheckingShared(false)
+    }
+  }, [checkingShared, sharedLoading, sharedData, card, cardId, router])
 
   if (isLoading) {
     return (
@@ -118,7 +164,12 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
                 </Button>
               </div>
             ) : (
-              <Button onClick={handleSendMessage} className="w-full sm:w-auto">
+              <Button 
+                onClick={handleSendMessage} 
+                className="w-full sm:w-auto"
+                isLoading={checkingShared || sharedLoading}
+                disabled={checkingShared || sharedLoading}
+              >
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>

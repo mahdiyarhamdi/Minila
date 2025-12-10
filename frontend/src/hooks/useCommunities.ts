@@ -13,6 +13,28 @@ export function useCommunities(page: number = 1, page_size: number = 20) {
 }
 
 /**
+ * Hook برای بررسی کامیونیتی مشترک با یک کاربر
+ */
+export function useSharedCommunities(userId: number, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ['shared-communities', userId],
+    queryFn: () => apiService.checkSharedCommunities(userId),
+    enabled: !!userId && enabled,
+  })
+}
+
+/**
+ * Hook برای دریافت کامیونیتی‌های یک کاربر
+ */
+export function useUserCommunities(userId: number, page: number = 1, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ['user-communities', userId, page],
+    queryFn: () => apiService.getUserCommunities(userId, page),
+    enabled: !!userId && enabled,
+  })
+}
+
+/**
  * Hook برای دریافت جزئیات یک کامیونیتی
  */
 export function useCommunity(id: number) {

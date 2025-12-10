@@ -519,6 +519,29 @@ class APIService {
     )
     return response.data
   }
+
+  // ==================== Shared Communities API ====================
+
+  /**
+   * بررسی وجود کامیونیتی مشترک با کاربر
+   */
+  async checkSharedCommunities(userId: number): Promise<{ has_shared_community: boolean; user_id: number }> {
+    const response = await this.client.get<{ has_shared_community: boolean; user_id: number }>(
+      `/api/v1/users/${userId}/shared-communities`
+    )
+    return response.data
+  }
+
+  /**
+   * دریافت کامیونیتی‌های یک کاربر
+   */
+  async getUserCommunities(userId: number, page: number = 1, pageSize: number = 50): Promise<CommunityListResponse> {
+    const response = await this.client.get<CommunityListResponse>(
+      `/api/v1/users/${userId}/communities`,
+      { params: { page, page_size: pageSize } }
+    )
+    return response.data
+  }
 }
 
 export const apiService = new APIService()

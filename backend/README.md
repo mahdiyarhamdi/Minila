@@ -181,6 +181,8 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `GET` | `/me/blocked` | لیست کاربران بلاک شده | ✅ |
 | `POST` | `/block/{user_id}` | بلاک کردن کاربر | ✅ |
 | `DELETE` | `/block/{user_id}` | آنبلاک کردن کاربر | ✅ |
+| `GET` | `/{user_id}/shared-communities` | بررسی وجود کامیونیتی مشترک با کاربر | ✅ |
+| `GET` | `/{user_id}/communities` | لیست کامیونیتی‌های یک کاربر (با وضعیت عضویت/درخواست کاربر جاری) | ✅ |
 
 ### Communities (`/api/v1/communities`)
 
@@ -555,6 +557,6 @@ pip install -r requirements.txt
 
 ---
 
-**نسخه**: 0.3.0  
-**آخرین به‌روزرسانی**: 2025-11-30
+**نسخه**: 0.3.1  
+**آخرین به‌روزرسانی**: 2025-12-10
 

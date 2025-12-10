@@ -484,3 +484,132 @@ async def unblock_user(
     await db.execute(delete_stmt)
     await db.commit()
 
+
+@router.get(
+    "/{user_id}/shared-communities",
+    status_code=status.HTTP_200_OK,
+    summary="بررسی کامیونیتی مشترک با کاربر",
+    description="""
+بررسی اینکه آیا کاربر جاری با کاربر مشخص شده کامیونیتی مشترک دارد یا خیر.
+
+**احراز هویت**: نیاز به JWT access token در هدر Authorization
+
+این endpoint برای بررسی امکان ارسال پیام قبل از ورود به صفحه گفتگو استفاده می‌شود.
+    """
+)
+async def check_shared_communities(
+    user_id: int,
+    current_user: CurrentUser,
+    db: DBSession
+) -> dict:
+    """بررسی کامیونیتی مشترک با کاربر دیگر."""
+    current_user_id = current_user["user_id"]
+    
+    # بررسی وجود کاربر
+    user_query = select(User).where(User.id == user_id)
+    user_result = await db.execute(user_query)
+    target_user = user_result.scalar_one_or_none()
+    
+    if not target_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="کاربر یافت نشد"
+        )
+    
+    # خود کاربر همیشه true
+    if current_user_id == user_id:
+        return {
+            "has_shared_community": True,
+            "user_id": user_id
+        }
+    
+    # بررسی کامیونیتی مشترک
+    has_shared = await community_repo.check_common_membership(db, current_user_id, user_id)
+    
+    return {
+        "has_shared_community": has_shared,
+        "user_id": user_id
+    }
+
+
+@router.get(
+    "/{user_id}/communities",
+    status_code=status.HTTP_200_OK,
+    summary="دریافت کامیونیتی‌های یک کاربر",
+    description="""
+دریافت لیست کامیونیتی‌هایی که کاربر مشخص شده در آن‌ها عضو است.
+
+**احراز هویت**: نیاز به JWT access token در هدر Authorization
+
+این endpoint برای نمایش کامیونیتی‌های صاحب کارت استفاده می‌شود 
+تا کاربر بتواند برای عضویت در آن‌ها درخواست ارسال کند.
+
+برای هر کامیونیتی اطلاعات عضویت و درخواست pending کاربر جاری نیز برگردانده می‌شود.
+    """
+)
+async def get_user_communities(
+    user_id: int,
+    current_user: CurrentUser,
+    db: DBSession,
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20
+) -> PaginatedResponse[CommunityOut]:
+    """دریافت کامیونیتی‌های یک کاربر."""
+    current_user_id = current_user["user_id"]
+    
+    # بررسی وجود کاربر
+    user_query = select(User).where(User.id == user_id)
+    user_result = await db.execute(user_query)
+    target_user = user_result.scalar_one_or_none()
+    
+    if not target_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="کاربر یافت نشد"
+        )
+    
+    # دریافت عضویت‌های کاربر هدف
+    memberships = await membership_repo.get_user_memberships(db, user_id)
+    
+    # ساخت لیست کامیونیتی‌ها با اطلاعات کامل
+    communities = []
+    for membership in memberships:
+        community = membership.community
+        if community:
+            # بارگذاری relationها
+            await db.refresh(community, attribute_names=["owner", "avatar"])
+            
+            # محاسبه member_count
+            community.member_count = await community_repo.get_member_count(db, community.id)
+            
+            # بررسی عضویت و درخواست pending کاربر جاری
+            current_user_membership = await membership_repo.get_membership(db, current_user_id, community.id)
+            if current_user_membership:
+                community.is_member = True
+                if current_user_membership.role:
+                    community.my_role = current_user_membership.role.name
+                else:
+                    community.my_role = "member"
+            else:
+                community.is_member = False
+                community.my_role = None
+            
+            # بررسی درخواست pending
+            has_pending = await membership_repo.has_pending_request(db, current_user_id, community.id)
+            community.has_pending_request = has_pending
+            
+            communities.append(community)
+    
+    # Pagination دستی
+    total = len(communities)
+    start = (page - 1) * page_size
+    end = start + page_size
+    paginated_communities = communities[start:end]
+    
+    return PaginatedResponse.create(
+        items=paginated_communities,
+        total=total,
+        page=page,
+        page_size=page_size
+    )
+

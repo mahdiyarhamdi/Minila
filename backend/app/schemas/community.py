@@ -73,6 +73,7 @@ class CommunityOut(BaseModel):
     member_count: int = Field(default=0, description="تعداد اعضای فعال")
     is_member: Optional[bool] = Field(default=None, description="آیا کاربر فعلی عضو است")
     my_role: Optional[str] = Field(default=None, description="نقش کاربر فعلی (owner, manager, moderator, member)")
+    has_pending_request: Optional[bool] = Field(default=None, description="آیا درخواست عضویت در انتظار وجود دارد")
     created_at: datetime
     updated_at: datetime
     
@@ -89,6 +90,7 @@ class CommunityOut(BaseModel):
                 "member_count": 150,
                 "is_member": True,
                 "my_role": "member",
+                "has_pending_request": False,
                 "created_at": "2024-01-01T12:00:00",
                 "updated_at": "2024-01-01T12:00:00"
             }

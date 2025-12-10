@@ -20,6 +20,7 @@ export interface Community {
   member_count?: number
   is_member?: boolean
   my_role?: 'owner' | 'member' | 'manager' | 'moderator' | null
+  has_pending_request?: boolean
   created_at: string
   updated_at: string
 }

@@ -854,3 +854,289 @@ class TestBlockUser:
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
+
+
+# ==================== GET /api/v1/users/{user_id}/shared-communities ====================
+
+class TestSharedCommunities:
+    """Test cases for checking shared communities between users."""
+
+    @pytest.mark.asyncio
+    async def test_check_shared_communities_no_common(
+        self,
+        client: AsyncClient,
+        test_user: dict,
+        test_user2: dict,
+        auth_headers: dict
+    ):
+        """Test checking shared communities when users have no common community."""
+        # Act
+        response = await client.get(
+            f"/api/v1/users/{test_user2['user_id']}/shared-communities",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "has_shared_community" in data
+        assert "user_id" in data
+        assert data["user_id"] == test_user2["user_id"]
+        # Since users don't share any community by default
+        assert data["has_shared_community"] is False
+
+    @pytest.mark.asyncio
+    async def test_check_shared_communities_with_self(
+        self,
+        client: AsyncClient,
+        test_user: dict,
+        auth_headers: dict
+    ):
+        """Test checking shared communities with self always returns true."""
+        # Act
+        response = await client.get(
+            f"/api/v1/users/{test_user['user_id']}/shared-communities",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["has_shared_community"] is True
+        assert data["user_id"] == test_user["user_id"]
+
+    @pytest.mark.asyncio
+    async def test_check_shared_communities_with_common_membership(
+        self,
+        client: AsyncClient,
+        test_user: dict,
+        test_user2: dict,
+        test_community: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test checking shared communities when users share a community."""
+        # Arrange - Create join request and approve it
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert join_response.status_code == 201
+        request_id = join_response.json()["id"]
+        
+        # Approve the request (as owner)
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/requests/{request_id}/approve",
+            headers=auth_headers
+        )
+        
+        # Act - Check shared communities
+        response = await client.get(
+            f"/api/v1/users/{test_user2['user_id']}/shared-communities",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["has_shared_community"] is True
+
+    @pytest.mark.asyncio
+    async def test_check_shared_communities_user_not_found(
+        self,
+        client: AsyncClient,
+        auth_headers: dict
+    ):
+        """Test checking shared communities with non-existent user returns 404."""
+        # Act
+        response = await client.get(
+            "/api/v1/users/999999/shared-communities",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 404
+        assert "یافت نشد" in response.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_check_shared_communities_without_auth(
+        self,
+        client: AsyncClient,
+        test_user2: dict
+    ):
+        """Test checking shared communities without authentication returns 401."""
+        # Act
+        response = await client.get(
+            f"/api/v1/users/{test_user2['user_id']}/shared-communities"
+        )
+        
+        # Assert
+        assert response.status_code == 401
+
+
+# ==================== GET /api/v1/users/{user_id}/communities ====================
+
+class TestGetUserCommunities:
+    """Test cases for getting a user's communities."""
+
+    @pytest.mark.asyncio
+    async def test_get_user_communities_success(
+        self,
+        client: AsyncClient,
+        test_user: dict,
+        test_community: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test successful retrieval of user's communities."""
+        # Act - Get communities of test_user (who owns test_community)
+        response = await client.get(
+            f"/api/v1/users/{test_user['user_id']}/communities",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "items" in data
+        assert "total" in data
+        assert "page" in data
+        assert "page_size" in data
+        assert data["total"] >= 1
+        
+        # Verify community structure
+        communities = data["items"]
+        assert len(communities) >= 1
+        community = communities[0]
+        assert "id" in community
+        assert "name" in community
+        assert "is_member" in community
+        assert "has_pending_request" in community
+
+    @pytest.mark.asyncio
+    async def test_get_user_communities_shows_membership_status(
+        self,
+        client: AsyncClient,
+        test_user: dict,
+        test_user2: dict,
+        test_community: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test that communities include current user's membership status."""
+        # Arrange - User2 joins user's community
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert join_response.status_code == 201
+        request_id = join_response.json()["id"]
+        
+        # Approve the request
+        await client.post(
+            f"/api/v1/communities/{test_community['id']}/requests/{request_id}/approve",
+            headers=auth_headers
+        )
+        
+        # Act - Get user1's communities as user2
+        response = await client.get(
+            f"/api/v1/users/{test_user['user_id']}/communities",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        communities = data["items"]
+        
+        # Find the test community and check is_member is True
+        test_comm = next((c for c in communities if c["id"] == test_community["id"]), None)
+        assert test_comm is not None
+        assert test_comm["is_member"] is True
+
+    @pytest.mark.asyncio
+    async def test_get_user_communities_shows_pending_request(
+        self,
+        client: AsyncClient,
+        test_user: dict,
+        test_user2: dict,
+        test_community: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test that communities include pending request status."""
+        # Arrange - User2 sends join request (don't approve)
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert join_response.status_code == 201
+        
+        # Act - Get user1's communities as user2
+        response = await client.get(
+            f"/api/v1/users/{test_user['user_id']}/communities",
+            headers=auth_headers_user2
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        communities = data["items"]
+        
+        # Find the test community and check has_pending_request
+        test_comm = next((c for c in communities if c["id"] == test_community["id"]), None)
+        assert test_comm is not None
+        assert test_comm["has_pending_request"] is True
+        assert test_comm["is_member"] is False
+
+    @pytest.mark.asyncio
+    async def test_get_user_communities_user_not_found(
+        self,
+        client: AsyncClient,
+        auth_headers: dict
+    ):
+        """Test getting communities of non-existent user returns 404."""
+        # Act
+        response = await client.get(
+            "/api/v1/users/999999/communities",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 404
+        assert "یافت نشد" in response.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_get_user_communities_without_auth(
+        self,
+        client: AsyncClient,
+        test_user: dict
+    ):
+        """Test getting user communities without authentication returns 401."""
+        # Act
+        response = await client.get(
+            f"/api/v1/users/{test_user['user_id']}/communities"
+        )
+        
+        # Assert
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_get_user_communities_empty(
+        self,
+        client: AsyncClient,
+        test_user2: dict,
+        auth_headers: dict
+    ):
+        """Test getting communities of user with no communities."""
+        # Act - Get communities of user2 who doesn't own/belong to any community
+        response = await client.get(
+            f"/api/v1/users/{test_user2['user_id']}/communities",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 0
+        assert data["items"] == []
