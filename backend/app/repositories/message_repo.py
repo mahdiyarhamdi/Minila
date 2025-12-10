@@ -78,7 +78,7 @@ async def get_inbox(
             selectinload(Message.sender),
             selectinload(Message.receiver)
         )
-        .order_by(Message.created_at.desc())
+        .order_by(Message.created_at.desc(), Message.id.desc())
         .limit(page_size)
         .offset(offset)
     )
@@ -120,7 +120,7 @@ async def get_sent(
             selectinload(Message.sender),
             selectinload(Message.receiver)
         )
-        .order_by(Message.created_at.desc())
+        .order_by(Message.created_at.desc(), Message.id.desc())
         .limit(page_size)
         .offset(offset)
     )
@@ -172,7 +172,7 @@ async def get_conversation(
             selectinload(Message.sender),
             selectinload(Message.receiver)
         )
-        .order_by(Message.created_at.desc())
+        .order_by(Message.created_at.desc(), Message.id.desc())
         .limit(page_size)
         .offset(offset)
     )

@@ -144,7 +144,7 @@ class TestCreateCard:
         
         assert card.id == 1
         # Check that communities were added
-        mock_card_repo.add_card_communities.assert_called_once()
+        mock_card_repo.add_communities.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -173,7 +173,7 @@ class TestUpdateCard:
                     weight=10.5
                 )
         
-        mock_card_repo.update.assert_called_once()
+        mock_card_repo.update_card.assert_called_once()
         mock_log_service.log_event.assert_called_once()
     
     async def test_update_card_not_found(self, mock_db_session, mock_card_repo):
@@ -217,6 +217,7 @@ class TestDeleteCard:
         """تست حذف کارت موفق."""
         mock_card = Card(id=1, owner_id=1, is_sender=True)
         mock_card_repo.get_by_id.return_value = mock_card
+        mock_card_repo.delete_card.return_value = True
         
         with patch('app.services.card_service.card_repo', mock_card_repo):
             with patch('app.services.card_service.log_service', mock_log_service):
@@ -227,7 +228,7 @@ class TestDeleteCard:
                 )
         
         assert result is True
-        mock_card_repo.delete.assert_called_once()
+        mock_card_repo.delete_card.assert_called_once()
         mock_log_service.log_event.assert_called_once()
     
     async def test_delete_card_not_found(self, mock_db_session, mock_card_repo):

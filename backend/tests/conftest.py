@@ -627,6 +627,8 @@ def mock_user_repo():
     repo.email_exists = AsyncMock()
     repo.create = AsyncMock()
     repo.update = AsyncMock()
+    repo.update_user = AsyncMock()
+    repo.update_password = AsyncMock()
     repo.update_otp = AsyncMock()
     repo.set_email_verified = AsyncMock()
     return repo
@@ -675,7 +677,10 @@ def mock_card_repo():
     repo.get_by_id = AsyncMock()
     repo.create = AsyncMock()
     repo.update = AsyncMock()
+    repo.update_card = AsyncMock()
     repo.delete = AsyncMock()
+    repo.delete_card = AsyncMock()
+    repo.add_communities = AsyncMock()
     return repo
 
 
