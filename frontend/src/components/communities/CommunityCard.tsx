@@ -5,15 +5,48 @@ import Badge from '../Badge'
 interface CommunityCardProps {
   id: number
   name: string
+  slug: string
   bio?: string
   member_count?: number
   is_member?: boolean
+  my_role?: 'owner' | 'member' | 'manager' | 'moderator' | null
+}
+
+/**
+ * تبدیل نقش به متن فارسی
+ */
+function getRoleLabel(role: string | null | undefined): string {
+  switch (role) {
+    case 'owner':
+      return 'مالک'
+    case 'manager':
+      return 'مدیر'
+    case 'moderator':
+      return 'ناظر'
+    case 'member':
+    default:
+      return 'عضو'
+  }
+}
+
+/**
+ * تعیین variant بر اساس نقش
+ */
+function getRoleVariant(role: string | null | undefined): 'success' | 'warning' | 'neutral' {
+  switch (role) {
+    case 'owner':
+      return 'warning' // طلایی برای مالک
+    case 'manager':
+      return 'success' // سبز برای مدیر
+    default:
+      return 'neutral' // خنثی برای عضو
+  }
 }
 
 /**
  * CommunityCard - کارت کامیونیتی
  */
-export default function CommunityCard({ id, name, bio, member_count, is_member }: CommunityCardProps) {
+export default function CommunityCard({ id, name, slug, bio, member_count, is_member, my_role }: CommunityCardProps) {
   return (
     <Link href={`/communities/${id}`}>
       <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer h-full">
@@ -29,14 +62,19 @@ export default function CommunityCard({ id, name, bio, member_count, is_member }
           </svg>
         </div>
 
-        {/* Name */}
-        <div className="flex items-start justify-between mb-2">
+        {/* Name and Slug */}
+        <div className="flex items-start justify-between mb-1">
           <h3 className="text-lg font-bold text-neutral-900">{name}</h3>
-          {is_member && (
-            <Badge variant="success" size="sm">
-              عضو
+          {(is_member || my_role) && (
+            <Badge variant={getRoleVariant(my_role)} size="sm">
+              {getRoleLabel(my_role)}
             </Badge>
           )}
+        </div>
+        
+        {/* Slug */}
+        <div className="mb-2">
+          <code className="text-xs font-mono text-neutral-500" dir="ltr">@{slug}</code>
         </div>
 
         {/* Description */}

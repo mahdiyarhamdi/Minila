@@ -372,6 +372,7 @@ async def test_community(test_db: AsyncSession, test_user: dict, seed_roles: dic
     
     community = Community(
         name="Test Community",
+        slug="test_community",
         bio="A test community for unit tests",
         owner_id=test_user["user_id"]
     )
@@ -392,6 +393,7 @@ async def test_community(test_db: AsyncSession, test_user: dict, seed_roles: dic
     return {
         "id": community.id,
         "name": community.name,
+        "slug": community.slug,
         "bio": community.bio,
         "owner_id": community.owner_id
     }
@@ -414,6 +416,7 @@ async def test_community2(test_db: AsyncSession, test_user2: dict, seed_roles: d
     
     community = Community(
         name="Test Community 2",
+        slug="test_community_2",
         bio="A second test community",
         owner_id=test_user2["user_id"]
     )
@@ -434,6 +437,7 @@ async def test_community2(test_db: AsyncSession, test_user2: dict, seed_roles: d
     return {
         "id": community.id,
         "name": community.name,
+        "slug": community.slug,
         "bio": community.bio,
         "owner_id": community.owner_id
     }

@@ -102,6 +102,7 @@ async def create_community(
     db: AsyncSession,
     owner_id: int,
     name: str,
+    slug: str,
     bio: Optional[str] = None,
     avatar_id: Optional[int] = None
 ) -> Community:
@@ -111,6 +112,7 @@ async def create_community(
         db: Database session
         owner_id: شناسه صاحب کامیونیتی
         name: نام کامیونیتی
+        slug: آیدی یکتای کامیونیتی
         bio: بیوگرافی
         avatar_id: شناسه آواتار
         
@@ -118,17 +120,22 @@ async def create_community(
         Community ایجادشده
         
     Raises:
-        ValueError: اگر نام تکراری باشد
+        ValueError: اگر نام یا slug تکراری باشد
     """
     # بررسی نام تکراری
     if await community_repo.name_exists(db, name):
         raise ValueError("این نام قبلاً استفاده شده است")
+    
+    # بررسی slug تکراری
+    if await community_repo.slug_exists(db, slug):
+        raise ValueError("این آیدی قبلاً استفاده شده است")
     
     # ساخت community
     community = await community_repo.create(
         db,
         owner_id=owner_id,
         name=name,
+        slug=slug,
         bio=bio,
         avatar_id=avatar_id
     )

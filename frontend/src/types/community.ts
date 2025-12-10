@@ -5,6 +5,7 @@
 export interface Community {
   id: number
   name: string
+  slug: string
   bio?: string
   avatar?: {
     id: number
@@ -25,8 +26,15 @@ export interface Community {
 
 export interface CommunityCreate {
   name: string
+  slug: string
   bio?: string
   avatar_id?: number
+}
+
+export interface SlugCheckResponse {
+  slug: string
+  available: boolean
+  message: string
 }
 
 export interface CommunityUpdate {

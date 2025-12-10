@@ -410,6 +410,52 @@ async def get_user_requests(
     return list(result.scalars().all())
 
 
+async def get_managed_communities_requests(
+    db: AsyncSession,
+    user_id: int
+) -> list[Request]:
+    """دریافت درخواست‌های عضویت کامیونیتی‌هایی که کاربر owner/manager آن‌هاست.
+    
+    Args:
+        db: Database session
+        user_id: شناسه کاربر (مدیر/مالک)
+        
+    Returns:
+        لیست درخواست‌های pending برای کامیونیتی‌های مدیریت‌شده
+    """
+    from ..models.community import Community
+    
+    # ابتدا کامیونیتی‌هایی که کاربر owner آن‌هاست
+    owner_communities_query = select(Community.id).where(Community.owner_id == user_id)
+    
+    # سپس کامیونیتی‌هایی که کاربر manager آن‌هاست
+    manager_communities_query = (
+        select(Membership.community_id)
+        .join(Role)
+        .where(Membership.user_id == user_id)
+        .where(Membership.is_active == True)
+        .where(Role.name == "manager")
+    )
+    
+    # ترکیب هر دو
+    from sqlalchemy import union_all
+    all_managed_communities = union_all(owner_communities_query, manager_communities_query).subquery()
+    
+    # دریافت درخواست‌های pending این کامیونیتی‌ها
+    query = (
+        select(Request)
+        .where(Request.community_id.in_(select(all_managed_communities.c.id)))
+        .where(Request.is_approved.is_(None))  # فقط pending
+        .options(
+            selectinload(Request.user),
+            selectinload(Request.community)
+        )
+        .order_by(Request.created_at.asc())  # قدیمی‌ترین اول
+    )
+    result = await db.execute(query)
+    return list(result.scalars().all())
+
+
 async def update_membership_role(
     db: AsyncSession,
     membership_id: int,

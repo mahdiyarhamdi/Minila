@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCreateCommunity } from '@/hooks/useCommunities'
 import Card from '@/components/Card'
@@ -9,6 +9,7 @@ import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
 import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
+import { apiService } from '@/lib/api'
 import type { CommunityCreate } from '@/types/community'
 
 /**
@@ -21,15 +22,95 @@ export default function NewCommunityPage() {
 
   const [formData, setFormData] = useState<CommunityCreate>({
     name: '',
+    slug: '',
     bio: '',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle')
+  const [slugMessage, setSlugMessage] = useState('')
+  const [slugCheckTimeout, setSlugCheckTimeout] = useState<NodeJS.Timeout | null>(null)
+
+  // تبدیل متن به slug معتبر
+  const normalizeSlug = (value: string): string => {
+    return value
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '')
+      .substring(0, 50)
+  }
+
+  // چک کردن در دسترس بودن slug
+  const checkSlugAvailability = useCallback(async (slug: string) => {
+    if (slug.length < 3) {
+      setSlugStatus('invalid')
+      setSlugMessage('آیدی باید حداقل 3 کاراکتر باشد')
+      return
+    }
+
+    setSlugStatus('checking')
+    setSlugMessage('در حال بررسی...')
+
+    try {
+      const result = await apiService.checkCommunitySlug(slug)
+      if (result.available) {
+        setSlugStatus('available')
+        setSlugMessage('این آیدی در دسترس است ✓')
+      } else {
+        setSlugStatus('taken')
+        setSlugMessage(result.message)
+      }
+    } catch {
+      setSlugStatus('invalid')
+      setSlugMessage('خطا در بررسی آیدی')
+    }
+  }, [])
+
+  // Handle slug input change with debounce
+  const handleSlugChange = useCallback((value: string) => {
+    const normalized = normalizeSlug(value)
+    setFormData(prev => ({ ...prev, slug: normalized }))
+    
+    if (errors.slug) {
+      setErrors(prev => ({ ...prev, slug: '' }))
+    }
+
+    // Clear previous timeout
+    if (slugCheckTimeout) {
+      clearTimeout(slugCheckTimeout)
+    }
+
+    if (normalized.length === 0) {
+      setSlugStatus('idle')
+      setSlugMessage('')
+      return
+    }
+
+    // Debounce API call
+    const timeout = setTimeout(() => {
+      checkSlugAvailability(normalized)
+    }, 500)
+    
+    setSlugCheckTimeout(timeout)
+  }, [slugCheckTimeout, checkSlugAvailability, errors.slug])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (slugCheckTimeout) {
+        clearTimeout(slugCheckTimeout)
+      }
+    }
+  }, [slugCheckTimeout])
 
   const handleChange = (field: keyof CommunityCreate, value: string) => {
+    if (field === 'slug') {
+      handleSlugChange(value)
+    } else {
     setFormData({ ...formData, [field]: value })
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' })
+      }
     }
   }
 
@@ -40,6 +121,18 @@ export default function NewCommunityPage() {
       newErrors.name = 'نام کامیونیتی الزامی است'
     } else if (formData.name.trim().length < 3) {
       newErrors.name = 'نام کامیونیتی باید حداقل 3 کاراکتر باشد'
+    }
+
+    if (!formData.slug.trim()) {
+      newErrors.slug = 'آیدی کامیونیتی الزامی است'
+    } else if (formData.slug.trim().length < 3) {
+      newErrors.slug = 'آیدی باید حداقل 3 کاراکتر باشد'
+    } else if (!/^[a-z][a-z0-9_]{2,49}$/.test(formData.slug)) {
+      newErrors.slug = 'آیدی باید با حرف انگلیسی شروع شود و فقط شامل حروف کوچک، اعداد و آندرلاین باشد'
+    } else if (slugStatus === 'taken') {
+      newErrors.slug = 'این آیدی قبلاً استفاده شده است'
+    } else if (slugStatus === 'checking') {
+      newErrors.slug = 'لطفاً صبر کنید تا بررسی آیدی تمام شود'
     }
 
     setErrors(newErrors)
@@ -58,8 +151,23 @@ export default function NewCommunityPage() {
       const newCommunity = await createMutation.mutateAsync(formData)
       showToast('success', 'کامیونیتی با موفقیت ایجاد شد')
       router.push(`/communities/${newCommunity.id}`)
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast('error', extractErrorMessage(error))
+    }
+  }
+
+  // رنگ وضعیت slug
+  const getSlugStatusColor = () => {
+    switch (slugStatus) {
+      case 'available':
+        return 'text-green-600'
+      case 'taken':
+      case 'invalid':
+        return 'text-red-600'
+      case 'checking':
+        return 'text-yellow-600'
+      default:
+        return 'text-neutral-500'
     }
   }
 
@@ -90,6 +198,28 @@ export default function NewCommunityPage() {
                 helperText="نامی واضح و توصیفی انتخاب کنید"
               />
 
+              {/* آیدی کامیونیتی */}
+              <div>
+                <Input
+                  label="آیدی کامیونیتی *"
+                  placeholder="مثلاً: tehran_travelers"
+                  value={formData.slug}
+                  onChange={(e) => handleChange('slug', e.target.value)}
+                  error={errors.slug}
+                  helperText="آیدی یکتا برای جستجو و اشتراک‌گذاری (فقط حروف انگلیسی کوچک، اعداد و آندرلاین)"
+                  dir="ltr"
+                  className="font-mono"
+                />
+                {slugMessage && !errors.slug && (
+                  <p className={`text-sm mt-1 ${getSlugStatusColor()}`}>
+                    {slugStatus === 'checking' && (
+                      <span className="inline-block animate-spin ml-1">⟳</span>
+                    )}
+                    {slugMessage}
+                  </p>
+                )}
+              </div>
+
               {/* توضیحات */}
               <Textarea
                 label="توضیحات"
@@ -119,6 +249,9 @@ export default function NewCommunityPage() {
                     <p className="font-light">
                       شما به‌عنوان سازنده، به‌صورت خودکار مدیر این کامیونیتی خواهید بود و می‌توانید درخواست‌های عضویت را بررسی کنید.
                     </p>
+                    <p className="font-light mt-2">
+                      <strong>آیدی کامیونیتی</strong> برای جستجو و اشتراک‌گذاری استفاده می‌شود و پس از ساخت قابل تغییر نیست.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -130,7 +263,12 @@ export default function NewCommunityPage() {
             <Button type="button" variant="ghost" onClick={() => router.back()} className="w-full sm:w-auto">
               انصراف
             </Button>
-            <Button type="submit" isLoading={createMutation.isPending} className="w-full sm:w-auto">
+            <Button 
+              type="submit" 
+              isLoading={createMutation.isPending}
+              disabled={slugStatus === 'checking' || slugStatus === 'taken'}
+              className="w-full sm:w-auto"
+            >
               ایجاد کامیونیتی
             </Button>
           </div>
@@ -139,4 +277,3 @@ export default function NewCommunityPage() {
     </div>
   )
 }
-

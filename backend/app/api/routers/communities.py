@@ -2,10 +2,11 @@
 from typing import Annotated, Optional
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from ...api.deps import DBSession, CurrentUser, get_current_user_optional
-from ...schemas.community import CommunityCreate, CommunityUpdate, CommunityOut
+from ...schemas.community import CommunityCreate, CommunityUpdate, CommunityOut, SlugCheckResponse
 from ...schemas.membership import MembershipOut, RequestOut, RequestApproveRejectIn
 from ...utils.pagination import PaginatedResponse, get_pagination_params
 from ...services import community_service
+from ...repositories import community_repo
 
 router = APIRouter(prefix="/api/v1/communities", tags=["communities"])
 
@@ -32,6 +33,57 @@ async def get_communities(
     return result
 
 
+@router.get(
+    "/check-slug/{slug}",
+    status_code=status.HTTP_200_OK,
+    response_model=SlugCheckResponse,
+    summary="بررسی در دسترس بودن آیدی",
+    description="""
+بررسی اینکه آیا یک آیدی (slug) در دسترس است یا قبلاً استفاده شده.
+
+**Authentication**: اختیاری
+
+فرمت آیدی:
+- باید با حرف انگلیسی شروع شود
+- فقط شامل حروف کوچک، اعداد و آندرلاین
+- حداقل 3 و حداکثر 50 کاراکتر
+    """
+)
+async def check_slug_availability(
+    slug: str,
+    db: DBSession
+) -> SlugCheckResponse:
+    """بررسی در دسترس بودن آیدی."""
+    import re
+    
+    slug = slug.lower().strip()
+    
+    # بررسی فرمت
+    pattern = r'^[a-z][a-z0-9_]{2,49}$'
+    if not re.match(pattern, slug):
+        return SlugCheckResponse(
+            slug=slug,
+            available=False,
+            message="فرمت نامعتبر: آیدی باید با حرف انگلیسی شروع شود و فقط شامل حروف کوچک، اعداد و آندرلاین باشد (3-50 کاراکتر)"
+        )
+    
+    # بررسی وجود
+    exists = await community_repo.slug_exists(db, slug)
+    
+    if exists:
+        return SlugCheckResponse(
+            slug=slug,
+            available=False,
+            message="این آیدی قبلاً استفاده شده است"
+        )
+    
+    return SlugCheckResponse(
+        slug=slug,
+        available=True,
+        message="این آیدی در دسترس است"
+    )
+
+
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
@@ -43,7 +95,7 @@ async def get_communities(
 **Authentication**: الزامی
 
 کاربر سازنده به‌صورت خودکار owner کامیونیتی می‌شود.
-نام کامیونیتی باید یکتا باشد.
+نام و آیدی کامیونیتی باید یکتا باشند.
     """
 )
 async def create_community(
@@ -57,6 +109,7 @@ async def create_community(
             db,
             owner_id=current_user["user_id"],
             name=data.name,
+            slug=data.slug,
             bio=data.bio,
             avatar_id=data.avatar_id
         )

@@ -18,10 +18,11 @@ export default function CommunitiesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const { data, isLoading, error } = useCommunities(page, 20)
 
-  // فیلتر بر اساس جست‌وجو
+  // فیلتر بر اساس جست‌وجو (نام، آیدی یا توضیحات)
   const filteredCommunities = data?.items.filter((community) =>
     community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    community.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    community.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    community.bio?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (

@@ -44,6 +44,16 @@ export function useMyJoinRequests() {
 }
 
 /**
+ * Hook برای دریافت درخواست‌های عضویت کامیونیتی‌های من (به‌عنوان owner/manager)
+ */
+export function useManagedCommunityRequests() {
+  return useQuery({
+    queryKey: ['managed-community-requests'],
+    queryFn: () => apiService.getManagedCommunityRequests(),
+  })
+}
+
+/**
  * Hook برای لغو درخواست عضویت
  */
 export function useCancelJoinRequest() {
@@ -141,6 +151,7 @@ export function useApproveJoinRequest() {
       queryClient.invalidateQueries({ queryKey: ['community-members', communityId] })
       queryClient.invalidateQueries({ queryKey: ['communities', communityId] })
       queryClient.invalidateQueries({ queryKey: ['my-join-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['managed-community-requests'] })
     },
   })
 }
@@ -157,6 +168,7 @@ export function useRejectJoinRequest() {
     onSuccess: (_, { communityId }) => {
       queryClient.invalidateQueries({ queryKey: ['join-requests', communityId] })
       queryClient.invalidateQueries({ queryKey: ['my-join-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['managed-community-requests'] })
     },
   })
 }

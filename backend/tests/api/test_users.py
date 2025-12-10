@@ -706,3 +706,151 @@ class TestGetMyJoinRequests:
         assert "id" in community
         assert "name" in community
         assert community["name"] == test_community["name"]
+
+
+# ==================== GET /api/v1/users/me/managed-requests ====================
+
+class TestGetManagedRequests:
+    """Test cases for getting join requests for communities user manages."""
+
+    @pytest.mark.asyncio
+    async def test_get_managed_requests_as_owner(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        test_user2: dict,
+        auth_headers: dict,
+        auth_headers_user2: dict
+    ):
+        """Test owner can see join requests for their community."""
+        # Arrange - Create a join request from user2 to community owned by test_user
+        join_response = await client.post(
+            f"/api/v1/communities/{test_community['id']}/join",
+            headers=auth_headers_user2
+        )
+        assert join_response.status_code == 201
+        
+        # Act - Get managed requests as owner
+        response = await client.get(
+            "/api/v1/users/me/managed-requests",
+            headers=auth_headers  # test_user is owner
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+        
+        # Verify structure
+        request_item = data[0]
+        assert "id" in request_item
+        assert "user" in request_item
+        assert "community" in request_item
+        assert request_item["user"]["id"] == test_user2["user_id"]
+        assert request_item["community"]["id"] == test_community["id"]
+
+    @pytest.mark.asyncio
+    async def test_get_managed_requests_empty_for_non_manager(
+        self, 
+        client: AsyncClient, 
+        auth_headers_user2: dict
+    ):
+        """Test user with no managed communities gets empty list."""
+        # Act
+        response = await client.get(
+            "/api/v1/users/me/managed-requests",
+            headers=auth_headers_user2  # user2 doesn't own any community
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 0
+
+    @pytest.mark.asyncio
+    async def test_get_managed_requests_without_auth(self, client: AsyncClient):
+        """Test getting managed requests without authentication returns 401."""
+        # Act
+        response = await client.get("/api/v1/users/me/managed-requests")
+        
+        # Assert
+        assert response.status_code == 401
+
+
+# ==================== Block/Unblock Users ====================
+
+class TestBlockUser:
+    """Test cases for blocking and unblocking users."""
+
+    @pytest.mark.asyncio
+    async def test_block_user_success(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict,
+        auth_headers: dict
+    ):
+        """Test successful user blocking."""
+        # Act
+        response = await client.post(
+            f"/api/v1/users/block/{test_user2['user_id']}",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 201 or response.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_block_user_without_auth(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict
+    ):
+        """Test blocking user without authentication returns 401."""
+        # Act
+        response = await client.post(f"/api/v1/users/block/{test_user2['user_id']}")
+        
+        # Assert
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_unblock_user_success(
+        self, 
+        client: AsyncClient, 
+        test_user2: dict,
+        auth_headers: dict
+    ):
+        """Test successful user unblocking."""
+        # Arrange - First block the user
+        await client.post(
+            f"/api/v1/users/block/{test_user2['user_id']}",
+            headers=auth_headers
+        )
+        
+        # Act
+        response = await client.delete(
+            f"/api/v1/users/block/{test_user2['user_id']}",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 204 or response.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_get_blocked_users(
+        self, 
+        client: AsyncClient, 
+        auth_headers: dict
+    ):
+        """Test getting list of blocked users."""
+        # Act
+        response = await client.get(
+            "/api/v1/users/me/blocked",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)

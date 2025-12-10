@@ -12,6 +12,7 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
+import { getCurrencyByCode } from '@/utils/currency'
 
 /**
  * صفحه جزئیات کارت
@@ -177,7 +178,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-sm font-medium text-neutral-600 mb-1">قیمت پیشنهادی</h3>
                 <p className="text-lg font-bold text-primary-600">
-                  {card.price_aed.toLocaleString('fa-IR')} درهم
+                  {card.price_aed.toLocaleString('fa-IR')} {getCurrencyByCode(card.currency || 'USD')?.nameFa || card.currency || 'دلار'}
                 </p>
               </div>
             )}

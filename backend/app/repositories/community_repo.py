@@ -94,10 +94,51 @@ async def get_by_name(
     return result.scalar_one_or_none()
 
 
+async def get_by_slug(
+    db: AsyncSession,
+    slug: str
+) -> Optional[Community]:
+    """دریافت کامیونیتی با slug.
+    
+    Args:
+        db: Database session
+        slug: آیدی یکتای کامیونیتی
+        
+    Returns:
+        کامیونیتی یا None
+    """
+    query = (
+        select(Community)
+        .where(Community.slug == slug.lower())
+        .options(
+            selectinload(Community.avatar),
+            selectinload(Community.owner)
+        )
+    )
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def slug_exists(db: AsyncSession, slug: str) -> bool:
+    """بررسی وجود slug کامیونیتی.
+    
+    Args:
+        db: Database session
+        slug: آیدی یکتای کامیونیتی
+        
+    Returns:
+        True اگر slug قبلاً ثبت شده باشد
+    """
+    query = select(Community.id).where(Community.slug == slug.lower())
+    result = await db.execute(query)
+    return result.scalar_one_or_none() is not None
+
+
 async def create(
     db: AsyncSession,
     owner_id: int,
     name: str,
+    slug: str,
     bio: Optional[str] = None,
     avatar_id: Optional[int] = None
 ) -> Community:
@@ -107,6 +148,7 @@ async def create(
         db: Database session
         owner_id: شناسه صاحب کامیونیتی
         name: نام کامیونیتی
+        slug: آیدی یکتای کامیونیتی
         bio: بیوگرافی (اختیاری)
         avatar_id: شناسه آواتار (اختیاری)
         
@@ -116,6 +158,7 @@ async def create(
     community = Community(
         owner_id=owner_id,
         name=name,
+        slug=slug.lower(),
         bio=bio,
         avatar_id=avatar_id
     )

@@ -4,13 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { useMyJoinRequests, useCancelJoinRequest } from '@/hooks/useCommunities'
+import { useMyJoinRequests, useCancelJoinRequest, useMyCommunities, useManagedCommunityRequests, useApproveJoinRequest, useRejectJoinRequest } from '@/hooks/useCommunities'
+import { useMyCards } from '@/hooks/useCards'
+import { useUnreadCount } from '@/hooks/useMessages'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import Badge from '@/components/Badge'
 import Input from '@/components/Input'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import Modal from '@/components/Modal'
+import Tabs from '@/components/Tabs'
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
@@ -19,8 +22,17 @@ export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading, isAuthenticated } = useAuth()
   const { data: joinRequests, isLoading: requestsLoading } = useMyJoinRequests()
+  const { data: managedRequests, isLoading: managedRequestsLoading } = useManagedCommunityRequests()
+  const { data: myCards } = useMyCards()
+  const { data: myCommunities } = useMyCommunities()
+  const { data: unreadCount } = useUnreadCount()
   const cancelRequestMutation = useCancelJoinRequest()
+  const approveRequestMutation = useApproveJoinRequest()
+  const rejectRequestMutation = useRejectJoinRequest()
   const { showToast } = useToast()
+
+  // State برای تب درخواست‌ها
+  const [requestsTab, setRequestsTab] = useState<'my' | 'managed'>('my')
 
   // State برای فرم تغییر رمز عبور
   const [oldPassword, setOldPassword] = useState('')
@@ -33,6 +45,15 @@ export default function DashboardPage() {
   // State برای لغو درخواست
   const [cancelRequestId, setCancelRequestId] = useState<number | null>(null)
   const [cancelCommunityName, setCancelCommunityName] = useState('')
+  
+  // State برای تایید/رد درخواست عضویت
+  const [actionRequest, setActionRequest] = useState<{
+    id: number
+    communityId: number
+    userName: string
+    communityName: string
+    action: 'approve' | 'reject'
+  } | null>(null)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -48,7 +69,30 @@ export default function DashboardPage() {
       showToast('success', 'درخواست عضویت لغو شد')
       setCancelRequestId(null)
       setCancelCommunityName('')
-    } catch (error: any) {
+    } catch (error: unknown) {
+      showToast('error', extractErrorMessage(error))
+    }
+  }
+
+  const handleRequestAction = async () => {
+    if (!actionRequest) return
+    
+    try {
+      if (actionRequest.action === 'approve') {
+        await approveRequestMutation.mutateAsync({
+          communityId: actionRequest.communityId,
+          requestId: actionRequest.id
+        })
+        showToast('success', `درخواست ${actionRequest.userName} تایید شد`)
+      } else {
+        await rejectRequestMutation.mutateAsync({
+          communityId: actionRequest.communityId,
+          requestId: actionRequest.id
+        })
+        showToast('success', `درخواست ${actionRequest.userName} رد شد`)
+      }
+      setActionRequest(null)
+    } catch (error: unknown) {
       showToast('error', extractErrorMessage(error))
     }
   }
@@ -127,136 +171,236 @@ export default function DashboardPage() {
 
         {/* کارت‌های اطلاعاتی */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card variant="bordered" className="p-6">
-            <h3 className="text-lg font-bold text-neutral-900 mb-2">کارت‌های من</h3>
-            <p className="text-3xl font-extrabold text-primary-600">0</p>
-            <p className="text-sm text-neutral-600 font-light mt-2">کارت فعال</p>
-          </Card>
+          <Link href="/dashboard/my-cards">
+            <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer">
+              <h3 className="text-lg font-bold text-neutral-900 mb-2">کارت‌های من</h3>
+              <p className="text-3xl font-extrabold text-primary-600">{myCards?.total ?? 0}</p>
+              <p className="text-sm text-neutral-600 font-light mt-2">کارت فعال</p>
+            </Card>
+          </Link>
 
-          <Card variant="bordered" className="p-6">
-            <h3 className="text-lg font-bold text-neutral-900 mb-2">پیام‌های دریافتی</h3>
-            <p className="text-3xl font-extrabold text-sand-400">0</p>
-            <p className="text-sm text-neutral-600 font-light mt-2">پیام جدید</p>
-          </Card>
+          <Link href="/messages">
+            <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer">
+              <h3 className="text-lg font-bold text-neutral-900 mb-2">پیام‌های دریافتی</h3>
+              <p className="text-3xl font-extrabold text-sand-400">{unreadCount ?? 0}</p>
+              <p className="text-sm text-neutral-600 font-light mt-2">پیام جدید</p>
+            </Card>
+          </Link>
 
-          <Card variant="bordered" className="p-6">
-            <h3 className="text-lg font-bold text-neutral-900 mb-2">کامیونیتی‌ها</h3>
-            <p className="text-3xl font-extrabold text-neutral-700">0</p>
-            <p className="text-sm text-neutral-600 font-light mt-2">عضویت فعال</p>
-          </Card>
+          <Link href="/dashboard/my-communities">
+            <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer">
+              <h3 className="text-lg font-bold text-neutral-900 mb-2">کامیونیتی‌ها</h3>
+              <p className="text-3xl font-extrabold text-neutral-700">{myCommunities?.total ?? 0}</p>
+              <p className="text-sm text-neutral-600 font-light mt-2">عضویت فعال</p>
+            </Card>
+          </Link>
         </div>
 
         {/* اکشن‌ها */}
         <Card variant="elevated" className="p-6">
           <h3 className="text-xl font-bold text-neutral-900 mb-4">شروع سریع</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-primary-500 hover:bg-primary-50 transition-all text-right">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary-100">
-                  <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-neutral-900 mb-1">ایجاد کارت جدید</h4>
-                  <p className="text-sm text-neutral-600 font-light">یک کارت سفر یا بار جدید بسازید</p>
+            <Link href="/cards/new">
+              <div className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-primary-500 hover:bg-primary-50 transition-all text-right cursor-pointer">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary-100">
+                    <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-neutral-900 mb-1">ایجاد کارت جدید</h4>
+                    <p className="text-sm text-neutral-600 font-light">یک کارت سفر یا بار جدید بسازید</p>
+                  </div>
                 </div>
               </div>
-            </button>
+            </Link>
 
-            <button className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-sand-400 hover:bg-sand-50 transition-all text-right">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-sand-100">
-                  <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-neutral-900 mb-1">پیوستن به کامیونیتی</h4>
-                  <p className="text-sm text-neutral-600 font-light">به یک کامیونیتی بپیوندید یا کامیونیتی جدید بسازید</p>
+            <Link href="/communities">
+              <div className="p-6 rounded-xl border-2 border-dashed border-neutral-300 hover:border-sand-400 hover:bg-sand-50 transition-all text-right cursor-pointer">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-sand-100">
+                    <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-neutral-900 mb-1">پیوستن به کامیونیتی</h4>
+                    <p className="text-sm text-neutral-600 font-light">به یک کامیونیتی بپیوندید یا کامیونیتی جدید بسازید</p>
+                  </div>
                 </div>
               </div>
-            </button>
+            </Link>
           </div>
         </Card>
 
-        {/* درخواست‌های عضویت من */}
+        {/* درخواست‌های عضویت */}
         <Card variant="bordered" className="mt-6 p-6">
-          <h3 className="text-xl font-bold text-neutral-900 mb-4">درخواست‌های عضویت من</h3>
+          <h3 className="text-xl font-bold text-neutral-900 mb-4">درخواست‌های عضویت</h3>
           
-          {requestsLoading ? (
-            <div className="flex justify-center py-8">
-              <LoadingSpinner />
-            </div>
-          ) : !joinRequests || joinRequests.length === 0 ? (
-            <div className="text-center py-8">
-              <svg className="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <p className="text-neutral-600 font-light mb-4">شما هیچ درخواست عضویتی ندارید</p>
-              <Link href="/communities">
-                <Button variant="ghost">مشاهده کامیونیتی‌ها</Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {joinRequests.map((request) => (
-                <div 
-                  key={request.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50/30 transition-all"
-                >
-                  <Link 
-                    href={`/communities/${request.community.id}`}
-                    className="flex items-center gap-3 flex-1"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-sand-100 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium text-neutral-900">{request.community.name}</p>
-                      <p className="text-sm text-neutral-600 font-light">
-                        {new Date(request.created_at).toLocaleDateString('fa-IR')}
-                      </p>
-                    </div>
-                  </Link>
-                  <div className="flex items-center gap-3">
-                    <Badge 
-                      variant={
-                        request.is_approved === null 
-                          ? 'neutral' 
-                          : request.is_approved 
-                            ? 'success' 
-                            : 'error'
-                      }
-                    >
-                      {request.is_approved === null 
-                        ? 'در انتظار' 
-                        : request.is_approved 
-                          ? 'تایید شده ✓' 
-                          : 'رد شده ✗'}
-                    </Badge>
-                    {/* دکمه لغو فقط برای درخواست‌های در انتظار */}
-                    {request.is_approved === null && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:bg-red-50"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setCancelRequestId(request.id)
-                          setCancelCommunityName(request.community.name)
-                        }}
-                      >
-                        لغو
-                      </Button>
-                    )}
+          <Tabs
+            tabs={[
+              { id: 'my', label: 'درخواست‌های من', count: joinRequests?.filter(r => r.is_approved === null).length },
+              { id: 'managed', label: 'درخواست‌های کامیونیتی‌ها', count: managedRequests?.length },
+            ]}
+            activeTab={requestsTab}
+            onChange={(tab) => setRequestsTab(tab as 'my' | 'managed')}
+          >
+            {/* تب درخواست‌های من */}
+            {requestsTab === 'my' && (
+              <>
+                {requestsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <LoadingSpinner />
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ) : !joinRequests || joinRequests.length === 0 ? (
+                  <div className="text-center py-8">
+                    <svg className="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="text-neutral-600 font-light mb-4">شما هیچ درخواست عضویتی ندارید</p>
+                    <Link href="/communities">
+                      <Button variant="ghost">مشاهده کامیونیتی‌ها</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {joinRequests.map((request) => (
+                      <div 
+                        key={request.id}
+                        className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50/30 transition-all"
+                      >
+                        <Link 
+                          href={`/communities/${request.community.id}`}
+                          className="flex items-center gap-3 flex-1"
+                        >
+                          <div className="w-12 h-12 rounded-full bg-sand-100 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-6 h-6 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-medium text-neutral-900">{request.community.name}</p>
+                            <p className="text-sm text-neutral-600 font-light">
+                              {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                            </p>
+                          </div>
+                        </Link>
+                        <div className="flex items-center gap-3">
+                          <Badge 
+                            variant={
+                              request.is_approved === null 
+                                ? 'neutral' 
+                                : request.is_approved 
+                                  ? 'success' 
+                                  : 'error'
+                            }
+                          >
+                            {request.is_approved === null 
+                              ? 'در انتظار' 
+                              : request.is_approved 
+                                ? 'تایید شده ✓' 
+                                : 'رد شده ✗'}
+                          </Badge>
+                          {/* دکمه لغو فقط برای درخواست‌های در انتظار */}
+                          {request.is_approved === null && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                setCancelRequestId(request.id)
+                                setCancelCommunityName(request.community.name)
+                              }}
+                            >
+                              لغو
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* تب درخواست‌های کامیونیتی‌ها (برای owner/manager) */}
+            {requestsTab === 'managed' && (
+              <>
+                {managedRequestsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <LoadingSpinner />
+                  </div>
+                ) : !managedRequests || managedRequests.length === 0 ? (
+                  <div className="text-center py-8">
+                    <svg className="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p className="text-neutral-600 font-light mb-4">درخواست عضویتی برای کامیونیتی‌های شما وجود ندارد</p>
+                    <p className="text-sm text-neutral-500">اگر مالک یا مدیر کامیونیتی هستید، درخواست‌های جدید اینجا نمایش داده می‌شوند</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {managedRequests.map((request) => (
+                      <div 
+                        key={request.id}
+                        className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-sand-300 hover:bg-sand-50/30 transition-all"
+                      >
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-primary-600 font-bold text-lg">
+                              {request.user.first_name[0]}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-neutral-900">
+                              {request.user.first_name} {request.user.last_name}
+                            </p>
+                            <p className="text-sm text-neutral-600 font-light">
+                              درخواست عضویت در <span className="font-medium">{request.community.name}</span>
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                              {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => setActionRequest({
+                              id: request.id,
+                              communityId: request.community.id,
+                              userName: `${request.user.first_name} ${request.user.last_name}`,
+                              communityName: request.community.name,
+                              action: 'approve'
+                            })}
+                          >
+                            تایید
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:bg-red-50"
+                            onClick={() => setActionRequest({
+                              id: request.id,
+                              communityId: request.community.id,
+                              userName: `${request.user.first_name} ${request.user.last_name}`,
+                              communityName: request.community.name,
+                              action: 'reject'
+                            })}
+                          >
+                            رد
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </Tabs>
         </Card>
 
         {/* اطلاعات کاربر */}
@@ -394,6 +538,52 @@ export default function DashboardPage() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Modal تایید/رد درخواست عضویت */}
+      <Modal
+        isOpen={actionRequest !== null}
+        onClose={() => setActionRequest(null)}
+        title={actionRequest?.action === 'approve' ? 'تایید درخواست عضویت' : 'رد درخواست عضویت'}
+        size="sm"
+      >
+        {actionRequest && (
+          <div className="space-y-4">
+            <p className="text-neutral-700">
+              {actionRequest.action === 'approve' ? (
+                <>
+                  آیا می‌خواهید درخواست عضویت <span className="font-medium text-neutral-900">{actionRequest.userName}</span> در کامیونیتی <span className="font-medium text-neutral-900">{actionRequest.communityName}</span> را تایید کنید؟
+                </>
+              ) : (
+                <>
+                  آیا می‌خواهید درخواست عضویت <span className="font-medium text-neutral-900">{actionRequest.userName}</span> در کامیونیتی <span className="font-medium text-neutral-900">{actionRequest.communityName}</span> را رد کنید؟
+                </>
+              )}
+            </p>
+            <p className="text-sm text-neutral-500">
+              {actionRequest.action === 'approve' 
+                ? 'کاربر پس از تایید به‌عنوان عضو به کامیونیتی اضافه می‌شود.'
+                : 'کاربر می‌تواند در آینده دوباره درخواست عضویت ارسال کند.'
+              }
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button 
+                variant="ghost" 
+                onClick={() => setActionRequest(null)}
+              >
+                انصراف
+              </Button>
+              <Button
+                variant="primary"
+                className={actionRequest.action === 'reject' ? 'bg-red-600 hover:bg-red-700' : ''}
+                onClick={handleRequestAction}
+                isLoading={approveRequestMutation.isPending || rejectRequestMutation.isPending}
+              >
+                {actionRequest.action === 'approve' ? 'تایید' : 'رد درخواست'}
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   )

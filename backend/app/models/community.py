@@ -1,4 +1,5 @@
 """Community model."""
+import re
 from typing import Optional
 from sqlalchemy import ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -11,11 +12,19 @@ class Community(BaseModel):
     __tablename__ = "community"
     __table_args__ = (
         Index("ix_community_owner_id", "owner_id"),
+        Index("ix_community_slug", "slug"),
     )
     
     # Fields
-    name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    slug: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    
+    @staticmethod
+    def validate_slug(slug: str) -> bool:
+        """بررسی فرمت معتبر slug (فقط حروف انگلیسی کوچک، اعداد و آندرلاین)."""
+        pattern = r'^[a-z][a-z0-9_]{2,49}$'
+        return bool(re.match(pattern, slug))
     
     # Foreign Keys
     avatar_id: Mapped[Optional[int]] = mapped_column(

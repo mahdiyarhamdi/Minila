@@ -174,15 +174,21 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `PATCH` | `/me` | ویرایش پروفایل | ✅ |
 | `PUT` | `/me/password` | تغییر رمز عبور | ✅ |
 | `GET` | `/me/cards` | لیست کارت‌های من (paginated) | ✅ |
+| `GET` | `/me/communities` | لیست کامیونیتی‌های من (paginated) | ✅ |
 | `GET` | `/me/join-requests` | لیست درخواست‌های عضویت من | ✅ |
+| `GET` | `/me/managed-requests` | درخواست‌های عضویت کامیونیتی‌هایی که owner/manager هستم | ✅ |
 | `DELETE` | `/me/join-requests/{id}` | لغو درخواست عضویت (فقط pending) | ✅ |
+| `GET` | `/me/blocked` | لیست کاربران بلاک شده | ✅ |
+| `POST` | `/block/{user_id}` | بلاک کردن کاربر | ✅ |
+| `DELETE` | `/block/{user_id}` | آنبلاک کردن کاربر | ✅ |
 
 ### Communities (`/api/v1/communities`)
 
 | Method | Endpoint | توضیح | Auth |
 |--------|----------|-------|------|
 | `GET` | `/` | لیست کامیونیتی‌ها (paginated) | ❌ |
-| `POST` | `/` | ایجاد کامیونیتی جدید | ✅ |
+| `GET` | `/check-slug/{slug}` | بررسی در دسترس بودن آیدی کامیونیتی | ❌ |
+| `POST` | `/` | ایجاد کامیونیتی جدید (با slug الزامی) | ✅ |
 | `GET` | `/{id}` | جزئیات کامیونیتی (با is_member و my_role) | ❌* |
 | `PATCH` | `/{id}` | ویرایش کامیونیتی (owner/manager) | ✅ |
 | `POST` | `/{id}/join` | درخواست عضویت | ✅ |
@@ -194,6 +200,13 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `DELETE` | `/{id}/members/{user_id}` | حذف عضو از کامیونیتی (owner/manager) | ✅ |
 
 *اگر کاربر لاگین کرده باشد، `is_member` و `my_role` در response نمایش داده می‌شوند.
+
+**آیدی کامیونیتی (slug)**:
+- هر کامیونیتی یک آیدی یکتا (`slug`) دارد که برای جستجو و اشتراک‌گذاری استفاده می‌شود
+- فرمت: فقط حروف انگلیسی کوچک، اعداد و آندرلاین (مثال: `tehran_travelers`)
+- باید با حرف انگلیسی شروع شود
+- حداقل 3 و حداکثر 50 کاراکتر
+- پس از ساخت قابل تغییر نیست
 
 **نقش‌های کامیونیتی**:
 - `owner`: مالک کامیونیتی (سازنده) - دسترسی کامل شامل تغییر نقش اعضا

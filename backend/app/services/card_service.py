@@ -99,12 +99,13 @@ async def create_card(
             raise ValueError("تاریخ پایان باید بعد از تاریخ شروع باشد")
     
     # Validation: برای sender باید بازه زمانی داشته باشد
-    if is_sender and not (start_time_frame and end_time_frame):
+    if is_sender and not (start_time_frame or end_time_frame):
         raise ValueError("برای کارت فرستنده باید بازه زمانی مشخص شود")
     
-    # Validation: برای traveler باید تاریخ دقیق داشته باشد
-    if not is_sender and not ticket_date_time:
-        raise ValueError("برای کارت مسافر باید تاریخ سفر مشخص شود")
+    # Validation: برای traveler باید تاریخ دقیق یا بازه زمانی داشته باشد
+    has_time_frame = start_time_frame or end_time_frame
+    if not is_sender and not ticket_date_time and not has_time_frame:
+        raise ValueError("برای کارت مسافر باید تاریخ سفر یا بازه زمانی مشخص شود")
     
     # ساخت کارت
     card_data = {
@@ -191,6 +192,9 @@ async def update_card(
         'end_time_frame', 'ticket_date_time', 'community_ids'
     }
     
+    # جدا کردن community_ids چون یک relation است نه یک column
+    community_ids = updates.pop('community_ids', None)
+    
     # حذف فقط فیلدهایی که None هستند و nullable نیستند
     updates_clean = {}
     for k, v in updates.items():
@@ -198,11 +202,15 @@ async def update_card(
             continue
         updates_clean[k] = v
     
-    if not updates_clean:
-        return card
+    updated_card = card
     
-    # اعمال تغییرات
-    updated_card = await card_repo.update_card(db, card_id, **updates_clean)
+    # اعمال تغییرات فیلدهای معمولی
+    if updates_clean:
+        updated_card = await card_repo.update_card(db, card_id, **updates_clean) or card
+    
+    # آپدیت کامیونیتی‌ها اگر مشخص شده
+    if community_ids is not None:
+        await card_repo.add_communities(db, card_id, community_ids)
     
     # ثبت لاگ
     await log_service.log_event(

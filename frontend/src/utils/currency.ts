@@ -102,16 +102,37 @@ export interface CurrencyOption {
 /**
  * Get currency options for dropdown based on origin and destination countries
  * Always includes USD as default, plus unique currencies from origin and destination
+ * If currentCurrency is provided, ensures it's in the options list
  */
 export function getCurrencyOptions(
   originIsoCode?: string,
-  destinationIsoCode?: string
+  destinationIsoCode?: string,
+  currentCurrency?: string
 ): CurrencyOption[] {
   const options: CurrencyOption[] = [
     { value: 'USD', label: `${USD_CURRENCY.nameFa} (${USD_CURRENCY.code})` },
   ]
   
   const addedCodes = new Set(['USD'])
+  
+  // Add current currency first (if editing and it's different from USD)
+  if (currentCurrency && currentCurrency !== 'USD') {
+    const currencyInfo = getCurrencyByCode(currentCurrency)
+    if (currencyInfo && !addedCodes.has(currencyInfo.code)) {
+      options.push({
+        value: currencyInfo.code,
+        label: `${currencyInfo.nameFa} (${currencyInfo.code})`,
+      })
+      addedCodes.add(currencyInfo.code)
+    } else if (!currencyInfo) {
+      // اگر در لیست نبود، باز هم اضافه کن با کد خالص
+      options.push({
+        value: currentCurrency,
+        label: currentCurrency,
+      })
+      addedCodes.add(currentCurrency)
+    }
+  }
   
   // Add origin country currency
   if (originIsoCode) {

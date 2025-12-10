@@ -108,10 +108,11 @@ class TestCreateCommunity:
         test_db: AsyncSession,
         seed_roles: dict
     ):
-        """Test successful community creation with owner auto-assigned."""
+        """Test successful community creation with owner auto-assigned and slug."""
         # Arrange
         payload = {
             "name": "New Community",
+            "slug": "new_community",
             "bio": "A brand new community for testing"
         }
         
@@ -126,6 +127,7 @@ class TestCreateCommunity:
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == payload["name"]
+        assert data["slug"] == payload["slug"]
         assert data["bio"] == payload["bio"]
         assert data["owner"]["id"] == test_user["user_id"]
         assert "id" in data
@@ -141,7 +143,33 @@ class TestCreateCommunity:
         # Arrange
         payload = {
             "name": test_community["name"],
+            "slug": "unique_slug_here",
             "bio": "Different bio but same name"
+        }
+        
+        # Act
+        response = await client.post(
+            "/api/v1/communities/", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 400
+
+    @pytest.mark.asyncio
+    async def test_create_community_duplicate_slug(
+        self, 
+        client: AsyncClient, 
+        test_community: dict,
+        auth_headers: dict
+    ):
+        """Test creating community with duplicate slug returns 400."""
+        # Arrange
+        payload = {
+            "name": "Unique Name Here",
+            "slug": test_community["slug"],
+            "bio": "Different name but same slug"
         }
         
         # Act
@@ -178,7 +206,7 @@ class TestCreateCommunity:
         """Test creating community with missing required field returns 422."""
         # Arrange
         payload = {
-            "bio": "Missing name field"
+            "bio": "Missing name and slug fields"
         }
         
         # Act
@@ -190,6 +218,88 @@ class TestCreateCommunity:
         
         # Assert
         assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_create_community_invalid_slug_format(
+        self, 
+        client: AsyncClient, 
+        auth_headers: dict
+    ):
+        """Test creating community with invalid slug format returns 422."""
+        # Arrange - slug with uppercase letters
+        payload = {
+            "name": "Test Community",
+            "slug": "Invalid_Slug",  # Contains uppercase
+            "bio": "Bio"
+        }
+        
+        # Act
+        response = await client.post(
+            "/api/v1/communities/", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_create_community_slug_starting_with_number(
+        self, 
+        client: AsyncClient, 
+        auth_headers: dict
+    ):
+        """Test creating community with slug starting with number returns 422."""
+        # Arrange - slug starting with number
+        payload = {
+            "name": "Test Community",
+            "slug": "123_test",  # Starts with number
+            "bio": "Bio"
+        }
+        
+        # Act
+        response = await client.post(
+            "/api/v1/communities/", 
+            json=payload, 
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 422
+
+
+# ==================== GET /api/v1/communities/check-slug/{slug} ====================
+
+class TestCheckSlug:
+    """Test cases for checking slug availability."""
+
+    @pytest.mark.asyncio
+    async def test_check_slug_available(self, client: AsyncClient):
+        """Test checking an available slug."""
+        # Act
+        response = await client.get("/api/v1/communities/check-slug/available_slug_123")
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["available"] is True
+        assert data["slug"] == "available_slug_123"
+
+    @pytest.mark.asyncio
+    async def test_check_slug_taken(
+        self, 
+        client: AsyncClient, 
+        test_community: dict
+    ):
+        """Test checking a taken slug."""
+        # Act
+        response = await client.get(f"/api/v1/communities/check-slug/{test_community['slug']}")
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["available"] is False
+        assert data["slug"] == test_community["slug"]
 
 
 # ==================== GET /api/v1/communities/{id} ====================

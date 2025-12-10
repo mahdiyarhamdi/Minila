@@ -131,12 +131,18 @@ export default function MyCardsPage() {
                 />
               </svg>
             }
-            title="کارتی یافت نشد"
-            description="شما هنوز کارتی ایجاد نکرده‌اید. اولین کارت خود را بسازید."
+            title={activeTab === 'expired' ? 'کارت منقضی شده‌ای ندارید' : 'کارتی یافت نشد'}
+            description={
+              activeTab === 'expired'
+                ? 'هیچ‌کدام از کارت‌های شما هنوز منقضی نشده‌اند.'
+                : 'شما هنوز کارتی ایجاد نکرده‌اید. اولین کارت خود را بسازید.'
+            }
             action={
+              activeTab !== 'expired' ? (
               <Link href="/cards/new">
                 <Button>ایجاد اولین کارت</Button>
               </Link>
+              ) : undefined
             }
           />
         )}

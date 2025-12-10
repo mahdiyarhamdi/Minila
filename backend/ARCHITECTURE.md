@@ -2,8 +2,8 @@
 
 > راهنمای جامع معماری لایه‌ای برای پلتفرم هماهنگی مسافر-بار
 
-**نسخه**: 0.4.0  
-**آخرین به‌روزرسانی**: 2025-11-29
+**نسخه**: 0.5.0  
+**آخرین به‌روزرسانی**: 2025-12-10
 
 ---
 
@@ -708,9 +708,10 @@ async def test_do_business_logic():
 ### 6. Community Models
 
 #### Community
-- `id`, `name` (unique), `bio`, `avatar_id` (FK), `owner_id` (FK), `created_at`, `updated_at`
+- `id`, `name`, `slug` (unique), `bio`, `avatar_id` (FK), `owner_id` (FK), `created_at`, `updated_at`
+- `slug`: آیدی یکتا برای جستجو و اشتراک‌گذاری (فقط حروف انگلیسی کوچک، اعداد و آندرلاین)
 - روابط: `owner` (many-to-one → User), `avatar` (many-to-one → Avatar)
-- Index: `owner_id`
+- Index: `owner_id`, `slug` (unique)
 
 #### Membership
 - `id`, `user_id` (FK), `community_id` (FK), `role_id` (FK), `is_active`, timestamps

@@ -111,6 +111,25 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                   )}
                 </div>
                 <p className="text-sm sm:text-base text-neutral-600 font-light mb-2 sm:mb-3">{community.bio}</p>
+                {/* آیدی کامیونیتی */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm text-neutral-500">@</span>
+                  <code className="text-sm font-mono text-neutral-700 bg-neutral-100 px-2 py-0.5 rounded" dir="ltr">
+                    {community.slug}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(community.slug)
+                      showToast('success', 'آیدی کپی شد')
+                    }}
+                    className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                    title="کپی آیدی"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-neutral-600">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

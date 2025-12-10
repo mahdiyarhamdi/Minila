@@ -168,10 +168,10 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     }
   }, [])
   
-  // گزینه‌های واحد پول بر اساس کشورهای مبدأ و مقصد
+  // گزینه‌های واحد پول بر اساس کشورهای مبدأ و مقصد (و ارز فعلی کارت)
   const currencyOptions = useMemo(() => {
-    return getCurrencyOptions(originCountry?.isoCode, destinationCountry?.isoCode)
-  }, [originCountry?.isoCode, destinationCountry?.isoCode])
+    return getCurrencyOptions(originCountry?.isoCode, destinationCountry?.isoCode, formData.currency)
+  }, [originCountry?.isoCode, destinationCountry?.isoCode, formData.currency])
 
   // جستجوی شهرها
   const searchCities = useCallback((countryId: number) => async (query: string): Promise<AutocompleteOption[]> => {

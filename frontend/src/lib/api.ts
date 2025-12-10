@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import type { SignupData, RequestOTPData, VerifyOTPData, AuthTokens, User } from '@/types/auth'
 import type { Card, CardCreate, CardUpdate, CardFilter, CardListResponse } from '@/types/card'
-import type { Community, CommunityCreate, CommunityUpdate, CommunityListResponse, JoinRequest, JoinRequestListResponse, Member, MemberListResponse } from '@/types/community'
+import type { Community, CommunityCreate, CommunityUpdate, CommunityListResponse, JoinRequest, JoinRequestListResponse, Member, MemberListResponse, SlugCheckResponse } from '@/types/community'
 import type { Message, MessageCreate, MessageListResponse, Conversation, ConversationListResponse } from '@/types/message'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -266,6 +266,14 @@ class APIService {
   }
 
   /**
+   * بررسی در دسترس بودن آیدی کامیونیتی
+   */
+  async checkCommunitySlug(slug: string): Promise<SlugCheckResponse> {
+    const response = await this.client.get<SlugCheckResponse>(`/api/v1/communities/check-slug/${slug}`)
+    return response.data
+  }
+
+  /**
    * ایجاد کامیونیتی جدید
    */
   async createCommunity(data: CommunityCreate): Promise<Community> {
@@ -302,6 +310,14 @@ class APIService {
    */
   async getMyJoinRequests(): Promise<JoinRequest[]> {
     const response = await this.client.get<JoinRequest[]>('/api/v1/users/me/join-requests')
+    return response.data
+  }
+
+  /**
+   * دریافت درخواست‌های عضویت کامیونیتی‌های من (به‌عنوان owner/manager)
+   */
+  async getManagedCommunityRequests(): Promise<JoinRequest[]> {
+    const response = await this.client.get<JoinRequest[]>('/api/v1/users/me/managed-requests')
     return response.data
   }
 
