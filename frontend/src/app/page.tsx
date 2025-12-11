@@ -1,25 +1,47 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import LandingNavbar from '@/components/landing/LandingNavbar'
+import HeroSection from '@/components/landing/HeroSection'
+import FeaturesSection from '@/components/landing/FeaturesSection'
+import HowItWorks from '@/components/landing/HowItWorks'
+import CardsCarousel from '@/components/landing/CardsCarousel'
+import CommunitiesCarousel from '@/components/landing/CommunitiesCarousel'
+import StatsSection from '@/components/landing/StatsSection'
+import CTASection from '@/components/landing/CTASection'
+import Footer from '@/components/landing/Footer'
 
-export default function Home() {
-  const router = useRouter()
-
-  useEffect(() => {
-    // چک کردن لاگین بودن کاربر
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      router.push('/dashboard')
-    } else {
-      router.push('/auth/login')
-    }
-  }, [router])
-
+/**
+ * Landing Page - صفحه اصلی مینیلا
+ */
+export default function LandingPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <LandingNavbar />
+
+      {/* Hero */}
+      <HeroSection />
+
+      {/* Features */}
+      <FeaturesSection />
+
+      {/* How It Works */}
+      <HowItWorks />
+
+      {/* Cards Carousel */}
+      <CardsCarousel />
+
+      {/* Communities Carousel */}
+      <CommunitiesCarousel />
+
+      {/* Statistics */}
+      <StatsSection />
+
+      {/* CTA */}
+      <CTASection />
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
-

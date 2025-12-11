@@ -9,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { useUnreadCount } from '@/hooks/useMessages'
 import Button from './Button'
 import LanguageSelector from './LanguageSelector'
+import Logo from './Logo'
 
 /**
  * Navbar - نوار ناوبری اصلی
@@ -50,8 +51,8 @@ export default function Navbar() {
     }
   }, [profileMenuOpen])
 
-  // Auth pages don't show Navbar
-  if (pathname?.startsWith('/auth')) {
+  // Auth pages and landing page don't show Navbar
+  if (pathname?.startsWith('/auth') || pathname === '/') {
     return null
   }
 
@@ -75,7 +76,8 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-neutral-900">Minila</h1>
+            <Logo variant="icon" size="sm" />
+            <span className="text-xl font-black text-neutral-900">Minila</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -6,13 +6,7 @@
    FONT DEFINITIONS
    ============================================ */
 
-/* Inter Font Family - English (from Google Fonts CDN) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&display=swap');
-
-/* Noto Sans Arabic Font Family - Arabic (from Google Fonts CDN) */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;300;400;500;600;700;800;900&display=swap');
-
-/* IRANYekan Font Family - Persian (local) */
+/* IRANYekan Font Family - All Languages (local) */
 @font-face {
   font-family: 'IRANYekan';
   src: url('/fonts/iranyekanwebthin.woff') format('woff');
@@ -48,6 +42,14 @@
 @font-face {
   font-family: 'IRANYekan';
   src: url('/fonts/iranyekanwebbold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekan';
+  src: url('/fonts/iranyekanwebbold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -73,18 +75,12 @@
    CSS VARIABLES FOR DYNAMIC FONT
    ============================================ */
 :root {
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family: 'IRANYekan', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Language-specific font families */
-html.lang-en {
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-html.lang-ar {
-  --font-family: 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
+/* All languages use IRANYekan */
+html.lang-en,
+html.lang-ar,
 html.lang-fa {
   --font-family: 'IRANYekan', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }

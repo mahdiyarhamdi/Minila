@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
+import LanguageSelector from '@/components/LanguageSelector'
+import Logo from '@/components/Logo'
 import { apiService } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -109,10 +111,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
-      {/* Logo and Title */}
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50 relative">
+      {/* Language Selector */}
+      <div className="absolute top-4 ltr:right-4 rtl:left-4 z-10">
+        <LanguageSelector />
+      </div>
+
+      {/* Logo */}
       <div className="text-center mb-6 sm:mb-8">
-        <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 mb-1 sm:mb-2">{t('app.name')}</h1>
+        <Logo variant="full" size="lg" className="mx-auto mb-2" />
         <p className="text-sm sm:text-base text-neutral-600 font-light">{t('app.tagline')}</p>
       </div>
 
@@ -300,7 +307,7 @@ export default function LoginPage() {
       {/* Footer */}
       <p className="mt-8 text-sm text-neutral-500 text-center font-light">
         {t('auth.login.termsNotice')}{' '}
-        <a href="#" className="text-primary-600 hover:underline font-normal">
+        <a href="/terms" className="text-primary-600 hover:underline font-normal">
           {t('auth.login.termsLink')}
         </a>
       </p>

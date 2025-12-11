@@ -8,24 +8,28 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
+import LanguageSelector from '@/components/LanguageSelector'
+import Logo from '@/components/Logo'
 import { apiService } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 
-// Schema برای validation
-const otpSchema = z.object({
-  otp_code: z.string().length(6, 'کد OTP باید 6 رقم باشد'),
-})
-
-type OTPFormData = z.infer<typeof otpSchema>
+type OTPFormData = { otp_code: string }
 
 export default function VerifyEmailPage() {
   const router = useRouter()
   const { login } = useAuth()
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [resendLoading, setResendLoading] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
+
+  // Schema برای validation
+  const otpSchema = z.object({
+    otp_code: z.string().length(6, t('auth.validation.otpLength')),
+  })
 
   useEffect(() => {
     const emailParam = searchParams.get('email')
@@ -53,11 +57,10 @@ export default function VerifyEmailPage() {
         email,
         otp_code: data.otp_code,
       })
-      // به‌روزرسانی state جهانی با اطلاعات کاربر
       await login(tokens.access_token, tokens.refresh_token)
       router.push('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'کد OTP نامعتبر یا منقضی شده است.')
+      setError(err.response?.data?.detail || t('errors.generic'))
     }
   }
 
@@ -67,51 +70,52 @@ export default function VerifyEmailPage() {
       setResendLoading(true)
       setResendMessage('')
       setError('')
-      
-      // فراخوانی signup دوباره با همان ایمیل (برای ارسال OTP جدید)
-      // Note: در واقعیت باید یک endpoint جداگانه برای resend داشته باشیم
-      // اما برای سادگی از همین استفاده می‌کنیم
-      setResendMessage('کد جدید ارسال شد')
+      setResendMessage(t('auth.otp.resendSuccess'))
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'خطا در ارسال مجدد کد')
+      setError(err.response?.data?.detail || t('errors.generic'))
     } finally {
       setResendLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
-      {/* لوگو و عنوان */}
-      <div className="text-center mb-6 sm:mb-8">
-        <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 mb-1 sm:mb-2">Minila</h1>
-        <p className="text-sm sm:text-base text-neutral-600 font-light">پلتفرم هماهنگی مسافر و بار</p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50 relative">
+      {/* Language Selector */}
+      <div className="absolute top-4 ltr:right-4 rtl:left-4 z-10">
+        <LanguageSelector />
       </div>
 
-      {/* کارت اصلی */}
+      {/* Logo */}
+      <div className="text-center mb-6 sm:mb-8">
+        <Logo variant="full" size="lg" className="mx-auto mb-2" />
+        <p className="text-sm sm:text-base text-neutral-600 font-light">{t('app.tagline')}</p>
+      </div>
+
+      {/* Main Card */}
       <Card variant="elevated" className="w-full max-w-md p-5 sm:p-8">
         <div className="mb-6">
           <button
             onClick={() => router.push('/auth/signup')}
             className="text-neutral-600 hover:text-neutral-900 text-sm flex items-center gap-1"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            بازگشت
+            {t('common.back')}
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold text-neutral-900 mb-2">تایید ایمیل</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.otp.title')}</h2>
         <p className="text-neutral-600 font-light mb-6">
-          کد 6 رقمی ارسال شده به <span className="font-medium" dir="ltr">{email}</span> را وارد کنید.
+          {t('auth.otp.subtitle', { email })}
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input
             {...register('otp_code')}
-            label="کد تایید"
+            label={t('auth.otp.codeLabel')}
             type="text"
-            placeholder="123456"
+            placeholder={t('auth.otp.codePlaceholder')}
             maxLength={6}
             error={errors.otp_code?.message}
             dir="ltr"
@@ -137,7 +141,7 @@ export default function VerifyEmailPage() {
             className="w-full"
             isLoading={isSubmitting}
           >
-            تایید و ورود
+            {t('auth.otp.submitButton')}
           </Button>
 
           <Button
@@ -148,18 +152,17 @@ export default function VerifyEmailPage() {
             onClick={handleResendOTP}
             isLoading={resendLoading}
           >
-            ارسال مجدد کد
+            {t('auth.otp.resendButton')}
           </Button>
         </form>
       </Card>
 
-      {/* فوتر */}
+      {/* Footer */}
       <p className="mt-8 text-sm text-neutral-500 text-center font-light">
-        با تایید ایمیل، شما{' '}
-        <a href="#" className="text-primary-600 hover:underline font-normal">
-          قوانین و مقررات
-        </a>{' '}
-        را می‌پذیرید.
+        {t('auth.signup.termsNotice')}{' '}
+        <a href="/terms" className="text-primary-600 hover:underline font-normal">
+          {t('auth.login.termsLink')}
+        </a>
       </p>
     </div>
   )

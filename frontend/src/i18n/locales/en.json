@@ -96,7 +96,8 @@
       "codeLabel": "Verification code",
       "codePlaceholder": "123456",
       "submitButton": "Verify and login",
-      "resendButton": "Resend code"
+      "resendButton": "Resend code",
+      "resendSuccess": "New code sent"
     },
     "validation": {
       "emailRequired": "Please enter a valid email",
@@ -433,6 +434,145 @@
     "hoursAgo": "{{count}} hours ago",
     "daysAgo": "{{count}} days ago",
     "weeksAgo": "{{count}} weeks ago"
+  },
+  "landing": {
+    "navbar": {
+      "features": "Features",
+      "howItWorks": "How it Works",
+      "cards": "Cards",
+      "communities": "Communities",
+      "login": "Login",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "title": "Connect Travelers with Cargo Senders",
+      "titleHighlight": "Effortlessly",
+      "subtitle": "Minila is a smart platform that connects travelers with spare luggage space to people who need to send packages. Safe, fast, and affordable.",
+      "cta": "Get Started Free",
+      "secondaryCta": "Browse Cards",
+      "trustedBy": "Trusted by thousands of users"
+    },
+    "features": {
+      "title": "Why Choose Minila?",
+      "subtitle": "Everything you need to coordinate cargo transportation",
+      "coordination": {
+        "title": "Quick Coordination",
+        "description": "Connect travelers to cargo senders instantly. Find the perfect match for your travel or shipping needs."
+      },
+      "communities": {
+        "title": "Trusted Communities",
+        "description": "Join specialized communities and connect with verified members who share your routes and interests."
+      },
+      "messaging": {
+        "title": "Secure Messaging",
+        "description": "Communicate directly and safely with other users through our built-in messaging system."
+      },
+      "search": {
+        "title": "Smart Filters",
+        "description": "Advanced search filters help you find exactly what you're looking for by route, date, weight, and more."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Get started in three simple steps",
+      "step1": {
+        "title": "Create Your Account",
+        "description": "Sign up with your email and verify your account to get started."
+      },
+      "step2": {
+        "title": "Create or Search Cards",
+        "description": "Post a travel card if you're a traveler, or search for available cards if you need to send cargo."
+      },
+      "step3": {
+        "title": "Connect & Coordinate",
+        "description": "Send messages, discuss details, and coordinate the perfect cargo delivery."
+      }
+    },
+    "cards": {
+      "title": "Recent Cards",
+      "subtitle": "Discover the latest travel and cargo opportunities",
+      "viewAll": "View All Cards",
+      "noCards": "No cards available yet"
+    },
+    "communities": {
+      "title": "Active Communities",
+      "subtitle": "Join communities and expand your network",
+      "viewAll": "View All Communities",
+      "members": "members",
+      "noCommunities": "No communities available yet"
+    },
+    "stats": {
+      "title": "Minila in Numbers",
+      "subtitle": "Growing every day",
+      "users": "Active Users",
+      "cards": "Cards Posted",
+      "communities": "Communities",
+      "connections": "Successful Connections"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Join thousands of users who trust Minila for their cargo coordination needs.",
+      "button": "Create Free Account"
+    },
+    "footer": {
+      "description": "Smart platform for coordination between travelers and cargo senders.",
+      "quickLinks": "Quick Links",
+      "legal": "Legal",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "home": "Home",
+      "about": "About Us",
+      "contact": "Contact",
+      "copyright": "© 2024 Minila. All rights reserved."
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms and Conditions",
+      "lastUpdated": "Last updated: December 2024",
+      "sections": {
+        "introduction": {
+          "title": "1. Introduction and Acceptance of Terms",
+          "content": "Welcome to Minila. By accessing or using our platform, you agree to be bound by these Terms and Conditions. Minila is a platform for coordinating between travelers and cargo senders. If you do not agree to these terms, please do not use our services."
+        },
+        "serviceDefinition": {
+          "title": "2. Service Definition",
+          "content": "Minila provides a platform where users can create travel cards (for travelers willing to carry cargo) or cargo cards (for those who need to send items). Users can join communities, communicate through the messaging system, and coordinate cargo transportation. Minila does not directly provide transportation services and acts solely as an intermediary platform."
+        },
+        "accountTerms": {
+          "title": "3. Account Registration Terms",
+          "content": "To use Minila services, you must register with a valid email address and verify it via OTP code. You are responsible for maintaining the confidentiality of your account information. You must be at least 18 years old to use this platform. All information provided must be accurate and up-to-date."
+        },
+        "cardRules": {
+          "title": "4. Card Publishing Rules",
+          "content": "When creating a card, you must provide accurate information about origin, destination, dates, weight capacity, and other details. Publishing false or misleading information is prohibited. Cards must not include any illegal or prohibited items. Minila reserves the right to remove any card that violates these rules."
+        },
+        "messagingRules": {
+          "title": "5. Messaging and Communication Rules",
+          "content": "The messaging system is provided for coordination between users. Users can only send messages to card owners if they share at least one common community. Sending spam, advertising, offensive, or inappropriate content is prohibited. Users can block other users to prevent receiving messages from them."
+        },
+        "privacy": {
+          "title": "6. Privacy and Personal Information",
+          "content": "Minila is committed to protecting your privacy. Your personal information including email address, name, and contact details are securely stored. We do not share your information with third parties without your consent, except as required by law. For more details, please refer to our Privacy Policy."
+        },
+        "restrictions": {
+          "title": "7. Restrictions and Prohibitions",
+          "content": "The following activities are strictly prohibited: transporting illegal or prohibited items, fraud or deception, identity theft, system abuse, harassment of other users, creating multiple accounts, circumventing security measures, and any activity that violates local or international laws."
+        },
+        "disclaimer": {
+          "title": "8. Disclaimer and Liability Limitation",
+          "content": "Minila acts solely as an intermediary platform and is not responsible for the quality of services, items transported, or agreements between users. Users are solely responsible for their transactions and agreements. Minila does not guarantee the accuracy of information provided by users and is not liable for any damages arising from the use of the platform."
+        },
+        "changes": {
+          "title": "9. Changes to Terms",
+          "content": "Minila reserves the right to modify these Terms and Conditions at any time. Users will be notified of significant changes via email or platform notification. Continued use of the platform after changes constitutes acceptance of the new terms."
+        },
+        "contact": {
+          "title": "10. Contact Us",
+          "content": "If you have any questions about these Terms and Conditions, please contact us through the platform's support system or via email. We will respond to your inquiries as soon as possible."
+        }
+      }
+    }
   }
 }
 

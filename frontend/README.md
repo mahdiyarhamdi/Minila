@@ -60,9 +60,11 @@ The application supports three languages with automatic RTL/LTR switching:
 
 | Language | Code | Direction | Font |
 |----------|------|-----------|------|
-| English (default) | `en` | LTR | Inter |
-| العربية | `ar` | RTL | Noto Sans Arabic |
+| English (default) | `en` | LTR | IRANYekan |
+| العربية | `ar` | RTL | IRANYekan |
 | فارسی | `fa` | RTL | IRANYekan |
+
+**Note**: All languages use the locally hosted IRANYekan font from `public/fonts/` for consistent typography.
 
 ### Language Selection
 Users can change the language from the dropdown in the Navbar. The selection is persisted in `localStorage`.
@@ -138,8 +140,9 @@ frontend/
 │   │   │   ├── blocked-users/           # بلاک لیست
 │   │   │   ├── change-password/         # تغییر رمز عبور
 │   │   │   └── page.tsx                 # داشبورد اصلی
+│   │   ├── terms/                       # صفحه قوانین و مقررات
 │   │   ├── layout.tsx                   # Layout اصلی
-│   │   ├── page.tsx                     # صفحه اصلی
+│   │   ├── page.tsx                     # صفحه لندینگ اصلی
 │   │   └── globals.css                  # استایل‌های سراسری
 │   ├── components/                      # کامپوننت‌های قابل استفاده مجدد
 │   │   ├── Button.tsx                   # دکمه
@@ -153,11 +156,22 @@ frontend/
 │   │   ├── Modal.tsx                    # دیالوگ
 │   │   ├── Tabs.tsx                     # تب‌ها
 │   │   ├── Toast.tsx                    # نوتیفیکیشن
-│   │   ├── Navbar.tsx                   # Navigation bar
+│   │   ├── Navbar.tsx                   # Navigation bar (اپلیکیشن)
+│   │   ├── Logo.tsx                     # کامپوننت لوگو (icon/full)
 │   │   ├── LanguageSelector.tsx         # Language picker dropdown
 │   │   ├── EmptyState.tsx               # Empty state
 │   │   ├── LoadingSpinner.tsx           # Loading spinner
 │   │   ├── Providers.tsx                # Provider wrapper
+│   │   ├── landing/                     # کامپوننت‌های صفحه لندینگ
+│   │   │   ├── LandingNavbar.tsx        # نوار ناوبری لندینگ
+│   │   │   ├── HeroSection.tsx          # بخش Hero با انیمیشن
+│   │   │   ├── FeaturesSection.tsx      # معرفی ویژگی‌ها
+│   │   │   ├── HowItWorks.tsx           # نحوه کار پلتفرم
+│   │   │   ├── CardsCarousel.tsx        # کاروسل کارت‌ها
+│   │   │   ├── CommunitiesCarousel.tsx  # کاروسل کامیونیتی‌ها
+│   │   │   ├── StatsSection.tsx         # آمار پلتفرم
+│   │   │   ├── CTASection.tsx           # دعوت به اقدام
+│   │   │   └── Footer.tsx               # فوتر
 │   │   ├── cards/                       # کامپوننت‌های کارت
 │   │   │   ├── CardItem.tsx             # آیتم کارت
 │   │   │   └── FilterPanel.tsx          # پنل فیلتر
@@ -201,6 +215,23 @@ frontend/
 ---
 
 ## 🎯 صفحات پیاده‌سازی شده
+
+### ✅ صفحه لندینگ (`/`)
+- Hero Section با انیمیشن floating icons
+- معرفی ویژگی‌های پلتفرم (Features)
+- نحوه کار در 3 مرحله (How It Works)
+- کاروسل کارت‌های اخیر
+- کاروسل کامیونیتی‌های فعال
+- آمار پلتفرم با انیمیشن count-up
+- بخش CTA (دعوت به ثبت‌نام)
+- فوتر کامل با لینک‌ها و شبکه‌های اجتماعی
+- پشتیبانی کامل RTL/LTR
+- Responsive برای موبایل
+
+### ✅ صفحه قوانین و مقررات (`/terms`)
+- نمایش قوانین و مقررات پلتفرم
+- پشتیبانی چندزبانه
+- طراحی هماهنگ با صفحات auth
 
 ### ✅ احراز هویت
 
@@ -456,10 +487,14 @@ npm run lint
 
 - [x] **Tri-lingual Support**: Full i18n with English (default), Arabic, Persian
 - [x] **RTL/LTR Auto-switching**: Automatic direction change based on language
-- [x] **Dynamic Fonts**: Inter (EN), Noto Sans Arabic (AR), IRANYekan (FA)
+- [x] **Unified Font**: IRANYekan for all languages (local files)
 - [x] **Locale-aware Formatting**: Dates, numbers with proper localization
 - [x] **Mobile-First Redesign**: Complete redesign of 20+ pages for mobile
 - [x] **Design System**: Comprehensive design system (`DESIGN_SYSTEM.md`)
+- [x] **Professional Landing Page**: Hero, Features, How It Works, Carousels, Stats, CTA, Footer
+- [x] **Terms & Conditions Page**: Multi-language legal page
+- [x] **Logo Component**: Reusable logo component with icon/full variants
+- [x] **Language Selector on Auth Pages**: Language switching on login/signup
 - [x] **Horizontal Scroll Tabs**: Horizontal scrolling for tabs on mobile
 - [x] **Responsive Layouts**: Responsive grids with `grid-cols-1 → md:grid-cols-2`
 - [x] Custom date/time picker with separate fields
@@ -496,6 +531,6 @@ npm run lint
 
 ---
 
-**Version**: 0.4.0  
-**Last Update**: 2025-12-10
+**Version**: 0.5.0  
+**Last Update**: 2025-12-11
 

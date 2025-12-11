@@ -7,14 +7,14 @@ export const languages = {
     name: 'English',
     nativeName: 'English',
     dir: 'ltr' as const,
-    fontFamily: 'Inter',
+    fontFamily: 'IRANYekan',
     dateLocale: 'en-US',
   },
   ar: {
     name: 'Arabic',
     nativeName: 'العربية',
     dir: 'rtl' as const,
-    fontFamily: 'Noto Sans Arabic',
+    fontFamily: 'IRANYekan',
     dateLocale: 'ar-SA',
   },
   fa: {
