@@ -9,23 +9,28 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
 import { apiService } from '@/lib/api'
+import { useTranslation } from '@/hooks/useTranslation'
 
-// Schema برای validation
-const changePasswordSchema = z.object({
-  old_password: z.string().min(8, 'رمز عبور فعلی باید حداقل 8 کاراکتر باشد'),
-  new_password: z.string().min(8, 'رمز عبور جدید باید حداقل 8 کاراکتر باشد'),
-  confirm_password: z.string(),
-}).refine((data) => data.new_password === data.confirm_password, {
-  message: 'رمز عبور جدید و تکرار آن یکسان نیستند',
-  path: ['confirm_password'],
-})
-
-type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
-
+/**
+ * Change password page
+ */
 export default function ChangePasswordPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  // Schema for validation
+  const changePasswordSchema = z.object({
+    old_password: z.string().min(8, t('dashboard.changePassword.errors.minLength')),
+    new_password: z.string().min(8, t('dashboard.changePassword.errors.minLength')),
+    confirm_password: z.string(),
+  }).refine((data) => data.new_password === data.confirm_password, {
+    message: t('dashboard.changePassword.errors.mismatch'),
+    path: ['confirm_password'],
+  })
+
+  type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
 
   const {
     register,
@@ -49,24 +54,24 @@ export default function ChangePasswordPage() {
       setSuccess(true)
       reset()
       
-      // بعد از 2 ثانیه به dashboard برگرد
+      // Redirect to dashboard after 2 seconds
       setTimeout(() => {
         router.push('/dashboard')
       }, 2000)
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.')
+      setError(err.response?.data?.detail || t('common.error'))
     }
   }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-neutral-50 via-sand-50 to-primary-50">
-      {/* لوگو و عنوان */}
+      {/* Logo and title */}
       <div className="text-center mb-8">
-        <h1 className="text-5xl font-black text-neutral-900 mb-2">Minila</h1>
-        <p className="text-neutral-600 font-light text-base">پلتفرم هماهنگی مسافر و بار</p>
+        <h1 className="text-5xl font-black text-neutral-900 mb-2">{t('app.name')}</h1>
+        <p className="text-neutral-600 font-light text-base">{t('app.tagline')}</p>
       </div>
 
-      {/* کارت اصلی */}
+      {/* Main card */}
       <Card variant="elevated" className="w-full max-w-md p-8">
         <div className="mb-6">
           <button
@@ -76,7 +81,7 @@ export default function ChangePasswordPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            بازگشت به داشبورد
+            {t('nav.dashboard')}
           </button>
         </div>
 
@@ -87,22 +92,22 @@ export default function ChangePasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">تغییر رمز عبور موفق!</h2>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">{t('dashboard.changePassword.success')}</h2>
             <p className="text-neutral-600 font-light">
-              رمز عبور شما با موفقیت تغییر کرد. در حال بازگشت به داشبورد...
+              {t('dashboard.changePassword.successRedirect')}
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-2">تغییر رمز عبور</h2>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-2">{t('dashboard.changePassword.title')}</h2>
             <p className="text-neutral-600 font-light mb-6">
-              برای تغییر رمز عبور، فرم زیر را تکمیل کنید.
+              {t('dashboard.changePassword.subtitle')}
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
                 {...register('old_password')}
-                label="رمز عبور فعلی"
+                label={t('dashboard.changePassword.currentPassword')}
                 type="password"
                 placeholder="••••••••"
                 error={errors.old_password?.message}
@@ -110,16 +115,16 @@ export default function ChangePasswordPage() {
 
               <Input
                 {...register('new_password')}
-                label="رمز عبور جدید"
+                label={t('dashboard.changePassword.newPassword')}
                 type="password"
                 placeholder="••••••••"
                 error={errors.new_password?.message}
-                helperText="حداقل 8 کاراکتر"
+                helperText={t('dashboard.changePassword.newPasswordPlaceholder')}
               />
 
               <Input
                 {...register('confirm_password')}
-                label="تکرار رمز عبور جدید"
+                label={t('dashboard.changePassword.confirmPassword')}
                 type="password"
                 placeholder="••••••••"
                 error={errors.confirm_password?.message}
@@ -138,18 +143,17 @@ export default function ChangePasswordPage() {
                 className="w-full"
                 isLoading={isSubmitting}
               >
-                تغییر رمز عبور
+                {t('dashboard.changePassword.submitButton')}
               </Button>
             </form>
           </>
         )}
       </Card>
 
-      {/* فوتر */}
+      {/* Footer */}
       <p className="mt-8 text-sm text-neutral-500 text-center font-light">
-        رمز عبور خود را به صورت امن نگه‌داری کنید.
+        {t('dashboard.changePassword.securityNote')}
       </p>
     </div>
   )
 }
-

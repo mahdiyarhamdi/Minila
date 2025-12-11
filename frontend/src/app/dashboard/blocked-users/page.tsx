@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiService } from '@/lib/api'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -12,9 +13,10 @@ import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
 /**
- * صفحه بلاک لیست
+ * Blocked users page
  */
 export default function BlockedUsersPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const queryClient = useQueryClient()
   const [unblockUserId, setUnblockUserId] = useState<number | null>(null)
@@ -28,7 +30,7 @@ export default function BlockedUsersPage() {
     mutationFn: (userId: number) => apiService.unblockUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blocked-users'] })
-      showToast('success', 'کاربر از لیست بلاک حذف شد')
+      showToast('success', t('profile.blockedUsersPage.toast.unblocked'))
       setUnblockUserId(null)
     },
     onError: (error: any) => {
@@ -48,10 +50,10 @@ export default function BlockedUsersPage() {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            لیست کاربران بلاک شده
+            {t('profile.blockedUsersPage.title')}
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
-            کاربرانی که آن‌ها را بلاک کرده‌اید
+            {t('profile.blockedUsersPage.subtitle')}
           </p>
         </div>
 
@@ -74,8 +76,8 @@ export default function BlockedUsersPage() {
                 />
               </svg>
             }
-            title="لیست خالی است"
-            description="شما هیچ کاربری را بلاک نکرده‌اید."
+            title={t('profile.blockedUsersPage.emptyTitle')}
+            description={t('profile.blockedUsersPage.emptyDescription')}
           />
         )}
 
@@ -106,9 +108,9 @@ export default function BlockedUsersPage() {
                     size="sm"
                     variant="secondary"
                     onClick={() => setUnblockUserId(user.id)}
-                    className="w-full sm:w-auto mr-13 sm:mr-0"
+                    className="w-full sm:w-auto ltr:sm:mr-0 rtl:sm:ml-0"
                   >
-                    آنبلاک
+                    {t('profile.blockedUsersPage.unblock')}
                   </Button>
                 </div>
               ))}
@@ -131,10 +133,9 @@ export default function BlockedUsersPage() {
               />
             </svg>
             <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">توضیحات</p>
+              <p className="font-medium mb-1">{t('profile.blockedUsersPage.infoTitle')}</p>
               <p className="font-light">
-                کاربران بلاک شده نمی‌توانند به شما پیام ارسال کنند. شما می‌توانید هر زمان که
-                بخواهید آن‌ها را آنبلاک کنید.
+                {t('profile.blockedUsersPage.infoDescription')}
               </p>
             </div>
           </div>
@@ -145,17 +146,16 @@ export default function BlockedUsersPage() {
       <Modal
         isOpen={unblockUserId !== null}
         onClose={() => setUnblockUserId(null)}
-        title="آنبلاک کاربر"
+        title={t('profile.blockedUsersPage.unblockModal.title')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm sm:text-base text-neutral-700">
-            آیا از آنبلاک این کاربر اطمینان دارید؟ این کاربر دوباره می‌تواند به شما پیام ارسال
-            کند.
+            {t('profile.blockedUsersPage.unblockModal.message')}
           </p>
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button variant="ghost" onClick={() => setUnblockUserId(null)} className="w-full sm:w-auto">
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -163,7 +163,7 @@ export default function BlockedUsersPage() {
               isLoading={unblockMutation.isPending}
               className="w-full sm:w-auto"
             >
-              آنبلاک
+              {t('profile.blockedUsersPage.unblock')}
             </Button>
           </div>
         </div>
@@ -171,4 +171,3 @@ export default function BlockedUsersPage() {
     </div>
   )
 }
-

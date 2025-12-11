@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCommunity, useCommunityMembers, useJoinCommunity } from '@/hooks/useCommunities'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Badge from '@/components/Badge'
@@ -15,13 +16,14 @@ import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
 /**
- * صفحه جزئیات کامیونیتی
+ * Community detail page
  */
 export default function CommunityDetailPage({ params }: { params: { id: string } }) {
   const communityId = parseInt(params.id)
   const router = useRouter()
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { t, formatDate } = useTranslation()
   const { data: community, isLoading, error } = useCommunity(communityId)
   const { data: membersData } = useCommunityMembers(communityId)
   const joinMutation = useJoinCommunity()
@@ -30,7 +32,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
   const handleJoin = async () => {
     try {
       await joinMutation.mutateAsync(communityId)
-      showToast('success', 'درخواست عضویت شما ارسال شد')
+      showToast('success', t('communities.detail.joinRequestSent'))
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
@@ -48,10 +50,10 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <Card variant="bordered" className="p-6 max-w-md">
-          <p className="text-red-600 text-center">کامیونیتی یافت نشد</p>
+          <p className="text-red-600 text-center">{t('communities.detail.notFound')}</p>
           <div className="mt-4 text-center">
             <Link href="/communities">
-              <Button variant="ghost">بازگشت به لیست کامیونیتی‌ها</Button>
+              <Button variant="ghost">{t('communities.detail.backToList')}</Button>
             </Link>
           </div>
         </Card>
@@ -77,7 +79,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm sm:text-base">بازگشت به لیست کامیونیتی‌ها</span>
+          <span className="text-sm sm:text-base">{t('communities.detail.backToList')}</span>
         </Link>
 
         {/* Header */}
@@ -101,17 +103,17 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                   <h1 className="text-xl sm:text-3xl font-extrabold text-neutral-900">{community.name}</h1>
                   {isOwner && (
                     <Badge variant="success" size="md">
-                      مالک
+                      {t('communities.detail.owner')}
                     </Badge>
                   )}
                   {isMember && !isOwner && (
                     <Badge variant="success" size="md">
-                      {community.my_role === 'manager' ? 'مدیر' : 'عضو'}
+                      {community.my_role === 'manager' ? t('communities.detail.manager') : t('communities.detail.member')}
                     </Badge>
                   )}
                 </div>
                 <p className="text-sm sm:text-base text-neutral-600 font-light mb-2 sm:mb-3">{community.bio}</p>
-                {/* آیدی کامیونیتی */}
+                {/* Community ID */}
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm text-neutral-500">@</span>
                   <code className="text-sm font-mono text-neutral-700 bg-neutral-100 px-2 py-0.5 rounded" dir="ltr">
@@ -120,10 +122,10 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(community.slug)
-                      showToast('success', 'آیدی کپی شد')
+                      showToast('success', t('communities.detail.idCopied'))
                     }}
                     className="text-neutral-400 hover:text-neutral-600 transition-colors"
-                    title="کپی آیدی"
+                    title={t('communities.detail.copyId')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -140,10 +142,10 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                         d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                       />
                     </svg>
-                    {community.member_count} عضو
+                    {t('communities.detail.members', { count: community.member_count.toString() })}
                   </span>
                   <span className="font-light">
-                    ایجاد شده توسط {community.owner.first_name} {community.owner.last_name}
+                    {t('communities.detail.createdBy')} {community.owner.first_name} {community.owner.last_name}
                   </span>
                 </div>
               </div>
@@ -154,7 +156,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
               {(isManager || isOwner) && (
                 <Link href={`/communities/${community.id}/manage`} className="flex-1 sm:flex-none">
                   <Button variant="secondary" className="w-full sm:w-auto">
-                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 ltr:mr-2 rtl:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -168,20 +170,20 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    مدیریت
+                    {t('communities.detail.manageButton')}
                   </Button>
                 </Link>
               )}
               {!user && (
                 <Link href="/auth/login" className="flex-1 sm:flex-none">
                   <Button variant="primary" className="w-full sm:w-auto">
-                    ورود برای عضویت
+                    {t('communities.detail.loginToJoin')}
                   </Button>
                 </Link>
               )}
               {user && !isMember && !isOwner && (
                 <Button onClick={handleJoin} isLoading={joinMutation.isPending} className="flex-1 sm:flex-none w-full sm:w-auto">
-                  درخواست عضویت
+                  {t('communities.detail.joinButton')}
                 </Button>
               )}
             </div>
@@ -191,8 +193,8 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
         {/* Tabs */}
         <Tabs
           tabs={[
-            { id: 'about', label: 'درباره' },
-            { id: 'members', label: 'اعضا', count: membersData?.total },
+            { id: 'about', label: t('communities.detail.aboutTab') },
+            { id: 'members', label: t('communities.detail.membersTab'), count: membersData?.total },
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}
@@ -200,24 +202,24 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
           {/* About Tab */}
           {activeTab === 'about' && (
             <Card variant="bordered" className="p-6">
-              <h3 className="text-lg font-bold text-neutral-900 mb-3">درباره کامیونیتی</h3>
+              <h3 className="text-lg font-bold text-neutral-900 mb-3">{t('communities.detail.aboutCommunity')}</h3>
               <p className="text-neutral-700 font-light leading-relaxed mb-6">
-                {community.bio || 'توضیحاتی برای این کامیونیتی ثبت نشده است.'}
+                {community.bio || t('communities.detail.noDescription')}
               </p>
 
               <div className="pt-6 border-t border-neutral-200">
-                <h4 className="text-sm font-medium text-neutral-600 mb-3">اطلاعات تکمیلی</h4>
+                <h4 className="text-sm font-medium text-neutral-600 mb-3">{t('communities.detail.additionalInfo')}</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <span className="text-sm text-neutral-600">تاریخ ایجاد:</span>
+                    <span className="text-sm text-neutral-600">{t('communities.detail.createdAt')}:</span>
                     <p className="font-medium text-neutral-900">
-                      {new Date(community.created_at).toLocaleDateString('fa-IR')}
+                      {formatDate(community.created_at)}
                     </p>
                   </div>
                   <div>
-                    <span className="text-sm text-neutral-600">آخرین به‌روزرسانی:</span>
+                    <span className="text-sm text-neutral-600">{t('communities.detail.updatedAt')}:</span>
                     <p className="font-medium text-neutral-900">
-                      {new Date(community.updated_at).toLocaleDateString('fa-IR')}
+                      {formatDate(community.updated_at)}
                     </p>
                   </div>
                 </div>
@@ -251,15 +253,19 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
                         </div>
                       </div>
                       <Badge variant={member.role.name === 'manager' ? 'success' : 'neutral'}>
-                        {member.role.name === 'manager' ? 'مدیر' : member.role.name === 'moderator' ? 'ناظر' : 'عضو'}
+                        {member.role.name === 'manager' 
+                          ? t('communities.detail.manager') 
+                          : member.role.name === 'moderator' 
+                            ? t('communities.detail.moderator') 
+                            : t('communities.detail.member')}
                       </Badge>
                     </div>
                   ))}
                 </div>
               ) : (
                 <EmptyState
-                  title="عضوی یافت نشد"
-                  description="این کامیونیتی هنوز عضوی ندارد."
+                  title={t('communities.detail.noMembers')}
+                  description={t('communities.detail.noMembersDescription')}
                 />
               )}
             </Card>
@@ -269,4 +275,3 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
     </div>
   )
 }
-

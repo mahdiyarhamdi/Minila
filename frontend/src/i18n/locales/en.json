@@ -182,6 +182,7 @@
     },
     "changePassword": {
       "title": "Change Password",
+      "subtitle": "Fill in the form below to change your password.",
       "currentPassword": "Current password",
       "currentPasswordPlaceholder": "Enter your current password",
       "newPassword": "New password",
@@ -190,7 +191,9 @@
       "confirmPasswordPlaceholder": "Re-enter new password",
       "submitButton": "Change password",
       "submitting": "Changing...",
-      "success": "Password changed successfully",
+      "success": "Password Changed Successfully!",
+      "successRedirect": "Your password has been changed. Redirecting to dashboard...",
+      "securityNote": "Keep your password secure.",
       "errors": {
         "fillAll": "Please fill in all fields",
         "minLength": "New password must be at least 8 characters",
@@ -314,12 +317,63 @@
       "packaging": "Packaging",
       "packed": "Packed",
       "unpacked": "Unpacked",
+      "doesntMatter": "Doesn't matter",
       "description": "Description",
       "owner": "Card owner",
       "sendMessage": "Send message",
       "editCard": "Edit card",
       "deleteCard": "Delete card",
-      "communities": "Visible in communities"
+      "communities": "Visible in communities",
+      "backToList": "Back to cards list",
+      "notFound": "Card not found",
+      "origin": "Origin",
+      "destination": "Destination",
+      "travelDate": "Travel date",
+      "suggestedPrice": "Suggested price",
+      "createdAt": "Created at",
+      "unknownUser": "User",
+      "userId": "ID",
+      "cannotMessageSelf": "You cannot message yourself",
+      "deleteSuccess": "Card deleted successfully",
+      "confirmDelete": "Delete card",
+      "confirmDeleteMessage": "Are you sure you want to delete this card? This action cannot be undone."
+    },
+    "myCards": {
+      "title": "My Cards",
+      "subtitle": "Manage and view your cards",
+      "tabs": {
+        "all": "All",
+        "active": "Active",
+        "expired": "Expired"
+      },
+      "noExpiredCards": "No expired cards",
+      "noExpiredCardsDescription": "None of your cards have expired yet.",
+      "noCardsYet": "You haven't created any cards yet. Create your first card.",
+      "createFirstCard": "Create first card",
+      "deleteSuccess": "Card deleted successfully"
+    },
+    "edit": {
+      "title": "Edit Card",
+      "subtitle": "Update your card information",
+      "notAuthorized": "You are not authorized to edit this card",
+      "success": "Card updated successfully"
+    },
+    "joinCommunity": {
+      "title": "No shared community",
+      "description": "To send a message to {{name}}, you must be a member of at least one shared community.",
+      "ownersCommunities": "{{name}}'s communities",
+      "noCommunities": "No communities found",
+      "noCommunitiesDescription": "This user is not a member of any community. Messaging is not available at this time.",
+      "memberBadge": "Member",
+      "pendingBadge": "Pending approval",
+      "youAreMember": "You are a member",
+      "requestPending": "Request pending",
+      "requestMembership": "Request membership",
+      "requestSent": "Your membership request has been sent. You can send messages after approval.",
+      "infoTitle": "Why do we need a shared community?",
+      "infoDescription": "For security and to prevent unwanted messages, messaging is only available between members of shared communities. Join one of the communities above to connect with this user.",
+      "backToCard": "Back to card",
+      "cardOwner": "Card owner"
     }
   },
   "communities": {
@@ -342,16 +396,34 @@
     },
     "new": {
       "title": "Create New Community",
-      "subtitle": "Create a new community and invite members",
+      "subtitle": "Create a community for your group",
       "name": "Community name",
       "namePlaceholder": "e.g., Tehran Travelers",
+      "nameHelper": "Choose a clear and descriptive name",
       "slug": "Community ID",
-      "slugPlaceholder": "e.g., tehran-travelers",
-      "slugHelper": "Unique identifier for your community URL",
+      "slugPlaceholder": "e.g., tehran_travelers",
+      "slugHelper": "Unique ID for search and sharing (lowercase letters, numbers, and underscores only)",
       "bio": "Description",
-      "bioPlaceholder": "A short description of the community...",
+      "bioPlaceholder": "Write about this community...",
+      "bioHelper": "Optional - Explain what this community is for and who can join",
       "submit": "Create community",
-      "success": "Community created successfully"
+      "success": "Community created successfully",
+      "infoTitle": "Important note",
+      "infoDescription1": "As the creator, you will automatically become the manager of this community and can review membership requests.",
+      "infoDescription2": "is used for search and sharing and cannot be changed after creation.",
+      "validation": {
+        "nameRequired": "Community name is required",
+        "nameMinLength": "Community name must be at least 3 characters",
+        "slugRequired": "Community ID is required",
+        "slugMinLength": "ID must be at least 3 characters",
+        "slugFormat": "ID must start with a letter and contain only lowercase letters, numbers, and underscores",
+        "slugTaken": "This ID is already taken",
+        "slugWait": "Please wait for ID verification to complete",
+        "fillRequired": "Please fill in all required fields",
+        "checking": "Checking...",
+        "slugAvailable": "This ID is available ✓",
+        "slugCheckError": "Error checking ID"
+      }
     },
     "detail": {
       "members": "{{count}} members",
@@ -363,15 +435,35 @@
       "manageButton": "Manage",
       "pendingRequest": "Request pending",
       "cards": "Community Cards",
-      "noCards": "No cards in this community"
+      "noCards": "No cards in this community",
+      "backToList": "Back to communities list",
+      "notFound": "Community not found",
+      "copyId": "Copy ID",
+      "idCopied": "ID copied",
+      "createdBy": "Created by",
+      "loginToJoin": "Login to join",
+      "joinRequestSent": "Your join request has been sent",
+      "aboutTab": "About",
+      "membersTab": "Members",
+      "aboutCommunity": "About community",
+      "noDescription": "No description has been provided for this community.",
+      "additionalInfo": "Additional information",
+      "createdAt": "Created at",
+      "updatedAt": "Last updated",
+      "noMembers": "No members found",
+      "noMembersDescription": "This community has no members yet.",
+      "moderator": "Moderator"
     },
     "manage": {
       "title": "Manage {{name}}",
+      "subtitle": "Manage requests and members",
       "members": "Members",
       "requests": "Join Requests",
       "settings": "Settings",
-      "noMembers": "No members yet",
-      "noRequests": "No pending requests",
+      "noMembers": "No members found",
+      "noRequests": "No requests found",
+      "noRequestsDescription": "No new join requests",
+      "backToCommunity": "Back to community",
       "roles": {
         "owner": "Owner",
         "manager": "Manager",
@@ -379,10 +471,58 @@
       },
       "actions": {
         "makeManager": "Make manager",
+        "demoteToMember": "Demote to member",
         "removeMember": "Remove",
         "approve": "Approve",
         "reject": "Reject"
-      }
+      },
+      "toast": {
+        "requestApproved": "Request approved",
+        "requestRejected": "Request rejected",
+        "memberRemoved": "Member removed from community",
+        "promotedToManager": "User promoted to manager",
+        "demotedToMember": "User demoted to member"
+      },
+      "modals": {
+        "removeMember": {
+          "title": "Remove member",
+          "message": "Are you sure you want to remove this member from the community?"
+        },
+        "promoteToManager": {
+          "title": "Promote to manager",
+          "message": "Do you want to promote {{name}} to manager?",
+          "info": "Managers can:",
+          "infoItem1": "Approve or reject join requests",
+          "infoItem2": "Remove regular members from the community"
+        },
+        "demoteToMember": {
+          "title": "Demote to member",
+          "message": "Do you want to demote {{name}} to regular member?"
+        }
+      },
+      "accessDenied": {
+        "notLoggedIn": "Please login first",
+        "notLoggedInDescription": "You need to login to access the management page.",
+        "sessionExpired": "Your session has expired",
+        "sessionExpiredDescription": "Please login again to access the management page.",
+        "memberNoAccess": "You don't have access to manage this community",
+        "memberNoAccessDescription": "You are a member of this community but don't have a management role (owner or manager).",
+        "noAccess": "You don't have access to manage this community",
+        "noAccessDescription": "You are not a member of this community or don't have a management role.",
+        "loginButton": "Login to account",
+        "backButton": "Back to community"
+      },
+      "settingsComingSoon": "More settings coming soon..."
+    },
+    "myCommunities": {
+      "title": "My Communities",
+      "subtitle": "Communities you are a member of",
+      "notMember": "You are not a member of any community",
+      "notMemberDescription": "You haven't joined any community yet. Join communities or create your own.",
+      "viewCommunities": "View communities",
+      "createCommunity": "Create community",
+      "createNew": "Create new community",
+      "manage": "Manage"
     }
   },
   "messages": {
@@ -418,7 +558,11 @@
       "online": "Online",
       "offline": "Offline",
       "delivered": "Delivered",
-      "read": "Read"
+      "read": "Read",
+      "noMessages": "No messages yet",
+      "noMessagesDescription": "Send the first message to start the conversation.",
+      "emptyMessage": "Please enter a message",
+      "sendTip": "Press Enter to send, Shift+Enter for new line"
     },
     "toast": {
       "blocked": "User blocked",
@@ -440,7 +584,23 @@
     "uploadAvatar": "Upload photo",
     "myCards": "My Cards",
     "myCommunities": "My Communities",
-    "blockedUsers": "Block List"
+    "blockedUsers": "Block List",
+    "blockedUsersPage": {
+      "title": "Blocked Users List",
+      "subtitle": "Users you have blocked",
+      "emptyTitle": "List is empty",
+      "emptyDescription": "You haven't blocked any users.",
+      "unblock": "Unblock",
+      "infoTitle": "Information",
+      "infoDescription": "Blocked users cannot send you messages. You can unblock them at any time.",
+      "unblockModal": {
+        "title": "Unblock user",
+        "message": "Are you sure you want to unblock this user? They will be able to send you messages again."
+      },
+      "toast": {
+        "unblocked": "User removed from block list"
+      }
+    }
   },
   "errors": {
     "generic": "An error occurred. Please try again.",

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useCard, useUpdateCard } from '@/hooks/useCards'
 import { useMyCommunities } from '@/hooks/useCommunities'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Input from '@/components/Input'
 import Select from '@/components/Select'
@@ -13,11 +14,10 @@ import Button from '@/components/Button'
 import Autocomplete, { AutocompleteOption } from '@/components/Autocomplete'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import DateTimePicker from '@/components/DateTimePicker'
-// Toggle removed - using checkbox instead
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
-import { getCurrencyOptions } from '@/utils/currency'
+import { getCurrencyOptions, type SupportedLanguage } from '@/utils/currency'
 import type { Country, City } from '@/types/location'
 import type { CardUpdate } from '@/types/card'
 
@@ -40,13 +40,14 @@ interface CardFormData {
 }
 
 /**
- * صفحه ویرایش کارت
+ * Edit card page
  */
 export default function EditCardPage({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id)
   const router = useRouter()
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { t, language } = useTranslation()
   const { data: card, isLoading: isLoadingCard, error: cardError } = useCard(cardId)
   const updateCardMutation = useUpdateCard(cardId)
   const { data: communities } = useMyCommunities()
@@ -70,7 +71,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isInitialized, setIsInitialized] = useState(false)
   
-  // برای مسافران: آیا تاریخ دقیق سفر مشخص نیست
+  // For travelers: whether exact date is not specified
   const [dateNotSpecified, setDateNotSpecified] = useState(false)
 
   // Initialize form with card data
@@ -119,7 +120,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         community_ids: card.communities?.map(c => c.id) || [],
       })
 
-      // برای مسافر: اگر بازه زمانی دارد یعنی تاریخ دقیق مشخص نیست
+      // For traveler: if has time range, exact date is not specified
       if (!card.is_sender) {
         const hasTimeRange = card.start_time_frame || card.end_time_frame
         setDateNotSpecified(!!hasTimeRange)
@@ -132,10 +133,10 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
   // Check ownership
   useEffect(() => {
     if (card && user && card.owner.id !== user.id) {
-      showToast('error', 'شما مجاز به ویرایش این کارت نیستید')
+      showToast('error', t('cards.edit.notAuthorized'))
       router.push(`/cards/${cardId}`)
     }
-  }, [card, user, cardId, router, showToast])
+  }, [card, user, cardId, router, showToast, t])
 
   const handleChange = (field: keyof CardFormData, value: any) => {
     setFormData({ ...formData, [field]: value })
@@ -145,7 +146,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     }
   }
 
-  // جستجوی کشورها
+  // Search countries
   const searchCountries = useCallback(async (query: string): Promise<AutocompleteOption[]> => {
     try {
       const result = await apiService.searchCountries(query, 10)
@@ -161,16 +162,17 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     }
   }, [])
   
-  // گزینه‌های واحد پول بر اساس کشورهای مبدأ و مقصد (و ارز فعلی کارت)
+  // Currency options based on origin and destination countries (and current card currency)
   const currencyOptions = useMemo(() => {
     return getCurrencyOptions(
       originCountry?.isoCode as string | undefined, 
       destinationCountry?.isoCode as string | undefined, 
-      formData.currency
+      formData.currency,
+      language as SupportedLanguage
     )
-  }, [originCountry?.isoCode, destinationCountry?.isoCode, formData.currency])
+  }, [originCountry?.isoCode, destinationCountry?.isoCode, formData.currency, language])
 
-  // جستجوی شهرها
+  // Search cities
   const searchCities = useCallback((countryId: number) => async (query: string): Promise<AutocompleteOption[]> => {
     try {
       const result = await apiService.searchCities(countryId, query, 10)
@@ -185,7 +187,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     }
   }, [])
 
-  // هنگامی که کشور مبدأ تغییر می‌کند، شهر را reset کن
+  // When origin country changes, reset city
   const handleOriginCountryChange = (option: AutocompleteOption | null) => {
     setOriginCountry(option)
     setOriginCity(null)
@@ -194,7 +196,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     }
   }
 
-  // هنگامی که کشور مقصد تغییر می‌کند، شهر را reset کن
+  // When destination country changes, reset city
   const handleDestinationCountryChange = (option: AutocompleteOption | null) => {
     setDestinationCountry(option)
     setDestinationCity(null)
@@ -207,16 +209,16 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     const newErrors: Record<string, string> = {}
 
     if (!originCountry) {
-      newErrors.origin_country = 'کشور مبدأ الزامی است'
+      newErrors.origin_country = t('cards.new.validation.originCountry')
     }
     if (!originCity) {
-      newErrors.origin_city = 'شهر مبدأ الزامی است'
+      newErrors.origin_city = t('cards.new.validation.originCity')
     }
     if (!destinationCountry) {
-      newErrors.destination_country = 'کشور مقصد الزامی است'
+      newErrors.destination_country = t('cards.new.validation.destinationCountry')
     }
     if (!destinationCity) {
-      newErrors.destination_city = 'شهر مقصد الزامی است'
+      newErrors.destination_city = t('cards.new.validation.destinationCity')
     }
 
     setErrors(newErrors)
@@ -227,7 +229,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     e.preventDefault()
 
     if (!validate()) {
-      showToast('error', 'لطفاً تمام فیلدهای الزامی را پر کنید')
+      showToast('error', t('cards.new.validation.fillRequired'))
       return
     }
 
@@ -241,11 +243,11 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         destination_city_id: destinationCity!.id,
       }
 
-      // فیلدهای اختیاری - فقط فیلدهایی که تغییر کرده‌اند را ارسال کن
+      // Optional fields - only send fields that have changed
       if (formData.weight) {
         updateData.weight = Number(formData.weight)
       }
-      // برای is_packed باید مقدار null هم قابل ارسال باشد
+      // For is_packed, null should also be sendable
       updateData.is_packed = formData.is_packed === undefined ? null : formData.is_packed
       
       if (formData.price_aed) {
@@ -266,7 +268,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
 
       // Add time fields based on card type and date knowledge
       if (formData.is_sender) {
-        // فرستنده بار - همیشه بازه زمانی
+        // Sender - always time range
         if (formData.start_time_frame) {
           updateData.start_time_frame = formData.start_time_frame
         }
@@ -274,14 +276,14 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
           updateData.end_time_frame = formData.end_time_frame
         }
       } else {
-        // مسافر - بسته به اینکه تاریخ دقیق مشخص است یا نه
+        // Traveler - depends on whether exact date is specified
         if (!dateNotSpecified) {
-          // تاریخ دقیق مشخص است
+          // Exact date is specified
           if (formData.ticket_date_time) {
             updateData.ticket_date_time = formData.ticket_date_time
           }
         } else {
-          // تاریخ دقیق مشخص نیست - بازه زمانی
+          // Exact date not specified - time range
           if (formData.start_time_frame) {
             updateData.start_time_frame = formData.start_time_frame
           }
@@ -292,7 +294,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
       }
 
       await updateCardMutation.mutateAsync(updateData)
-      showToast('success', 'کارت با موفقیت ویرایش شد')
+      showToast('success', t('cards.edit.success'))
       router.push(`/cards/${cardId}`)
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
@@ -328,10 +330,10 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <Card variant="bordered" className="p-6 max-w-md">
-          <p className="text-red-600 text-center">کارت یافت نشد</p>
+          <p className="text-red-600 text-center">{t('cards.detail.notFound')}</p>
           <div className="mt-4 text-center">
             <Button variant="ghost" onClick={() => router.push('/cards')}>
-              بازگشت به لیست کارت‌ها
+              {t('cards.detail.backToList')}
             </Button>
           </div>
         </Card>
@@ -345,10 +347,10 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            ویرایش کارت
+            {t('cards.edit.title')}
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
-            اطلاعات کارت خود را به‌روزرسانی کنید
+            {t('cards.edit.subtitle')}
           </p>
         </div>
 
@@ -356,11 +358,11 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
         <form onSubmit={handleSubmit}>
           <Card variant="elevated" className="p-6 sm:p-8 mb-6">
             <div className="space-y-6">
-              {/* مبدأ */}
+              {/* Origin */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Autocomplete
-                  label="کشور مبدأ"
-                  placeholder="جستجوی کشور..."
+                  label={t('cards.new.originCountry')}
+                  placeholder={t('cards.new.searchCountry')}
                   value={originCountry}
                   onChange={handleOriginCountryChange}
                   onSearch={searchCountries}
@@ -368,8 +370,8 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                   required
                 />
                 <Autocomplete
-                  label="شهر مبدأ"
-                  placeholder="جستجوی شهر..."
+                  label={t('cards.new.originCity')}
+                  placeholder={t('cards.new.searchCity')}
                   value={originCity}
                   onChange={(option) => {
                     setOriginCity(option)
@@ -380,16 +382,16 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                   onSearch={originCountry ? searchCities(originCountry.id) : async () => []}
                   disabled={!originCountry}
                   error={errors.origin_city}
-                  helperText={!originCountry ? 'ابتدا کشور را انتخاب کنید' : undefined}
+                  helperText={!originCountry ? t('cards.new.selectCountryFirst') : undefined}
                   required
                 />
               </div>
 
-              {/* مقصد */}
+              {/* Destination */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Autocomplete
-                  label="کشور مقصد"
-                  placeholder="جستجوی کشور..."
+                  label={t('cards.new.destinationCountry')}
+                  placeholder={t('cards.new.searchCountry')}
                   value={destinationCountry}
                   onChange={handleDestinationCountryChange}
                   onSearch={searchCountries}
@@ -397,8 +399,8 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                   required
                 />
                 <Autocomplete
-                  label="شهر مقصد"
-                  placeholder="جستجوی شهر..."
+                  label={t('cards.new.destinationCity')}
+                  placeholder={t('cards.new.searchCity')}
                   value={destinationCity}
                   onChange={(option) => {
                     setDestinationCity(option)
@@ -409,46 +411,46 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                   onSearch={destinationCountry ? searchCities(destinationCountry.id) : async () => []}
                   disabled={!destinationCountry}
                   error={errors.destination_city}
-                  helperText={!destinationCountry ? 'ابتدا کشور را انتخاب کنید' : undefined}
+                  helperText={!destinationCountry ? t('cards.new.selectCountryFirst') : undefined}
                   required
                 />
               </div>
 
-              {/* نوع کارت */}
+              {/* Card type */}
               <Select
-                label="نوع کارت"
+                label={t('cards.new.cardType')}
                 value={formData.is_sender ? 'sender' : 'traveler'}
                 onChange={(e) => handleChange('is_sender', e.target.value === 'sender')}
                 options={[
-                  { value: 'traveler', label: 'مسافر (حمل بار)' },
-                  { value: 'sender', label: 'فرستنده بار' },
+                  { value: 'traveler', label: t('cards.new.traveler') },
+                  { value: 'sender', label: t('cards.new.sender') },
                 ]}
               />
 
-              {/* تاریخ/بازه زمانی بر اساس نوع کارت */}
+              {/* Date/time range based on card type */}
               {formData.is_sender ? (
-                // فرستنده بار - همیشه بازه زمانی
+                // Sender - always time range
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <DateTimePicker
-                    label="شروع بازه زمانی"
+                    label={t('cards.new.startTimeFrame')}
                     value={formData.start_time_frame || ''}
                     onChange={(value) => handleChange('start_time_frame', value)}
                     includeTime={false}
-                    helperText="اختیاری"
+                    helperText={t('common.optional')}
                   />
                   <DateTimePicker
-                    label="پایان بازه زمانی"
+                    label={t('cards.new.endTimeFrame')}
                     value={formData.end_time_frame || ''}
                     onChange={(value) => handleChange('end_time_frame', value)}
                     includeTime={false}
                     validatePast={true}
-                    helperText="اختیاری"
+                    helperText={t('common.optional')}
                   />
                 </div>
               ) : (
-                // مسافر - انتخاب بین تاریخ دقیق یا بازه
+                // Traveler - choose between exact date or range
                 <div className="space-y-4">
-                  {/* چک‌باکس برای مشخص نبودن تاریخ دقیق */}
+                  {/* Checkbox for unspecified exact date */}
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
@@ -460,67 +462,67 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                         transition-colors cursor-pointer"
                     />
                     <span className="text-sm font-medium text-neutral-700 group-hover:text-neutral-900">
-                      تاریخ دقیق سفرم مشخص نیست
+                      {t('cards.new.dateNotSpecified')}
                     </span>
                   </label>
                   
                   {!dateNotSpecified ? (
                     <DateTimePicker
-                      label="تاریخ دقیق سفر"
+                      label={t('cards.new.exactDate')}
                       value={formData.ticket_date_time || ''}
                       onChange={(value) => handleChange('ticket_date_time', value)}
                       includeTime={true}
                       validatePast={true}
-                      helperText="اختیاری - تاریخ و ساعت مورد نظر برای سفر"
+                      helperText={t('cards.new.exactDateHelper')}
                     />
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <DateTimePicker
-                        label="شروع بازه زمانی"
+                        label={t('cards.new.startTimeFrame')}
                         value={formData.start_time_frame || ''}
                         onChange={(value) => handleChange('start_time_frame', value)}
                         includeTime={false}
-                        helperText="اختیاری"
+                        helperText={t('common.optional')}
                       />
                       <DateTimePicker
-                        label="پایان بازه زمانی"
+                        label={t('cards.new.endTimeFrame')}
                         value={formData.end_time_frame || ''}
                         onChange={(value) => handleChange('end_time_frame', value)}
                         includeTime={false}
                         validatePast={true}
-                        helperText="اختیاری"
+                        helperText={t('common.optional')}
                       />
                     </div>
                   )}
                 </div>
               )}
 
-              {/* وزن */}
+              {/* Weight */}
               <Input
-                label="وزن (کیلوگرم)"
+                label={t('cards.new.weight')}
                 type="number"
                 step="0.1"
-                placeholder="مثال: 5.5"
+                placeholder={t('cards.new.weightPlaceholder')}
                 value={formData.weight || ''}
                 onChange={(e) => handleChange('weight', e.target.value)}
-                helperText="اختیاری"
+                helperText={t('common.optional')}
               />
               
-              {/* قیمت و واحد پول */}
+              {/* Price and currency */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
                   <Input
-                    label="قیمت پیشنهادی"
+                    label={t('cards.new.price')}
                     type="number"
                     step="0.01"
-                    placeholder="مثال: 50"
+                    placeholder={t('cards.new.pricePlaceholder')}
                     value={formData.price_aed || ''}
                     onChange={(e) => handleChange('price_aed', e.target.value)}
-                    helperText="اختیاری"
+                    helperText={t('common.optional')}
                   />
                 </div>
                 <Select
-                  label="واحد پول"
+                  label={t('cards.new.currency')}
                   value={formData.currency || 'USD'}
                   onChange={(e) => handleChange('currency', e.target.value)}
                   options={currencyOptions.map((opt) => ({
@@ -530,36 +532,36 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
                 />
               </div>
 
-              {/* وضعیت بسته‌بندی */}
+              {/* Packaging status */}
               <Select
-                label="وضعیت بسته‌بندی"
+                label={t('cards.new.packagingStatus')}
                 value={formData.is_packed === undefined ? '' : formData.is_packed ? 'true' : 'false'}
                 onChange={(e) => handleChange('is_packed', e.target.value === 'true' ? true : e.target.value === 'false' ? false : undefined)}
                 options={[
-                  { value: '', label: 'فرقی ندارد' },
-                  { value: 'true', label: 'بسته‌بندی شده' },
-                  { value: 'false', label: 'بدون بسته‌بندی' },
+                  { value: '', label: t('cards.new.doesntMatter') },
+                  { value: 'true', label: t('cards.new.packed') },
+                  { value: 'false', label: t('cards.new.unpacked') },
                 ]}
               />
 
-              {/* توضیحات */}
+              {/* Description */}
               <Textarea
-                label="توضیحات"
-                placeholder="توضیحات تکمیلی درباره کارت..."
+                label={t('cards.new.description')}
+                placeholder={t('cards.new.descriptionPlaceholder')}
                 rows={4}
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
-                helperText="اختیاری - هر اطلاعات اضافی که فکر می‌کنید مفید باشد"
+                helperText={t('cards.new.descriptionHelper')}
               />
 
-              {/* انتخاب کامیونیتی‌ها */}
+              {/* Community selection */}
               {communities && communities.items.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-3">
-                    نمایش در کامیونیتی‌ها
+                    {t('cards.new.communities')}
                   </label>
                   <p className="text-sm text-neutral-600 font-light mb-3">
-                    اگر هیچ کامیونیتی انتخاب نکنید، کارت برای همه نمایش داده می‌شود
+                    {t('cards.new.communitiesHint')}
                   </p>
                   <div className="space-y-2">
                     {communities.items.map((community) => (
@@ -592,14 +594,14 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
               onClick={() => router.push(`/cards/${cardId}`)}
               className="w-full sm:w-auto"
             >
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
               isLoading={updateCardMutation.isPending}
               className="w-full sm:w-auto"
             >
-              ذخیره تغییرات
+              {t('common.save')}
             </Button>
           </div>
         </form>
@@ -607,4 +609,3 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     </div>
   )
 }
-

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCreateCommunity } from '@/hooks/useCommunities'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Input from '@/components/Input'
 import Textarea from '@/components/Textarea'
@@ -13,11 +14,12 @@ import { apiService } from '@/lib/api'
 import type { CommunityCreate } from '@/types/community'
 
 /**
- * صفحه ایجاد کامیونیتی جدید
+ * Create new community page
  */
 export default function NewCommunityPage() {
   const router = useRouter()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const createMutation = useCreateCommunity()
 
   const [formData, setFormData] = useState<CommunityCreate>({
@@ -31,7 +33,7 @@ export default function NewCommunityPage() {
   const [slugMessage, setSlugMessage] = useState('')
   const [slugCheckTimeout, setSlugCheckTimeout] = useState<NodeJS.Timeout | null>(null)
 
-  // تبدیل متن به slug معتبر
+  // Convert text to valid slug
   const normalizeSlug = (value: string): string => {
     return value
       .toLowerCase()
@@ -40,31 +42,31 @@ export default function NewCommunityPage() {
       .substring(0, 50)
   }
 
-  // چک کردن در دسترس بودن slug
+  // Check slug availability
   const checkSlugAvailability = useCallback(async (slug: string) => {
     if (slug.length < 3) {
       setSlugStatus('invalid')
-      setSlugMessage('آیدی باید حداقل 3 کاراکتر باشد')
+      setSlugMessage(t('communities.new.validation.slugMinLength'))
       return
     }
 
     setSlugStatus('checking')
-    setSlugMessage('در حال بررسی...')
+    setSlugMessage(t('communities.new.validation.checking'))
 
     try {
       const result = await apiService.checkCommunitySlug(slug)
       if (result.available) {
         setSlugStatus('available')
-        setSlugMessage('این آیدی در دسترس است ✓')
+        setSlugMessage(t('communities.new.validation.slugAvailable'))
       } else {
         setSlugStatus('taken')
         setSlugMessage(result.message)
       }
     } catch {
       setSlugStatus('invalid')
-      setSlugMessage('خطا در بررسی آیدی')
+      setSlugMessage(t('communities.new.validation.slugCheckError'))
     }
-  }, [])
+  }, [t])
 
   // Handle slug input change with debounce
   const handleSlugChange = useCallback((value: string) => {
@@ -118,21 +120,21 @@ export default function NewCommunityPage() {
     const newErrors: Record<string, string> = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = 'نام کامیونیتی الزامی است'
+      newErrors.name = t('communities.new.validation.nameRequired')
     } else if (formData.name.trim().length < 3) {
-      newErrors.name = 'نام کامیونیتی باید حداقل 3 کاراکتر باشد'
+      newErrors.name = t('communities.new.validation.nameMinLength')
     }
 
     if (!formData.slug.trim()) {
-      newErrors.slug = 'آیدی کامیونیتی الزامی است'
+      newErrors.slug = t('communities.new.validation.slugRequired')
     } else if (formData.slug.trim().length < 3) {
-      newErrors.slug = 'آیدی باید حداقل 3 کاراکتر باشد'
+      newErrors.slug = t('communities.new.validation.slugMinLength')
     } else if (!/^[a-z][a-z0-9_]{2,49}$/.test(formData.slug)) {
-      newErrors.slug = 'آیدی باید با حرف انگلیسی شروع شود و فقط شامل حروف کوچک، اعداد و آندرلاین باشد'
+      newErrors.slug = t('communities.new.validation.slugFormat')
     } else if (slugStatus === 'taken') {
-      newErrors.slug = 'این آیدی قبلاً استفاده شده است'
+      newErrors.slug = t('communities.new.validation.slugTaken')
     } else if (slugStatus === 'checking') {
-      newErrors.slug = 'لطفاً صبر کنید تا بررسی آیدی تمام شود'
+      newErrors.slug = t('communities.new.validation.slugWait')
     }
 
     setErrors(newErrors)
@@ -143,20 +145,20 @@ export default function NewCommunityPage() {
     e.preventDefault()
 
     if (!validate()) {
-      showToast('error', 'لطفاً تمام فیلدهای الزامی را پر کنید')
+      showToast('error', t('communities.new.validation.fillRequired'))
       return
     }
 
     try {
       const newCommunity = await createMutation.mutateAsync(formData)
-      showToast('success', 'کامیونیتی با موفقیت ایجاد شد')
+      showToast('success', t('communities.new.success'))
       router.push(`/communities/${newCommunity.id}`)
     } catch (error: unknown) {
       showToast('error', extractErrorMessage(error))
     }
   }
 
-  // رنگ وضعیت slug
+  // Slug status color
   const getSlugStatusColor = () => {
     switch (slugStatus) {
       case 'available':
@@ -177,10 +179,10 @@ export default function NewCommunityPage() {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            ایجاد کامیونیتی جدید
+            {t('communities.new.title')}
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
-            یک کامیونیتی برای گروه خود بسازید
+            {t('communities.new.subtitle')}
           </p>
         </div>
 
@@ -188,49 +190,49 @@ export default function NewCommunityPage() {
         <form onSubmit={handleSubmit}>
           <Card variant="elevated" className="p-6 sm:p-8 mb-6">
             <div className="space-y-6">
-              {/* نام کامیونیتی */}
+              {/* Community name */}
               <Input
-                label="نام کامیونیتی *"
-                placeholder="مثلاً: مسافران تهران-مشهد"
+                label={`${t('communities.new.name')} *`}
+                placeholder={t('communities.new.namePlaceholder')}
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 error={errors.name}
-                helperText="نامی واضح و توصیفی انتخاب کنید"
+                helperText={t('communities.new.nameHelper')}
               />
 
-              {/* آیدی کامیونیتی */}
+              {/* Community slug */}
               <div>
                 <Input
-                  label="آیدی کامیونیتی *"
-                  placeholder="مثلاً: tehran_travelers"
+                  label={`${t('communities.new.slug')} *`}
+                  placeholder={t('communities.new.slugPlaceholder')}
                   value={formData.slug}
                   onChange={(e) => handleChange('slug', e.target.value)}
                   error={errors.slug}
-                  helperText="آیدی یکتا برای جستجو و اشتراک‌گذاری (فقط حروف انگلیسی کوچک، اعداد و آندرلاین)"
+                  helperText={t('communities.new.slugHelper')}
                   dir="ltr"
                   className="font-mono"
                 />
                 {slugMessage && !errors.slug && (
                   <p className={`text-sm mt-1 ${getSlugStatusColor()}`}>
                     {slugStatus === 'checking' && (
-                      <span className="inline-block animate-spin ml-1">⟳</span>
+                      <span className="inline-block animate-spin ltr:ml-1 rtl:mr-1">⟳</span>
                     )}
                     {slugMessage}
                   </p>
                 )}
               </div>
 
-              {/* توضیحات */}
+              {/* Description */}
               <Textarea
-                label="توضیحات"
-                placeholder="درباره این کامیونیتی بنویسید..."
+                label={t('communities.new.bio')}
+                placeholder={t('communities.new.bioPlaceholder')}
                 rows={5}
                 value={formData.bio}
                 onChange={(e) => handleChange('bio', e.target.value)}
-                helperText="اختیاری - بگویید این کامیونیتی برای چیست و چه کسانی می‌توانند عضو شوند"
+                helperText={t('communities.new.bioHelper')}
               />
 
-              {/* توضیحات اضافی */}
+              {/* Additional info */}
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="flex items-start gap-3">
                   <svg
@@ -245,12 +247,12 @@ export default function NewCommunityPage() {
                     />
                   </svg>
                   <div className="text-sm text-blue-800">
-                    <p className="font-medium mb-1">نکته مهم</p>
+                    <p className="font-medium mb-1">{t('communities.new.infoTitle')}</p>
                     <p className="font-light">
-                      شما به‌عنوان سازنده، به‌صورت خودکار مدیر این کامیونیتی خواهید بود و می‌توانید درخواست‌های عضویت را بررسی کنید.
+                      {t('communities.new.infoDescription1')}
                     </p>
                     <p className="font-light mt-2">
-                      <strong>آیدی کامیونیتی</strong> برای جستجو و اشتراک‌گذاری استفاده می‌شود و پس از ساخت قابل تغییر نیست.
+                      <strong>{t('communities.new.slug')}</strong> {t('communities.new.infoDescription2')}
                     </p>
                   </div>
                 </div>
@@ -261,7 +263,7 @@ export default function NewCommunityPage() {
           {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button type="button" variant="ghost" onClick={() => router.back()} className="w-full sm:w-auto">
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button 
               type="submit" 
@@ -269,7 +271,7 @@ export default function NewCommunityPage() {
               disabled={slugStatus === 'checking' || slugStatus === 'taken'}
               className="w-full sm:w-auto"
             >
-              ایجاد کامیونیتی
+              {t('communities.new.submit')}
             </Button>
           </div>
         </form>

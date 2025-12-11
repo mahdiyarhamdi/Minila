@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useCard } from '@/hooks/useCards'
 import { useUserCommunities, useJoinCommunity, useSharedCommunities } from '@/hooks/useCommunities'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Badge from '@/components/Badge'
@@ -15,8 +16,8 @@ import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
 /**
- * صفحه عضویت در کامیونیتی برای ارسال پیام
- * این صفحه زمانی نمایش داده می‌شود که کاربر با صاحب کارت کامیونیتی مشترکی ندارد
+ * Join community page for sending messages
+ * This page is shown when user doesn't share a community with card owner
  */
 export default function JoinCommunityPage({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id)
@@ -24,17 +25,18 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   
   const { data: card, isLoading: cardLoading } = useCard(cardId)
   const ownerId = card?.owner?.id
   
-  // بررسی کامیونیتی مشترک
+  // Check for shared community
   const { data: sharedData, isLoading: sharedLoading } = useSharedCommunities(
     ownerId || 0,
     !!ownerId && !!user
   )
   
-  // دریافت کامیونیتی‌های صاحب کارت
+  // Get card owner's communities
   const { data: communitiesData, isLoading: communitiesLoading, refetch } = useUserCommunities(
     ownerId || 0,
     1,
@@ -43,14 +45,14 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
   
   const joinMutation = useJoinCommunity()
 
-  // اگر لاگین نکرده، به صفحه لاگین هدایت کن
+  // If not logged in, redirect to login
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/auth/login')
     }
   }, [authLoading, user, router])
 
-  // اگر کامیونیتی مشترک دارند، به صفحه پیام هدایت کن
+  // If they have a shared community, redirect to messages
   useEffect(() => {
     if (sharedData?.has_shared_community && ownerId) {
       router.push(`/messages/${ownerId}`)
@@ -60,7 +62,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
   const handleJoin = async (communityId: number) => {
     try {
       await joinMutation.mutateAsync(communityId)
-      showToast('success', 'درخواست عضویت شما ارسال شد. پس از تأیید می‌توانید پیام ارسال کنید.')
+      showToast('success', t('cards.joinCommunity.requestSent'))
       // Refresh communities list
       refetch()
     } catch (error: any) {
@@ -82,10 +84,10 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <Card variant="bordered" className="p-6 max-w-md">
-          <p className="text-red-600 text-center">کارت یافت نشد</p>
+          <p className="text-red-600 text-center">{t('cards.detail.notFound')}</p>
           <div className="mt-4 text-center">
             <Link href="/cards">
-              <Button variant="ghost">بازگشت به لیست کارت‌ها</Button>
+              <Button variant="ghost">{t('cards.detail.backToList')}</Button>
             </Link>
           </div>
         </Card>
@@ -93,7 +95,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
     )
   }
 
-  // اگر صاحب کارت خود کاربر است
+  // If card owner is the user themselves
   if (user?.id === card.owner.id) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -103,10 +105,10 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <p className="text-neutral-700">نمی‌توانید به خودتان پیام ارسال کنید</p>
+          <p className="text-neutral-700">{t('cards.detail.cannotMessageSelf')}</p>
           <div className="mt-4">
             <Link href={`/cards/${cardId}`}>
-              <Button variant="ghost">بازگشت به کارت</Button>
+              <Button variant="ghost">{t('cards.joinCommunity.backToCard')}</Button>
             </Link>
           </div>
         </Card>
@@ -117,7 +119,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
   const communities = communitiesData?.items || []
   const ownerName = card.owner.first_name && card.owner.last_name
     ? `${card.owner.first_name} ${card.owner.last_name}`
-    : 'صاحب کارت'
+    : t('cards.joinCommunity.cardOwner')
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -130,7 +132,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm sm:text-base">بازگشت به کارت</span>
+          <span className="text-sm sm:text-base">{t('cards.joinCommunity.backToCard')}</span>
         </Link>
 
         {/* Main Card */}
@@ -143,10 +145,10 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
               </svg>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-3">
-              کامیونیتی مشترکی ندارید
+              {t('cards.joinCommunity.title')}
             </h1>
             <p className="text-neutral-600 font-light leading-relaxed max-w-md mx-auto">
-              برای ارسال پیام به <span className="font-medium text-neutral-800">{ownerName}</span>، باید حداقل در یکی از کامیونیتی‌های مشترک عضو باشید.
+              {t('cards.joinCommunity.description', { name: ownerName })}
             </p>
           </div>
 
@@ -159,7 +161,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
               <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              کامیونیتی‌های {ownerName}
+              {t('cards.joinCommunity.ownersCommunities', { name: ownerName })}
             </h2>
 
             {communities.length === 0 ? (
@@ -169,8 +171,8 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 }
-                title="کامیونیتی یافت نشد"
-                description="این کاربر در هیچ کامیونیتی عضو نیست. در حال حاضر امکان ارسال پیام وجود ندارد."
+                title={t('cards.joinCommunity.noCommunities')}
+                description={t('cards.joinCommunity.noCommunitiesDescription')}
               />
             ) : (
               <div className="space-y-3">
@@ -204,10 +206,10 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
                             {community.name}
                           </Link>
                           {community.is_member && (
-                            <Badge variant="success" size="sm">عضو</Badge>
+                            <Badge variant="success" size="sm">{t('cards.joinCommunity.memberBadge')}</Badge>
                           )}
                           {community.has_pending_request && !community.is_member && (
-                            <Badge variant="warning" size="sm">در انتظار تأیید</Badge>
+                            <Badge variant="warning" size="sm">{t('cards.joinCommunity.pendingBadge')}</Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-3 text-sm text-neutral-500 mt-0.5">
@@ -215,7 +217,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
-                            {community.member_count} عضو
+                            {t('communities.detail.members', { count: community.member_count.toString() })}
                           </span>
                           <code className="text-xs font-mono bg-neutral-100 px-1.5 py-0.5 rounded" dir="ltr">
                             @{community.slug}
@@ -235,14 +237,14 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span className="text-sm font-medium">عضو هستید</span>
+                          <span className="text-sm font-medium">{t('cards.joinCommunity.youAreMember')}</span>
                         </div>
                       ) : community.has_pending_request ? (
                         <Button variant="secondary" size="sm" disabled className="w-full sm:w-auto">
-                          <svg className="w-4 h-4 ml-1.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 ltr:mr-1.5 rtl:ml-1.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                           </svg>
-                          در انتظار تأیید
+                          {t('cards.joinCommunity.requestPending')}
                         </Button>
                       ) : (
                         <Button
@@ -252,10 +254,10 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
                           isLoading={joinMutation.isPending}
                           className="w-full sm:w-auto"
                         >
-                          <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 ltr:mr-1.5 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                           </svg>
-                          درخواست عضویت
+                          {t('cards.joinCommunity.requestMembership')}
                         </Button>
                       )}
                     </div>
@@ -275,10 +277,9 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
               </svg>
             </div>
             <div>
-              <h3 className="font-medium text-blue-900 mb-1">چرا نیاز به کامیونیتی مشترک است؟</h3>
+              <h3 className="font-medium text-blue-900 mb-1">{t('cards.joinCommunity.infoTitle')}</h3>
               <p className="text-sm text-blue-700 font-light leading-relaxed">
-                برای حفظ امنیت و جلوگیری از پیام‌های ناخواسته، ارسال پیام فقط بین اعضای کامیونیتی‌های مشترک امکان‌پذیر است.
-                با عضویت در یکی از کامیونیتی‌های بالا می‌توانید با این کاربر ارتباط برقرار کنید.
+                {t('cards.joinCommunity.infoDescription')}
               </p>
             </div>
           </div>
@@ -287,4 +288,3 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
     </div>
   )
 }
-

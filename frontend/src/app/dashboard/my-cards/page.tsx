@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useMyCards, useDeleteCard } from '@/hooks/useCards'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import CardItem from '@/components/cards/CardItem'
 import EmptyState from '@/components/EmptyState'
@@ -14,9 +15,10 @@ import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
 /**
- * صفحه کارت‌های من
+ * My cards page
  */
 export default function MyCardsPage() {
+  const { t } = useTranslation()
   const { data, isLoading, error } = useMyCards()
   const deleteCardMutation = useDeleteCard()
   const { showToast } = useToast()
@@ -28,27 +30,27 @@ export default function MyCardsPage() {
 
     try {
       await deleteCardMutation.mutateAsync(deleteCardId)
-      showToast('success', 'کارت با موفقیت حذف شد')
+      showToast('success', t('cards.myCards.deleteSuccess'))
       setDeleteCardId(null)
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
   }
 
-  // فیلتر کارت‌ها بر اساس تب فعال
+  // Filter cards based on active tab
   const filteredCards = data?.items.filter((card) => {
     if (activeTab === 'all') return true
     
-    // تاریخ سفر (برای مسافران) یا انتهای بازه زمانی (برای فرستندگان)
+    // Travel date (for travelers) or end of time frame (for senders)
     const travelDate = card.ticket_date_time || card.end_time_frame
     
     if (activeTab === 'active') {
-      // کارت‌های فعال (تاریخ سفر هنوز نگذشته یا تاریخ ندارد)
+      // Active cards (travel date hasn't passed or no date)
       if (!travelDate) return true
       return new Date(travelDate) >= new Date()
     }
     if (activeTab === 'expired') {
-      // کارت‌های منقضی شده
+      // Expired cards
       if (!travelDate) return false
       return new Date(travelDate) < new Date()
     }
@@ -62,19 +64,19 @@ export default function MyCardsPage() {
         <div className="flex flex-col gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-              کارت‌های من
+              {t('cards.myCards.title')}
             </h1>
             <p className="text-sm sm:text-base text-neutral-600 font-light">
-              مدیریت و مشاهده کارت‌های خودتان
+              {t('cards.myCards.subtitle')}
             </p>
           </div>
 
           <Link href="/cards/new" className="w-full sm:w-auto self-start">
             <Button size="lg" className="w-full sm:w-auto">
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ltr:mr-2 rtl:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              ایجاد کارت جدید
+              {t('cards.createButton')}
             </Button>
           </Link>
         </div>
@@ -83,10 +85,10 @@ export default function MyCardsPage() {
         <div className="mb-6">
           <Tabs
             tabs={[
-              { id: 'all', label: 'همه', count: data?.items.length },
+              { id: 'all', label: t('cards.myCards.tabs.all'), count: data?.items.length },
               {
                 id: 'active',
-                label: 'فعال',
+                label: t('cards.myCards.tabs.active'),
                 count: data?.items.filter((c) => {
                   const travelDate = c.ticket_date_time || c.end_time_frame
                   return !travelDate || new Date(travelDate) >= new Date()
@@ -94,7 +96,7 @@ export default function MyCardsPage() {
               },
               {
                 id: 'expired',
-                label: 'منقضی شده',
+                label: t('cards.myCards.tabs.expired'),
                 count: data?.items.filter((c) => {
                   const travelDate = c.ticket_date_time || c.end_time_frame
                   return travelDate && new Date(travelDate) < new Date()
@@ -115,7 +117,7 @@ export default function MyCardsPage() {
 
         {error && (
           <Card variant="bordered" className="p-6">
-            <p className="text-red-600 text-center">خطا در دریافت کارت‌ها</p>
+            <p className="text-red-600 text-center">{t('cards.error')}</p>
           </Card>
         )}
 
@@ -131,16 +133,16 @@ export default function MyCardsPage() {
                 />
               </svg>
             }
-            title={activeTab === 'expired' ? 'کارت منقضی شده‌ای ندارید' : 'کارتی یافت نشد'}
+            title={activeTab === 'expired' ? t('cards.myCards.noExpiredCards') : t('cards.noCards')}
             description={
               activeTab === 'expired'
-                ? 'هیچ‌کدام از کارت‌های شما هنوز منقضی نشده‌اند.'
-                : 'شما هنوز کارتی ایجاد نکرده‌اید. اولین کارت خود را بسازید.'
+                ? t('cards.myCards.noExpiredCardsDescription')
+                : t('cards.myCards.noCardsYet')
             }
             action={
               activeTab !== 'expired' ? (
               <Link href="/cards/new">
-                <Button>ایجاد اولین کارت</Button>
+                <Button>{t('cards.myCards.createFirstCard')}</Button>
               </Link>
               ) : undefined
             }
@@ -181,16 +183,16 @@ export default function MyCardsPage() {
       <Modal
         isOpen={deleteCardId !== null}
         onClose={() => setDeleteCardId(null)}
-        title="حذف کارت"
+        title={t('cards.detail.confirmDelete')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm sm:text-base text-neutral-700">
-            آیا از حذف این کارت اطمینان دارید؟ این عمل قابل بازگشت نیست.
+            {t('cards.detail.confirmDeleteMessage')}
           </p>
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button variant="ghost" onClick={() => setDeleteCardId(null)} className="w-full sm:w-auto">
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -198,7 +200,7 @@ export default function MyCardsPage() {
               isLoading={deleteCardMutation.isPending}
               className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
-              حذف کارت
+              {t('cards.detail.deleteCard')}
             </Button>
           </div>
         </div>
@@ -206,4 +208,3 @@ export default function MyCardsPage() {
     </div>
   )
 }
-

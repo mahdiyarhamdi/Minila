@@ -12,6 +12,7 @@ import {
   useRemoveCommunityMember,
   useChangeMemberRole,
 } from '@/hooks/useCommunities'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Badge from '@/components/Badge'
@@ -23,21 +24,22 @@ import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
 /**
- * صفحه مدیریت کامیونیتی (فقط برای Manager)
- * طراحی Mobile-First با layout واکنش‌گرا
+ * Community management page (Manager only)
+ * Mobile-First design with responsive layout
  */
 export default function ManageCommunityPage({ params }: { params: { id: string } }) {
   const communityId = parseInt(params.id)
   const router = useRouter()
   const { showToast } = useToast()
+  const { t, formatDate } = useTranslation()
   
-  // ابتدا اطلاعات کامیونیتی و دسترسی را بررسی می‌کنیم
+  // First check community info and access
   const { data: community, isLoading, refetch: refetchCommunity } = useCommunity(communityId)
   
-  // بررسی دسترسی - فقط owner یا manager می‌توانند مدیریت کنند
+  // Check access - only owner or manager can manage
   const hasManageAccess = community?.my_role === 'manager' || community?.my_role === 'owner'
   
-  // فقط در صورت داشتن دسترسی، داده‌های مدیریت را fetch می‌کنیم
+  // Only fetch management data if user has access
   const { data: requests, refetch: refetchRequests } = useJoinRequests(communityId, 1, hasManageAccess)
   const { data: members, refetch: refetchMembers } = useCommunityMembers(communityId, 1, hasManageAccess)
   
@@ -49,26 +51,26 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
   const [removeMemberId, setRemoveMemberId] = useState<number | null>(null)
   const [roleChangeTarget, setRoleChangeTarget] = useState<{ userId: number; currentRole: string; userName: string } | null>(null)
   
-  // Force refresh داده‌های کامیونیتی هنگام ورود به صفحه برای بررسی دسترسی
+  // Force refresh community data when entering page to check access
   useEffect(() => {
     refetchCommunity()
   }, [communityId, refetchCommunity])
 
-  // بررسی وجود token
+  // Check for token existence
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('access_token')
       if (!token) {
-        showToast('error', 'لطفاً ابتدا وارد شوید')
+        showToast('error', t('communities.manage.accessDenied.notLoggedIn'))
         router.push('/auth/login')
       }
     }
-  }, [router, showToast])
+  }, [router, showToast, t])
 
   const handleApprove = async (requestId: number) => {
     try {
       await approveMutation.mutateAsync({ communityId, requestId })
-      showToast('success', 'درخواست تایید شد')
+      showToast('success', t('communities.manage.toast.requestApproved'))
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
@@ -77,7 +79,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
   const handleReject = async (requestId: number) => {
     try {
       await rejectMutation.mutateAsync({ communityId, requestId })
-      showToast('success', 'درخواست رد شد')
+      showToast('success', t('communities.manage.toast.requestRejected'))
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
@@ -88,7 +90,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
 
     try {
       await removeMutation.mutateAsync({ communityId, userId: removeMemberId })
-      showToast('success', 'عضو از کامیونیتی حذف شد')
+      showToast('success', t('communities.manage.toast.memberRemoved'))
       setRemoveMemberId(null)
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
@@ -104,7 +106,9 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
         userId: roleChangeTarget.userId, 
         role: newRole 
       })
-      showToast('success', newRole === 'manager' ? 'کاربر به مدیر ارتقا یافت' : 'نقش کاربر به عضو تغییر کرد')
+      showToast('success', newRole === 'manager' 
+        ? t('communities.manage.toast.promotedToManager') 
+        : t('communities.manage.toast.demotedToMember'))
       setRoleChangeTarget(null)
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
@@ -123,7 +127,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
         <Card variant="bordered" className="p-6 max-w-md w-full">
-          <p className="text-red-600 text-center">کامیونیتی یافت نشد</p>
+          <p className="text-red-600 text-center">{t('communities.detail.notFound')}</p>
         </Card>
       </div>
     )
@@ -137,19 +141,19 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
     const isTokenExpired = community.my_role === null && hasToken
     const isMemberWithoutAccess = community.my_role === 'member' && hasToken
     
-    // تعیین پیام اصلی بر اساس وضعیت
-    let mainMessage = 'لطفاً ابتدا وارد شوید'
-    let subMessage = 'برای دسترسی به صفحه مدیریت، ابتدا باید وارد حساب کاربری خود شوید.'
+    // Determine main message based on status
+    let mainMessage = t('communities.manage.accessDenied.notLoggedIn')
+    let subMessage = t('communities.manage.accessDenied.notLoggedInDescription')
     
     if (isTokenExpired) {
-      mainMessage = 'نشست شما منقضی شده است'
-      subMessage = 'لطفاً دوباره وارد حساب کاربری خود شوید تا بتوانید به صفحه مدیریت دسترسی داشته باشید.'
+      mainMessage = t('communities.manage.accessDenied.sessionExpired')
+      subMessage = t('communities.manage.accessDenied.sessionExpiredDescription')
     } else if (isMemberWithoutAccess) {
-      mainMessage = 'شما دسترسی به مدیریت این کامیونیتی را ندارید'
-      subMessage = 'شما عضو این کامیونیتی هستید اما نقش مدیریتی (owner یا manager) ندارید.'
+      mainMessage = t('communities.manage.accessDenied.memberNoAccess')
+      subMessage = t('communities.manage.accessDenied.memberNoAccessDescription')
     } else if (hasToken) {
-      mainMessage = 'شما دسترسی به مدیریت این کامیونیتی را ندارید'
-      subMessage = 'شما عضو این کامیونیتی نیستید یا نقش مدیریتی ندارید.'
+      mainMessage = t('communities.manage.accessDenied.noAccess')
+      subMessage = t('communities.manage.accessDenied.noAccessDescription')
     }
     
     return (
@@ -168,13 +172,13 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
             {(!hasToken || isTokenExpired) && (
               <Link href="/auth/login" className="w-full">
                 <Button variant="primary" className="w-full">
-                  ورود به حساب کاربری
+                  {t('communities.manage.accessDenied.loginButton')}
                 </Button>
               </Link>
             )}
             
             <Link href={`/communities/${communityId}`} className="w-full">
-              <Button variant="ghost" className="w-full">بازگشت به کامیونیتی</Button>
+              <Button variant="ghost" className="w-full">{t('communities.manage.accessDenied.backButton')}</Button>
             </Link>
           </div>
         </Card>
@@ -195,25 +199,25 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm sm:text-base">بازگشت به کامیونیتی</span>
+          <span className="text-sm sm:text-base">{t('communities.manage.backToCommunity')}</span>
         </Link>
 
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            مدیریت {community.name}
+            {t('communities.manage.title', { name: community.name })}
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
-            مدیریت درخواست‌ها و اعضای کامیونیتی
+            {t('communities.manage.subtitle')}
           </p>
         </div>
 
         {/* Tabs */}
         <Tabs
           tabs={[
-            { id: 'requests', label: 'درخواست‌های عضویت', count: pendingRequests.length },
-            { id: 'members', label: 'اعضا', count: members?.total },
-            { id: 'settings', label: 'تنظیمات' },
+            { id: 'requests', label: t('communities.manage.requests'), count: pendingRequests.length },
+            { id: 'members', label: t('communities.manage.members'), count: members?.total },
+            { id: 'settings', label: t('communities.manage.settings') },
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}
@@ -228,7 +232,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                       key={request.id}
                       className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors"
                     >
-                      {/* اطلاعات کاربر */}
+                      {/* User Info */}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                           <span className="text-primary-600 font-bold">
@@ -240,13 +244,13 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                             {request.user.first_name} {request.user.last_name}
                           </p>
                           <p className="text-xs sm:text-sm text-neutral-600 font-light">
-                            {new Date(request.created_at).toLocaleDateString('fa-IR')}
+                            {formatDate(request.created_at)}
                           </p>
                         </div>
                       </div>
                       
-                      {/* دکمه‌های اکشن */}
-                      <div className="flex gap-2 mr-13 sm:mr-0">
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 ltr:sm:mr-0 rtl:sm:ml-0">
                         <Button
                           size="sm"
                           variant="secondary"
@@ -254,7 +258,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                           isLoading={approveMutation.isPending}
                           className="flex-1 sm:flex-none"
                         >
-                          تایید
+                          {t('communities.manage.actions.approve')}
                         </Button>
                         <Button
                           size="sm"
@@ -263,7 +267,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                           isLoading={rejectMutation.isPending}
                           className="flex-1 sm:flex-none"
                         >
-                          رد
+                          {t('communities.manage.actions.reject')}
                         </Button>
                       </div>
                     </div>
@@ -271,8 +275,8 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                 </div>
               ) : (
                 <EmptyState
-                  title="درخواستی یافت نشد"
-                  description="درخواست عضویت جدیدی وجود ندارد"
+                  title={t('communities.manage.noRequests')}
+                  description={t('communities.manage.noRequestsDescription')}
                 />
               )}
             </Card>
@@ -290,17 +294,17 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                     const isCurrentUserOwner = community.my_role === 'owner'
                     const isCurrentUserManager = community.my_role === 'manager'
                     
-                    // owner می‌تواند همه را مدیریت کند (به جز خودش/owner دیگر)
-                    // manager فقط می‌تواند member ها را حذف کند
+                    // owner can manage everyone (except self/other owners)
+                    // manager can only remove members
                     const canManageThisMember = (isCurrentUserOwner && !isOwner) || (isCurrentUserManager && isMember)
-                    const canChangeRole = isCurrentUserOwner && !isOwner // فقط owner می‌تواند نقش را تغییر دهد
+                    const canChangeRole = isCurrentUserOwner && !isOwner // only owner can change roles
                     
                     return (
                       <div
                         key={member.id}
                         className="flex flex-col gap-3 p-3 sm:p-4 rounded-lg hover:bg-neutral-50 border border-neutral-100 transition-colors"
                       >
-                        {/* ردیف اول: اطلاعات کاربر و Badge */}
+                        {/* First row: User info and Badge */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 min-w-0 flex-1">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -322,14 +326,18 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                             </div>
                           </div>
                           <Badge variant={isOwner ? 'warning' : isManager ? 'success' : 'neutral'}>
-                            {isOwner ? 'مالک' : isManager ? 'مدیر' : 'عضو'}
+                            {isOwner 
+                              ? t('communities.manage.roles.owner') 
+                              : isManager 
+                                ? t('communities.manage.roles.manager') 
+                                : t('communities.manage.roles.member')}
                           </Badge>
                         </div>
                         
-                        {/* ردیف دوم: دکمه‌های مدیریت (فقط اگر دسترسی داشته باشد) */}
+                        {/* Second row: Management buttons (only if has access) */}
                         {(canChangeRole || canManageThisMember) && (
-                          <div className="flex flex-wrap gap-2 pr-13 sm:pr-0 sm:justify-end">
-                            {/* دکمه‌های تغییر نقش - فقط برای owner */}
+                          <div className="flex flex-wrap gap-2 ltr:pr-0 rtl:pl-0 sm:justify-end">
+                            {/* Role change buttons - only for owner */}
                             {canChangeRole && isMember && (
                               <Button
                                 size="sm"
@@ -341,7 +349,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                                 })}
                                 className="text-xs sm:text-sm"
                               >
-                                ارتقا به مدیر
+                                {t('communities.manage.actions.makeManager')}
                               </Button>
                             )}
                             {canChangeRole && isManager && (
@@ -355,10 +363,10 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                                 })}
                                 className="text-xs sm:text-sm"
                               >
-                                تنزل به عضو
+                                {t('communities.manage.actions.demoteToMember')}
                               </Button>
                             )}
-                            {/* دکمه حذف - برای owner و manager */}
+                            {/* Remove button - for owner and manager */}
                             {canManageThisMember && (
                               <Button
                                 size="sm"
@@ -366,7 +374,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                                 className="text-red-600 hover:bg-red-50 text-xs sm:text-sm"
                                 onClick={() => setRemoveMemberId(member.user.id)}
                               >
-                                حذف
+                                {t('communities.manage.actions.removeMember')}
                               </Button>
                             )}
                           </div>
@@ -376,7 +384,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
                   })}
                 </div>
               ) : (
-                <EmptyState title="عضوی یافت نشد" />
+                <EmptyState title={t('communities.manage.noMembers')} />
               )}
             </Card>
           )}
@@ -384,9 +392,9 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
           {/* Settings Tab */}
           {activeTab === 'settings' && (
             <Card variant="bordered" className="p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-3 sm:mb-4">تنظیمات کامیونیتی</h3>
+              <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-3 sm:mb-4">{t('communities.manage.settings')}</h3>
               <p className="text-sm sm:text-base text-neutral-600 font-light">
-                تنظیمات بیشتر به زودی اضافه خواهد شد...
+                {t('communities.manage.settingsComingSoon')}
               </p>
             </Card>
           )}
@@ -397,16 +405,16 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
       <Modal
         isOpen={removeMemberId !== null}
         onClose={() => setRemoveMemberId(null)}
-        title="حذف عضو"
+        title={t('communities.manage.modals.removeMember.title')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-neutral-700 text-sm sm:text-base">
-            آیا از حذف این عضو از کامیونیتی اطمینان دارید؟
+            {t('communities.manage.modals.removeMember.message')}
           </p>
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button variant="ghost" onClick={() => setRemoveMemberId(null)} className="w-full sm:w-auto">
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -414,7 +422,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
               onClick={handleRemoveMember}
               isLoading={removeMutation.isPending}
             >
-              حذف عضو
+              {t('communities.manage.actions.removeMember')}
             </Button>
           </div>
         </div>
@@ -424,30 +432,32 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
       <Modal
         isOpen={roleChangeTarget !== null}
         onClose={() => setRoleChangeTarget(null)}
-        title={roleChangeTarget?.currentRole === 'member' ? 'ارتقا به مدیر' : 'تنزل به عضو'}
+        title={roleChangeTarget?.currentRole === 'member' 
+          ? t('communities.manage.modals.promoteToManager.title') 
+          : t('communities.manage.modals.demoteToMember.title')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-neutral-700 text-sm sm:text-base">
             {roleChangeTarget?.currentRole === 'member' 
-              ? `آیا می‌خواهید ${roleChangeTarget?.userName} را به مدیر ارتقا دهید؟`
-              : `آیا می‌خواهید نقش ${roleChangeTarget?.userName} را به عضو عادی تنزل دهید؟`
+              ? t('communities.manage.modals.promoteToManager.message', { name: roleChangeTarget?.userName || '' })
+              : t('communities.manage.modals.demoteToMember.message', { name: roleChangeTarget?.userName || '' })
             }
           </p>
           
           {roleChangeTarget?.currentRole === 'member' && (
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-blue-800">
-              <p className="font-medium mb-1">مدیران می‌توانند:</p>
-              <ul className="list-disc list-inside space-y-1 mr-2">
-                <li>درخواست‌های عضویت را تایید یا رد کنند</li>
-                <li>اعضای عادی را از کامیونیتی حذف کنند</li>
+              <p className="font-medium mb-1">{t('communities.manage.modals.promoteToManager.info')}</p>
+              <ul className="list-disc ltr:list-inside rtl:mr-4 space-y-1">
+                <li>{t('communities.manage.modals.promoteToManager.infoItem1')}</li>
+                <li>{t('communities.manage.modals.promoteToManager.infoItem2')}</li>
               </ul>
             </div>
           )}
           
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button variant="ghost" onClick={() => setRoleChangeTarget(null)} className="w-full sm:w-auto">
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button
               variant={roleChangeTarget?.currentRole === 'member' ? 'primary' : 'secondary'}
@@ -455,7 +465,9 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
               isLoading={changeRoleMutation.isPending}
               className="w-full sm:w-auto"
             >
-              {roleChangeTarget?.currentRole === 'member' ? 'ارتقا به مدیر' : 'تنزل به عضو'}
+              {roleChangeTarget?.currentRole === 'member' 
+                ? t('communities.manage.actions.makeManager') 
+                : t('communities.manage.actions.demoteToMember')}
             </Button>
           </div>
         </div>

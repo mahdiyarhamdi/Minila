@@ -38,6 +38,7 @@ jest.mock('@/hooks/useTranslation', () => ({
       }
       return translations[key] || key
     },
+    language: 'fa',
   }),
 }))
 

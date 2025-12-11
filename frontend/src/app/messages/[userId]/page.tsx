@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useMessages, useSendMessage, useMarkAsRead } from '@/hooks/useMessages'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Textarea from '@/components/Textarea'
@@ -14,12 +15,13 @@ import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
 /**
- * صفحه چت با یک کاربر
+ * Chat page with a user
  */
 export default function ChatPage({ params }: { params: { userId: string } }) {
   const receiverId = parseInt(params.userId)
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const { data: messagesData, isLoading } = useMessages(receiverId)
   const sendMutation = useSendMessage()
   const markAsReadMutation = useMarkAsRead()
@@ -42,7 +44,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
     e.preventDefault()
 
     if (!messageContent.trim()) {
-      showToast('warning', 'لطفاً متن پیام را وارد کنید')
+      showToast('warning', t('messages.chat.emptyMessage'))
       return
     }
 
@@ -128,8 +130,8 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
                     />
                   </svg>
                 }
-                title="هنوز پیامی وجود ندارد"
-                description="اولین پیام را ارسال کنید و گفتگو را شروع کنید."
+                title={t('messages.chat.noMessages')}
+                description={t('messages.chat.noMessagesDescription')}
               />
             </div>
           ) : (
@@ -160,7 +162,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <form onSubmit={handleSend} className="flex gap-2 sm:gap-3">
             <Textarea
-              placeholder="پیام خود را بنویسید..."
+              placeholder={t('messages.chat.inputPlaceholder')}
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
               rows={1}
@@ -189,11 +191,10 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
             </Button>
           </form>
           <p className="text-xs text-neutral-500 font-light mt-1.5 sm:mt-2 hidden sm:block">
-            Enter برای ارسال، Shift+Enter برای خط جدید
+            {t('messages.chat.sendTip')}
           </p>
         </div>
       </div>
     </div>
   )
 }
-

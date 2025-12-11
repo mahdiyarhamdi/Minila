@@ -100,6 +100,33 @@ Use logical Tailwind properties for RTL compatibility:
 - `ps-*` / `pe-*` instead of `pl-*` / `pr-*`
 - Use `locale.dir` from `useLanguage()` for conditional positioning
 
+### Multilingual Currency Support
+Currency names are displayed in the current language:
+
+```tsx
+import { getCurrencyName, getCurrencyByCode, getCommonCurrencyOptions } from '@/utils/currency';
+import { useTranslation } from '@/hooks/useTranslation';
+
+function PriceDisplay({ amount, currencyCode }) {
+  const { language } = useTranslation();
+  const currency = getCurrencyByCode(currencyCode);
+  
+  return (
+    <span>
+      {amount.toLocaleString()} {getCurrencyName(currency, language)}
+    </span>
+  );
+}
+
+// Get currency options for select inputs
+function CurrencySelect() {
+  const { language } = useTranslation();
+  const options = getCommonCurrencyOptions(language);
+  // options will have labels like "US Dollar (USD)" in English
+  // or "دلار آمریکا (USD)" in Persian
+}
+```
+
 ---
 
 ## 🌐 متغیرهای محیطی
@@ -571,6 +598,7 @@ npm run lint
 - [x] Gregorian calendar support with localized month names
 - [x] **Shared Community Check**: Auto-check for shared community before messaging
 - [x] **Join Community Page**: Redirect to join page if no shared community
+- [x] **Multilingual Currency**: Currency names in EN/FA/AR with `getCurrencyName()`
 
 ## 🌟 Upcoming Features
 
@@ -599,6 +627,6 @@ npm run lint
 
 ---
 
-**Version**: 0.5.0  
+**Version**: 0.6.0  
 **Last Update**: 2025-12-11
 

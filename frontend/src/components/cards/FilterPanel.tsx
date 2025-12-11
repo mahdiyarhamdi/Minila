@@ -13,6 +13,7 @@ import Autocomplete, { AutocompleteOption } from '../Autocomplete'
 import DateTimePicker from '../DateTimePicker'
 import type { CardFilter } from '@/types/card'
 import type { Country, City } from '@/types/location'
+import { getCommonCurrencyOptions, type SupportedLanguage } from '@/utils/currency'
 
 interface FilterPanelProps {
   onFilterChange: (filters: CardFilter) => void
@@ -49,23 +50,19 @@ const initialState: FilterState = {
   is_packed: '',
 }
 
-// Currency options
-const CURRENCY_OPTIONS = [
-  { value: 'USD', label: 'دلار آمریکا (USD)' },
-  { value: 'EUR', label: 'یورو (EUR)' },
-  { value: 'AED', label: 'درهم امارات (AED)' },
-  { value: 'IRR', label: 'ریال ایران (IRR)' },
-  { value: 'TRY', label: 'لیر ترکیه (TRY)' },
-  { value: 'GBP', label: 'پوند انگلیس (GBP)' },
-  { value: 'CAD', label: 'دلار کانادا (CAD)' },
-]
 
 /**
  * FilterPanel - پنل فیلتر کارت‌ها با پشتیبانی از موبایل و دسکتاپ
  * فقط با زدن دکمه اعمال فیلتر عمل می‌کند
  */
 export default function FilterPanel({ onFilterChange, initialFilters }: FilterPanelProps) {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
+  
+  // Currency options based on current language
+  const currencyOptions = useMemo(() => 
+    getCommonCurrencyOptions(language as SupportedLanguage), 
+    [language]
+  )
   // فیلترهای اعمال شده (نهایی)
   const [appliedFilters, setAppliedFilters] = useState<FilterState>(initialState)
   // فیلترهای در حال ویرایش (موقت)
@@ -434,7 +431,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
           label={t('cards.filters.currency')}
           value={currentFilters.currency}
           onChange={(e) => onChange('currency', e.target.value)}
-          options={CURRENCY_OPTIONS}
+          options={currencyOptions}
         />
       </div>
 

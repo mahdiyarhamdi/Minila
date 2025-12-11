@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useMyCommunities } from '@/hooks/useCommunities'
+import { useTranslation } from '@/hooks/useTranslation'
 import CommunityCard from '@/components/communities/CommunityCard'
 import EmptyState from '@/components/EmptyState'
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -9,9 +10,10 @@ import Button from '@/components/Button'
 import Card from '@/components/Card'
 
 /**
- * صفحه کامیونیتی‌های من
+ * My communities page
  */
 export default function MyCommunitiesPage() {
+  const { t } = useTranslation()
   const { data, isLoading, error } = useMyCommunities()
 
   return (
@@ -21,19 +23,19 @@ export default function MyCommunitiesPage() {
         <div className="flex flex-col gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-              کامیونیتی‌های من
+              {t('communities.myCommunities.title')}
             </h1>
             <p className="text-sm sm:text-base text-neutral-600 font-light">
-              کامیونیتی‌هایی که در آن‌ها عضو هستید
+              {t('communities.myCommunities.subtitle')}
             </p>
           </div>
 
           <Link href="/communities/new" className="w-full sm:w-auto self-start">
             <Button size="lg" className="w-full sm:w-auto">
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ltr:mr-2 rtl:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              ایجاد کامیونیتی جدید
+              {t('communities.myCommunities.createNew')}
             </Button>
           </Link>
         </div>
@@ -47,7 +49,7 @@ export default function MyCommunitiesPage() {
 
         {error && (
           <Card variant="bordered" className="p-6">
-            <p className="text-red-600 text-center">خطا در دریافت کامیونیتی‌ها</p>
+            <p className="text-red-600 text-center">{t('communities.error')}</p>
           </Card>
         )}
 
@@ -63,15 +65,15 @@ export default function MyCommunitiesPage() {
                 />
               </svg>
             }
-            title="عضو هیچ کامیونیتی نیستید"
-            description="هنوز در هیچ کامیونیتی عضو نشده‌اید. به کامیونیتی‌ها بپیوندید یا خودتان یکی بسازید."
+            title={t('communities.myCommunities.notMember')}
+            description={t('communities.myCommunities.notMemberDescription')}
             action={
               <div className="flex gap-3">
                 <Link href="/communities">
-                  <Button variant="secondary">مشاهده کامیونیتی‌ها</Button>
+                  <Button variant="secondary">{t('communities.myCommunities.viewCommunities')}</Button>
                 </Link>
                 <Link href="/communities/new">
-                  <Button>ایجاد کامیونیتی</Button>
+                  <Button>{t('communities.myCommunities.createCommunity')}</Button>
                 </Link>
               </div>
             }
@@ -84,14 +86,14 @@ export default function MyCommunitiesPage() {
               <div key={community.id} className="relative">
                 <CommunityCard {...community} is_member={true} />
                 
-                {/* دکمه مدیریت برای owner و manager */}
+                {/* Manage button for owner and manager */}
                 {(community.my_role === 'owner' || community.my_role === 'manager') && (
                   <Link
                     href={`/communities/${community.id}/manage`}
                     className="absolute top-4 ltr:right-4 rtl:left-4"
                   >
                     <Button size="sm" variant="secondary" className="shadow-soft hover:shadow-medium">
-                      <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 ltr:mr-1.5 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -105,7 +107,7 @@ export default function MyCommunitiesPage() {
                           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      مدیریت
+                      {t('communities.myCommunities.manage')}
                     </Button>
                   </Link>
                 )}
@@ -117,4 +119,3 @@ export default function MyCommunitiesPage() {
     </div>
   )
 }
-

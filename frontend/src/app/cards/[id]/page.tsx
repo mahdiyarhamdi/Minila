@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useCard, useDeleteCard } from '@/hooks/useCards'
 import { useSharedCommunities } from '@/hooks/useCommunities'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Badge from '@/components/Badge'
@@ -13,22 +14,23 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
-import { getCurrencyByCode } from '@/utils/currency'
+import { getCurrencyByCode, getCurrencyName, type SupportedLanguage } from '@/utils/currency'
 
 /**
- * صفحه جزئیات کارت
+ * Card detail page
  */
 export default function CardDetailPage({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id)
   const router = useRouter()
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { t, formatDate, language } = useTranslation()
   const { data: card, isLoading, error } = useCard(cardId)
   const deleteCardMutation = useDeleteCard()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [checkingShared, setCheckingShared] = useState(false)
 
-  // Hook برای بررسی کامیونیتی مشترک - فقط وقتی کاربر لاگین کرده و کارت بارگذاری شده
+  // Hook for checking shared community - only when user is logged in and card is loaded
   const ownerId = card?.owner?.id
   const shouldCheckShared = !!user && !!ownerId && user.id !== ownerId
   const { data: sharedData, isLoading: sharedLoading } = useSharedCommunities(
@@ -39,7 +41,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
   const handleDelete = async () => {
     try {
       await deleteCardMutation.mutateAsync(cardId)
-      showToast('success', 'کارت با موفقیت حذف شد')
+      showToast('success', t('cards.detail.deleteSuccess'))
       router.push('/cards')
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
@@ -48,35 +50,35 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
 
   const handleSendMessage = () => {
     if (!card || !user) {
-      // اگر لاگین نکرده به صفحه لاگین هدایت شود
+      // If not logged in, redirect to login
       router.push('/auth/login')
       return
     }
 
-    // اگر صاحب کارت خود کاربر است
+    // If owner is the user themselves
     if (user.id === card.owner.id) {
-      showToast('warning', 'نمی‌توانید به خودتان پیام ارسال کنید')
+      showToast('warning', t('cards.detail.cannotMessageSelf'))
       return
     }
 
     setCheckingShared(true)
     
-    // اگر داده‌ها هنوز بارگذاری نشده، صبر کنید
+    // Wait if data is still loading
     if (sharedLoading) {
       return
     }
 
-    // بررسی کامیونیتی مشترک
+    // Check for shared community
     if (sharedData?.has_shared_community) {
-      // کامیونیتی مشترک دارند - به صفحه پیام هدایت شود
+      // They have a shared community - redirect to messages
       router.push(`/messages/${card.owner.id}`)
     } else {
-      // کامیونیتی مشترک ندارند - به صفحه عضویت هدایت شود
+      // No shared community - redirect to join page
       router.push(`/cards/${cardId}/join-community`)
     }
   }
 
-  // وقتی داده‌های shared بارگذاری شد و در حالت checking هستیم
+  // When shared data is loaded and we're in checking state
   useEffect(() => {
     if (checkingShared && !sharedLoading && sharedData && card) {
       if (sharedData.has_shared_community) {
@@ -100,10 +102,10 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <Card variant="bordered" className="p-6 max-w-md">
-          <p className="text-red-600 text-center">کارت یافت نشد</p>
+          <p className="text-red-600 text-center">{t('cards.detail.notFound')}</p>
           <div className="mt-4 text-center">
             <Link href="/cards">
-              <Button variant="ghost">بازگشت به لیست کارت‌ها</Button>
+              <Button variant="ghost">{t('cards.detail.backToList')}</Button>
             </Link>
           </div>
         </Card>
@@ -121,7 +123,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm sm:text-base">بازگشت به لیست کارت‌ها</span>
+          <span className="text-sm sm:text-base">{t('cards.detail.backToList')}</span>
         </Link>
 
         {/* Main Card */}
@@ -134,7 +136,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
               </h1>
               <div className="flex flex-wrap gap-2">
                 <Badge variant={card.is_sender ? "warning" : "info"}>
-                  {card.is_sender ? 'فرستنده کالا' : 'مسافر'}
+                  {card.is_sender ? t('cards.detail.type.sender') : t('cards.detail.type.traveler')}
                 </Badge>
                 {card.product_classification && (
                   <Badge variant="neutral">{card.product_classification.name}</Badge>
@@ -144,9 +146,9 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
                   card.is_packed === false ? "neutral" : 
                   "neutral"
                 }>
-                  {card.is_packed === true ? 'بسته‌بندی شده' : 
-                   card.is_packed === false ? 'بسته‌بندی نشده' : 
-                   'فرقی ندارد'}
+                  {card.is_packed === true ? t('cards.detail.packed') : 
+                   card.is_packed === false ? t('cards.detail.unpacked') : 
+                   t('cards.detail.doesntMatter')}
                 </Badge>
               </div>
             </div>
@@ -156,11 +158,11 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
               <div className="flex gap-2 w-full sm:w-auto">
                 <Link href={`/cards/${card.id}/edit`} className="flex-1 sm:flex-none">
                   <Button variant="secondary" size="sm" className="w-full sm:w-auto">
-                    ویرایش
+                    {t('common.edit')}
                   </Button>
                 </Link>
                 <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(true)} className="flex-1 sm:flex-none">
-                  حذف
+                  {t('common.delete')}
                 </Button>
               </div>
             ) : (
@@ -170,75 +172,74 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
                 isLoading={checkingShared || sharedLoading}
                 disabled={checkingShared || sharedLoading}
               >
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 ltr:mr-2 rtl:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                ارسال پیام
+                {t('cards.detail.sendMessage')}
               </Button>
             )}
           </div>
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* مبدأ و مقصد کامل */}
+            {/* Full Origin and Destination */}
             <div>
-              <h3 className="text-sm font-medium text-neutral-600 mb-1">مبدأ</h3>
+              <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.origin')}</h3>
               <p className="text-lg text-neutral-900">
                 {card.origin_city.name}, {card.origin_country.name}
               </p>
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-neutral-600 mb-1">مقصد</h3>
+              <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.destination')}</h3>
               <p className="text-lg text-neutral-900">
                 {card.destination_city.name}, {card.destination_country.name}
               </p>
             </div>
 
-            {/* تاریخ سفر */}
+            {/* Travel Date */}
             {card.ticket_date_time && (
               <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">تاریخ سفر</h3>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.travelDate')}</h3>
                 <p className="text-lg text-neutral-900">
-                  {new Date(card.ticket_date_time).toLocaleDateString('fa-IR')}
+                  {formatDate(card.ticket_date_time)}
                 </p>
               </div>
             )}
 
-            {/* بازه زمانی برای فرستنده */}
+            {/* Time Frame for sender */}
             {card.start_time_frame && card.end_time_frame && (
               <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">بازه زمانی</h3>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.timeFrame')}</h3>
                 <p className="text-lg text-neutral-900">
-                  {new Date(card.start_time_frame).toLocaleDateString('fa-IR')} تا{' '}
-                  {new Date(card.end_time_frame).toLocaleDateString('fa-IR')}
+                  {formatDate(card.start_time_frame)} - {formatDate(card.end_time_frame)}
                 </p>
               </div>
             )}
 
-            {/* وزن */}
+            {/* Weight */}
             {card.weight && (
               <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">وزن</h3>
-                <p className="text-lg text-neutral-900">{card.weight} کیلوگرم</p>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.weight')}</h3>
+                <p className="text-lg text-neutral-900">{card.weight} {t('cards.detail.kg')}</p>
               </div>
             )}
 
-            {/* قیمت */}
+            {/* Price */}
             {card.price_aed && (
               <div>
-                <h3 className="text-sm font-medium text-neutral-600 mb-1">قیمت پیشنهادی</h3>
+                <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.suggestedPrice')}</h3>
                 <p className="text-lg font-bold text-primary-600">
-                  {card.price_aed.toLocaleString('fa-IR')} {getCurrencyByCode(card.currency || 'USD')?.nameFa || card.currency || 'دلار'}
+                  {card.price_aed.toLocaleString()} {getCurrencyByCode(card.currency || 'USD') ? getCurrencyName(getCurrencyByCode(card.currency || 'USD')!, language as SupportedLanguage) : (card.currency || 'USD')}
                 </p>
               </div>
             )}
 
-            {/* تاریخ ایجاد */}
+            {/* Created Date */}
             <div>
-              <h3 className="text-sm font-medium text-neutral-600 mb-1">تاریخ ایجاد</h3>
+              <h3 className="text-sm font-medium text-neutral-600 mb-1">{t('cards.detail.createdAt')}</h3>
               <p className="text-lg text-neutral-900">
-                {new Date(card.created_at).toLocaleDateString('fa-IR')}
+                {formatDate(card.created_at)}
               </p>
             </div>
           </div>
@@ -246,27 +247,27 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
           {/* Description */}
           {card.description && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-neutral-600 mb-2">توضیحات</h3>
+              <h3 className="text-sm font-medium text-neutral-600 mb-2">{t('cards.detail.description')}</h3>
               <p className="text-neutral-900 font-light leading-relaxed">{card.description}</p>
             </div>
           )}
 
           {/* Owner Info */}
           <div className="pt-6 border-t border-neutral-200">
-            <h3 className="text-sm font-medium text-neutral-600 mb-3">صاحب کارت</h3>
+            <h3 className="text-sm font-medium text-neutral-600 mb-3">{t('cards.detail.owner')}</h3>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
                 <span className="text-primary-600 font-bold text-lg">
-                  {card.owner.first_name?.[0] || '؟'}
+                  {card.owner.first_name?.[0] || '?'}
                 </span>
               </div>
               <div>
                 <p className="font-medium text-neutral-900">
                   {card.owner.first_name && card.owner.last_name
                     ? `${card.owner.first_name} ${card.owner.last_name}`
-                    : 'کاربر'}
+                    : t('cards.detail.unknownUser')}
                 </p>
-                <p className="text-sm text-neutral-600 font-light">شناسه: {card.owner.id}</p>
+                <p className="text-sm text-neutral-600 font-light">{t('cards.detail.userId')}: {card.owner.id}</p>
               </div>
             </div>
           </div>
@@ -274,7 +275,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
           {/* Communities */}
           {card.communities && card.communities.length > 0 && (
             <div className="pt-6 border-t border-neutral-200">
-              <h3 className="text-sm font-medium text-neutral-600 mb-3">کامیونیتی‌ها</h3>
+              <h3 className="text-sm font-medium text-neutral-600 mb-3">{t('cards.detail.communities')}</h3>
               <div className="flex flex-wrap gap-2">
                 {card.communities.map((community) => (
                   <Link key={community.id} href={`/communities/${community.id}`}>
@@ -293,17 +294,17 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
       <Modal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        title="حذف کارت"
+        title={t('cards.detail.confirmDelete')}
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm sm:text-base text-neutral-700">آیا از حذف این کارت اطمینان دارید؟ این عمل قابل بازگشت نیست.</p>
+          <p className="text-sm sm:text-base text-neutral-700">{t('cards.detail.confirmDeleteMessage')}</p>
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:justify-end">
             <Button variant="ghost" onClick={() => setShowDeleteModal(false)} className="w-full sm:w-auto">
-              انصراف
+              {t('common.cancel')}
             </Button>
             <Button variant="primary" onClick={handleDelete} isLoading={deleteCardMutation.isPending} className="w-full sm:w-auto bg-red-600 hover:bg-red-700">
-              حذف کارت
+              {t('cards.detail.deleteCard')}
             </Button>
           </div>
         </div>
@@ -311,4 +312,3 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
     </div>
   )
 }
-
