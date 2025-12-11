@@ -427,14 +427,17 @@
   },
   "profile": {
     "title": "Edit Profile",
-    "subtitle": "Update your personal information",
+    "subtitle": "Manage your account information",
     "firstName": "First name",
     "lastName": "Last name",
     "email": "Email",
+    "emailHelper": "Email cannot be changed",
     "phone": "Phone number",
     "bio": "Bio",
     "save": "Save changes",
     "success": "Profile updated successfully",
+    "avatarPlaceholder": "Profile photo (coming soon)",
+    "uploadAvatar": "Upload photo",
     "myCards": "My Cards",
     "myCommunities": "My Communities",
     "blockedUsers": "Block List"

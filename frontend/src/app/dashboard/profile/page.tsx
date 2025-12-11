@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTranslation } from '@/hooks/useTranslation'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
 import Card from '@/components/Card'
@@ -17,6 +18,7 @@ import { useToast } from '@/components/Toast'
 export default function ProfilePage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
+  const { t, formatDate } = useTranslation()
   const { showToast } = useToast()
 
   const [formData, setFormData] = useState({
@@ -26,6 +28,14 @@ export default function ProfilePage() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Change password state
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
 
   useEffect(() => {
     if (user) {
@@ -47,10 +57,10 @@ export default function ProfilePage() {
     const newErrors: Record<string, string> = {}
 
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'نام الزامی است'
+      newErrors.first_name = t('auth.validation.firstNameRequired')
     }
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'نام خانوادگی الزامی است'
+      newErrors.last_name = t('auth.validation.lastNameRequired')
     }
 
     setErrors(newErrors)
@@ -61,7 +71,7 @@ export default function ProfilePage() {
     e.preventDefault()
 
     if (!validate()) {
-      showToast('error', 'لطفاً تمام فیلدها را پر کنید')
+      showToast('error', t('errors.validation'))
       return
     }
 
@@ -69,13 +79,58 @@ export default function ProfilePage() {
 
     try {
       await apiService.updateProfile(formData)
-      showToast('success', 'پروفایل با موفقیت به‌روزرسانی شد')
+      showToast('success', t('profile.success'))
       // Refresh user data
       window.location.reload()
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast('error', extractErrorMessage(error))
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setPasswordError(t('dashboard.changePassword.errors.fillAll'))
+      return
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError(t('dashboard.changePassword.errors.minLength'))
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t('dashboard.changePassword.errors.mismatch'))
+      return
+    }
+
+    if (oldPassword === newPassword) {
+      setPasswordError(t('dashboard.changePassword.errors.sameAsOld'))
+      return
+    }
+
+    setPasswordLoading(true)
+
+    try {
+      await apiService.changePassword({
+        old_password: oldPassword,
+        new_password: newPassword,
+      })
+
+      setPasswordSuccess(t('dashboard.changePassword.success'))
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(error)
+      setPasswordError(errorMessage)
+    } finally {
+      setPasswordLoading(false)
     }
   }
 
@@ -97,10 +152,10 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            ویرایش پروفایل
+            {t('profile.title')}
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
-            اطلاعات حساب کاربری خود را مدیریت کنید
+            {t('profile.subtitle')}
           </p>
         </div>
 
@@ -114,12 +169,12 @@ export default function ProfilePage() {
                   {user.first_name[0]}
                 </span>
               </div>
-              <div className="text-center sm:text-right">
+              <div className="text-center sm:text-start">
                 <p className="text-sm text-neutral-600 font-light mb-2">
-                  عکس پروفایل (به زودی)
+                  {t('profile.avatarPlaceholder')}
                 </p>
                 <Button size="sm" variant="secondary" disabled>
-                  آپلود عکس
+                  {t('profile.uploadAvatar')}
                 </Button>
               </div>
             </div>
@@ -127,13 +182,13 @@ export default function ProfilePage() {
             {/* Name Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="نام *"
+                label={t('profile.firstName') + ' *'}
                 value={formData.first_name}
                 onChange={(e) => handleChange('first_name', e.target.value)}
                 error={errors.first_name}
               />
               <Input
-                label="نام خانوادگی *"
+                label={t('profile.lastName') + ' *'}
                 value={formData.last_name}
                 onChange={(e) => handleChange('last_name', e.target.value)}
                 error={errors.last_name}
@@ -142,10 +197,10 @@ export default function ProfilePage() {
 
             {/* Email (Read-only) */}
             <Input
-              label="ایمیل"
+              label={t('profile.email')}
               value={user.email}
               disabled
-              helperText="ایمیل قابل تغییر نیست"
+              helperText={t('profile.emailHelper')}
             />
 
             {/* Submit Button */}
@@ -156,47 +211,116 @@ export default function ProfilePage() {
                 onClick={() => router.push('/dashboard')}
                 className="w-full sm:w-auto"
               >
-                انصراف
+                {t('common.cancel')}
               </Button>
               <Button type="submit" isLoading={isLoading} className="w-full sm:w-auto">
-                ذخیره تغییرات
+                {t('profile.save')}
               </Button>
             </div>
           </form>
         </Card>
 
         {/* Account Info */}
-        <Card variant="bordered" className="p-6">
+        <Card variant="bordered" className="p-6 mb-6">
           <h3 className="text-lg font-bold text-neutral-900 mb-4">
-            اطلاعات حساب
+            {t('dashboard.accountInfo.title')}
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between py-2 border-b border-neutral-100">
-              <span className="text-neutral-600 font-light">وضعیت ایمیل:</span>
-              <span
-                className={`font-medium ${
-                  user.is_email_verified ? 'text-green-600' : 'text-yellow-600'
-                }`}
-              >
-                {user.is_email_verified ? 'تایید شده ✓' : 'در انتظار تایید'}
-              </span>
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.email')}</span>
+              <span className="font-medium text-neutral-900" dir="ltr">{user.email}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-neutral-100">
-              <span className="text-neutral-600 font-light">تاریخ عضویت:</span>
-              <span className="font-medium text-neutral-900">
-                {new Date(user.created_at).toLocaleDateString('fa-IR')}
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.name')}</span>
+              <span className="font-medium text-neutral-900">{user.first_name} {user.last_name}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-neutral-100">
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.emailStatus')}</span>
+              <span className={`font-medium ${user.is_email_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                {user.is_email_verified ? t('dashboard.accountInfo.verified') : t('dashboard.accountInfo.pendingVerification')}
               </span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-neutral-600 font-light">آخرین به‌روزرسانی:</span>
+              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.joinDate')}</span>
               <span className="font-medium text-neutral-900">
-                {new Date(user.updated_at).toLocaleDateString('fa-IR')}
+                {formatDate(user.created_at)}
               </span>
             </div>
           </div>
+        </Card>
+
+        {/* Change Password */}
+        <Card variant="bordered" className="p-6">
+          <h3 className="text-lg font-bold text-neutral-900 mb-4">
+            {t('dashboard.changePassword.title')}
+          </h3>
+          
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label htmlFor="old-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                {t('dashboard.changePassword.currentPassword')}
+              </label>
+              <Input
+                id="old-password"
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                placeholder={t('dashboard.changePassword.currentPasswordPlaceholder')}
+                disabled={passwordLoading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="new-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                {t('dashboard.changePassword.newPassword')}
+              </label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder={t('dashboard.changePassword.newPasswordPlaceholder')}
+                disabled={passwordLoading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                {t('dashboard.changePassword.confirmPassword')}
+              </label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder={t('dashboard.changePassword.confirmPasswordPlaceholder')}
+                disabled={passwordLoading}
+              />
+            </div>
+
+            {passwordError && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600 font-medium">{passwordError}</p>
+              </div>
+            )}
+
+            {passwordSuccess && (
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                <p className="text-sm text-green-600 font-medium">{passwordSuccess}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={passwordLoading}
+              className="w-full"
+            >
+              {passwordLoading ? t('dashboard.changePassword.submitting') : t('dashboard.changePassword.submitButton')}
+            </Button>
+          </form>
         </Card>
       </div>
     </div>
   )
 }
-
