@@ -157,6 +157,8 @@ frontend/
 │   │   ├── Tabs.tsx                     # تب‌ها
 │   │   ├── Toast.tsx                    # نوتیفیکیشن
 │   │   ├── Navbar.tsx                   # Navigation bar (اپلیکیشن)
+│   │   ├── MobileBottomNav.tsx          # نوار ناوبری پایین موبایل
+│   │   ├── ContentWrapper.tsx           # Wrapper برای padding هوشمند
 │   │   ├── Logo.tsx                     # کامپوننت لوگو (icon/full)
 │   │   ├── LanguageSelector.tsx         # Language picker dropdown
 │   │   ├── EmptyState.tsx               # Empty state
@@ -256,6 +258,7 @@ frontend/
 
 ### ✅ داشبورد (`/dashboard`)
 - نمایش اطلاعات کاربر
+- **بخش آنبوردینگ/آموزش**: نمایش 4 مرحله کار با اپلیکیشن
 - کارت‌های آماری (کارت‌ها، پیام‌ها، کامیونیتی‌ها)
 - دسترسی سریع به عملکردها
 - تغییر رمز عبور
@@ -488,6 +491,10 @@ npm run lint
 
 ## 🌟 Recently Implemented Features
 
+- [x] **Mobile Bottom Navigation**: نوار ناوبری پایین صفحه برای موبایل با badge پیام‌ها
+- [x] **Dashboard Tutorial Section**: بخش آنبوردینگ گرافیکی در داشبورد
+- [x] **Smart Logo Navigation**: کلیک روی لوگو به لندینگ می‌رود
+- [x] **Landing Auth-aware Navbar**: نمایش دکمه داشبورد برای کاربران لاگین شده
 - [x] **Tri-lingual Support**: Full i18n with English (default), Arabic, Persian
 - [x] **RTL/LTR Auto-switching**: Automatic direction change based on language
 - [x] **Unified Font**: IRANYekan for all languages (local files)

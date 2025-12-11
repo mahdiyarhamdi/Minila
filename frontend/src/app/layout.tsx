@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Providers from '@/components/Providers'
 import Navbar from '@/components/Navbar'
+import MobileBottomNav from '@/components/MobileBottomNav'
+import ContentWrapper from '@/components/ContentWrapper'
 
 export const metadata: Metadata = {
   title: 'Minila - Traveler & Cargo Coordination Platform',
@@ -20,7 +22,10 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <Providers>
           <Navbar />
-          {children}
+          <ContentWrapper>
+            {children}
+          </ContentWrapper>
+          <MobileBottomNav />
         </Providers>
       </body>
     </html>

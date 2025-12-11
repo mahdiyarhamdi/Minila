@@ -129,6 +129,32 @@
         "description": "انضم إلى مجتمع أو أنشئ مجتمعاً جديداً"
       }
     },
+    "tutorial": {
+      "title": "كيف يعمل؟",
+      "subtitle": "ابدأ في أربع خطوات بسيطة",
+      "steps": {
+        "step1": {
+          "number": "١",
+          "title": "انضم لمجتمع",
+          "description": "انضم لمجتمعات على مسارك"
+        },
+        "step2": {
+          "number": "٢",
+          "title": "أنشئ بطاقة",
+          "description": "انشر بطاقة سفرك أو شحنتك"
+        },
+        "step3": {
+          "number": "٣",
+          "title": "ابحث وراسل",
+          "description": "ابحث عن بطاقات وراسل"
+        },
+        "step4": {
+          "number": "٤",
+          "title": "نسّق",
+          "description": "رتّب مع المسافر أو المرسل"
+        }
+      }
+    },
     "joinRequests": {
       "title": "طلبات الانضمام",
       "myRequests": "طلباتي",

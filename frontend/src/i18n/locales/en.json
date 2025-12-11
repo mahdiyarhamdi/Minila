@@ -129,6 +129,32 @@
         "description": "Join a community or create a new one"
       }
     },
+    "tutorial": {
+      "title": "How does it work?",
+      "subtitle": "Get started in four simple steps",
+      "steps": {
+        "step1": {
+          "number": "1",
+          "title": "Join a community",
+          "description": "Join communities on your routes"
+        },
+        "step2": {
+          "number": "2",
+          "title": "Create a card",
+          "description": "Post your travel or cargo card"
+        },
+        "step3": {
+          "number": "3",
+          "title": "Search & message",
+          "description": "Find cards and send messages"
+        },
+        "step4": {
+          "number": "4",
+          "title": "Coordinate",
+          "description": "Arrange with traveler or sender"
+        }
+      }
+    },
     "joinRequests": {
       "title": "Join Requests",
       "myRequests": "My Requests",

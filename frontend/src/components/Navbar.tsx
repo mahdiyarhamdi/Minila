@@ -75,7 +75,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Logo variant="icon" size="sm" />
             <span className="text-xl font-black text-neutral-900">Minila</span>
           </Link>
@@ -185,7 +185,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Only profile/settings, navigation is in bottom nav */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-neutral-200">
             <div className="flex flex-col gap-1">
@@ -201,30 +201,7 @@ export default function Navbar() {
                 </div>
               )}
               
-              {/* Navigation Links */}
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'relative px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between',
-                    pathname === link.href
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-neutral-700 hover:bg-neutral-100'
-                  )}
-                >
-                  <span>{link.label}</span>
-                  {link.badge !== undefined && link.badge > 0 && (
-                    <span className="bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center font-bold">
-                      {link.badge > 99 ? '99+' : link.badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
-              
               {/* Language Selector (Mobile) */}
-              <div className="border-t border-neutral-200 my-2"></div>
               <LanguageSelector variant="mobile" />
               
               {user && (

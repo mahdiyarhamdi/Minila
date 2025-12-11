@@ -67,7 +67,7 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 text-center">
         {/* Logo */}
         <div className="mb-8 sm:mb-10">
-          <Logo variant="full" size="xl" className="mx-auto" />
+          <Logo variant="full" size="xl" className="mx-auto" href="/" />
         </div>
 
         {/* Title */}

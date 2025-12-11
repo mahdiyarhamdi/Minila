@@ -87,7 +87,7 @@ export default function VerifyEmailPage() {
 
       {/* Logo */}
       <div className="text-center mb-6 sm:mb-8">
-        <Logo variant="full" size="lg" className="mx-auto mb-2" />
+        <Logo variant="full" size="lg" className="mx-auto mb-2" href="/" />
         <p className="text-sm sm:text-base text-neutral-600 font-light">{t('app.tagline')}</p>
       </div>
 

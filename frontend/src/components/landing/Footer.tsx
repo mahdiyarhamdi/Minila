@@ -31,7 +31,7 @@ export default function Footer() {
           {/* Brand section - centered on mobile */}
           <div className="text-center sm:text-start mb-10 sm:mb-12">
             <div className="flex items-center justify-center sm:justify-start gap-3 mb-4">
-              <Logo variant="icon" size="sm" />
+              <Logo variant="icon" size="sm" href="/" />
               <span className="text-xl font-bold text-white">Minila</span>
             </div>
             <p className="text-neutral-400 font-light text-sm leading-relaxed max-w-md mx-auto sm:mx-0 mb-6">

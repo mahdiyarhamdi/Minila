@@ -145,6 +145,11 @@ html.lang-fa {
     text-wrap: balance;
   }
   
+  /* Safe area padding for iPhone notch */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
   /* Hide scrollbar for tabs and horizontal lists */
   .scrollbar-hide {
     -ms-overflow-style: none;

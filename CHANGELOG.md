@@ -4,6 +4,61 @@
 
 ## [Unreleased]
 
+### Added - 2024-12-11
+
+#### Frontend - Mobile Navigation & UX Improvements
+
+**MobileBottomNav Component**:
+- اضافه شدن نوار ناوبری پایین صفحه برای موبایل (`MobileBottomNav.tsx`)
+- شامل 4 آیتم: داشبورد، کارت‌ها، کامیونیتی‌ها، پیام‌ها
+- آیکون‌های filled برای حالت فعال
+- نمایش Badge تعداد پیام‌های خوانده نشده
+- پشتیبانی از safe-area برای iPhone
+- نمایش فقط برای کاربران لاگین شده (حتی در صفحه لندینگ)
+
+**ContentWrapper Component**:
+- اضافه شدن wrapper برای مدیریت هوشمند padding پایین صفحه
+- padding فقط وقتی bottom nav نمایش داده می‌شود اضافه می‌شود
+
+**Dashboard Tutorial Section**:
+- اضافه شدن بخش آنبوردینگ/آموزش در داشبورد
+- نمایش 4 مرحله کار با اپلیکیشن با آیکون‌های گرافیکی
+- فلش‌های جهت‌دار بین مراحل (در دسکتاپ)
+- طراحی کارت‌های شیشه‌ای با گرادیانت
+- لینک مستقیم به هر بخش مربوطه
+- پشتیبانی کامل RTL/LTR
+
+### Changed - 2024-12-11
+
+**Logo Navigation**:
+- کلیک روی لوگو در همه صفحات حالا به صفحه لندینگ (`/`) منتقل می‌کند
+- قبلاً در Navbar به داشبورد می‌رفت
+
+**Landing Navbar**:
+- اگر کاربر لاگین باشد، دکمه "داشبورد" نمایش داده می‌شود
+- اگر لاگین نباشد، دکمه‌های "ورود" و "ثبت‌نام" نمایش داده می‌شوند
+
+**Main Navbar (Mobile)**:
+- حذف لینک‌های ناوبری اصلی (داشبورد، کارت‌ها، ...) از منوی همبرگری
+- این لینک‌ها به bottom nav منتقل شدند
+- منوی همبرگری فقط شامل پروفایل/تنظیمات/خروج
+
+**Translations**:
+- اضافه شدن ترجمه‌های بخش tutorial در هر سه زبان (fa, en, ar)
+
+**تغییرات فایل‌ها**:
+- `frontend/src/components/MobileBottomNav.tsx` (جدید)
+- `frontend/src/components/ContentWrapper.tsx` (جدید)
+- `frontend/src/components/Navbar.tsx`
+- `frontend/src/components/landing/LandingNavbar.tsx`
+- `frontend/src/components/Logo.tsx` (استفاده‌کنندگان آپدیت شدند)
+- `frontend/src/app/layout.tsx`
+- `frontend/src/app/dashboard/page.tsx`
+- `frontend/src/app/globals.css` (safe-area-bottom)
+- `frontend/src/i18n/locales/*.json`
+
+---
+
 ### Fixed - 2024-11-24
 
 #### Frontend - Message Display UI

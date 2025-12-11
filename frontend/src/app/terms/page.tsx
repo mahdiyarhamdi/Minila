@@ -33,7 +33,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto pt-16">
         {/* Logo */}
         <div className="text-center mb-6 sm:mb-8">
-          <Logo variant="full" size="md" className="mx-auto mb-2" />
+          <Logo variant="full" size="md" className="mx-auto mb-2" href="/" />
         </div>
 
         {/* Main Card */}

@@ -6,6 +6,7 @@ import Logo from '@/components/Logo'
 import Button from '@/components/Button'
 import LanguageSelector from '@/components/LanguageSelector'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 /**
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils'
  */
 export default function LandingNavbar() {
   const { t } = useTranslation()
+  const { isAuthenticated } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -64,16 +66,26 @@ export default function LandingNavbar() {
           {/* Desktop Right Section */}
           <div className="hidden lg:flex items-center gap-3">
             <LanguageSelector />
-            <Link href="/auth/login">
-              <Button variant="ghost" size="sm">
-                {t('landing.navbar.login')}
-              </Button>
-            </Link>
-            <Link href="/auth/signup">
-              <Button variant="primary" size="sm">
-                {t('landing.navbar.getStarted')}
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/dashboard">
+                <Button variant="primary" size="sm">
+                  {t('nav.dashboard')}
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="ghost" size="sm">
+                    {t('landing.navbar.login')}
+                  </Button>
+                </Link>
+                <Link href="/auth/signup">
+                  <Button variant="primary" size="sm">
+                    {t('landing.navbar.getStarted')}
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,16 +122,26 @@ export default function LandingNavbar() {
               ))}
               <div className="border-t border-neutral-200 my-2"></div>
               <div className="flex flex-col gap-2 px-4">
-                <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="secondary" size="md" className="w-full">
-                    {t('landing.navbar.login')}
-                  </Button>
-                </Link>
-                <Link href="/auth/signup" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="primary" size="md" className="w-full">
-                    {t('landing.navbar.getStarted')}
-                  </Button>
-                </Link>
+                {isAuthenticated ? (
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="primary" size="md" className="w-full">
+                      {t('nav.dashboard')}
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="secondary" size="md" className="w-full">
+                        {t('landing.navbar.login')}
+                      </Button>
+                    </Link>
+                    <Link href="/auth/signup" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="primary" size="md" className="w-full">
+                        {t('landing.navbar.getStarted')}
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -169,6 +169,145 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* Tutorial Section */}
+        <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-sand-50 border border-primary-100">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-sand-100/40 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+          
+          <div className="relative p-6 sm:p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">
+                {t('dashboard.tutorial.title')}
+              </h3>
+              <p className="text-sm text-neutral-600 font-light">
+                {t('dashboard.tutorial.subtitle')}
+              </p>
+            </div>
+
+            {/* Steps with connecting arrows */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 relative items-stretch">
+              {/* Step 1 */}
+              <Link href="/communities" className="group h-full">
+                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-primary-300 hover:shadow-lg transition-all duration-300 h-full">
+                  {/* Step number badge */}
+                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg ring-4 ring-white">
+                    <span className="text-white text-sm font-bold">{t('dashboard.tutorial.steps.step1.number')}</span>
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  
+                  <h4 className="font-bold text-neutral-900 text-sm mb-1.5">
+                    {t('dashboard.tutorial.steps.step1.title')}
+                  </h4>
+                  <p className="text-xs text-neutral-500 font-light leading-relaxed">
+                    {t('dashboard.tutorial.steps.step1.description')}
+                  </p>
+                </div>
+              </Link>
+
+              {/* Arrow 1 - Desktop only */}
+              <div className="hidden md:flex absolute top-1/2 ltr:left-[22%] rtl:right-[22%] -translate-y-1/2 items-center justify-center w-8 pointer-events-none">
+                <svg className="w-6 h-6 text-primary-300 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
+              {/* Step 2 */}
+              <Link href="/cards/new" className="group h-full">
+                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-sand-300 hover:shadow-lg transition-all duration-300 h-full">
+                  {/* Step number badge */}
+                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-sand-400 to-sand-500 flex items-center justify-center shadow-lg ring-4 ring-white">
+                    <span className="text-white text-sm font-bold">{t('dashboard.tutorial.steps.step2.number')}</span>
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <svg className="w-8 h-8 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  
+                  <h4 className="font-bold text-neutral-900 text-sm mb-1.5">
+                    {t('dashboard.tutorial.steps.step2.title')}
+                  </h4>
+                  <p className="text-xs text-neutral-500 font-light leading-relaxed">
+                    {t('dashboard.tutorial.steps.step2.description')}
+                  </p>
+                </div>
+              </Link>
+
+              {/* Arrow 2 - Desktop only */}
+              <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center w-8 pointer-events-none">
+                <svg className="w-6 h-6 text-sand-300 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
+              {/* Step 3 */}
+              <Link href="/cards" className="group h-full">
+                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-primary-300 hover:shadow-lg transition-all duration-300 h-full">
+                  {/* Step number badge */}
+                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg ring-4 ring-white">
+                    <span className="text-white text-sm font-bold">{t('dashboard.tutorial.steps.step3.number')}</span>
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  
+                  <h4 className="font-bold text-neutral-900 text-sm mb-1.5">
+                    {t('dashboard.tutorial.steps.step3.title')}
+                  </h4>
+                  <p className="text-xs text-neutral-500 font-light leading-relaxed">
+                    {t('dashboard.tutorial.steps.step3.description')}
+                  </p>
+                </div>
+              </Link>
+
+              {/* Arrow 3 - Desktop only */}
+              <div className="hidden md:flex absolute top-1/2 ltr:right-[22%] rtl:left-[22%] -translate-y-1/2 items-center justify-center w-8 pointer-events-none">
+                <svg className="w-6 h-6 text-primary-300 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
+              {/* Step 4 */}
+              <Link href="/messages" className="group h-full">
+                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-sand-300 hover:shadow-lg transition-all duration-300 h-full">
+                  {/* Step number badge */}
+                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-sand-400 to-sand-500 flex items-center justify-center shadow-lg ring-4 ring-white">
+                    <span className="text-white text-sm font-bold">{t('dashboard.tutorial.steps.step4.number')}</span>
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <svg className="w-8 h-8 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  
+                  <h4 className="font-bold text-neutral-900 text-sm mb-1.5">
+                    {t('dashboard.tutorial.steps.step4.title')}
+                  </h4>
+                  <p className="text-xs text-neutral-500 font-light leading-relaxed">
+                    {t('dashboard.tutorial.steps.step4.description')}
+                  </p>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link href="/dashboard/my-cards">
