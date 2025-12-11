@@ -234,12 +234,6 @@ export default function ProfilePage() {
               <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.name')}</span>
               <span className="font-medium text-neutral-900">{user.first_name} {user.last_name}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-neutral-100">
-              <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.emailStatus')}</span>
-              <span className={`font-medium ${user.is_email_verified ? 'text-green-600' : 'text-yellow-600'}`}>
-                {user.is_email_verified ? t('dashboard.accountInfo.verified') : t('dashboard.accountInfo.pendingVerification')}
-              </span>
-            </div>
             <div className="flex justify-between py-2">
               <span className="text-neutral-600 font-light">{t('dashboard.accountInfo.joinDate')}</span>
               <span className="font-medium text-neutral-900">
