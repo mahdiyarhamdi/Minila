@@ -90,14 +90,18 @@ export interface CardUpdate {
 }
 
 export interface CardFilter {
-  origin?: string
-  destination?: string
+  origin_country_id?: number
+  origin_city_id?: number
+  destination_country_id?: number
+  destination_city_id?: number
   date_from?: string
   date_to?: string
-  min_capacity_kg?: number
-  max_capacity_kg?: number
-  category?: string
-  packaging_status?: string
+  min_weight?: number
+  max_weight?: number
+  min_price?: number
+  max_price?: number
+  currency?: string
+  is_packed?: boolean
   community_id?: number
   page?: number
   page_size?: number

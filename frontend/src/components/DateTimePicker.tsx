@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 
 interface DateTimePickerProps {
@@ -14,19 +14,102 @@ interface DateTimePickerProps {
 }
 
 const MONTHS = [
-  { value: 1, label: 'January - ژانویه' },
-  { value: 2, label: 'February - فوریه' },
-  { value: 3, label: 'March - مارس' },
-  { value: 4, label: 'April - آوریل' },
-  { value: 5, label: 'May - می' },
-  { value: 6, label: 'June - ژوئن' },
-  { value: 7, label: 'July - جولای' },
-  { value: 8, label: 'August - آگوست' },
-  { value: 9, label: 'September - سپتامبر' },
-  { value: 10, label: 'October - اکتبر' },
-  { value: 11, label: 'November - نوامبر' },
-  { value: 12, label: 'December - دسامبر' },
+  { value: 1, label: 'January', short: 'Jan' },
+  { value: 2, label: 'February', short: 'Feb' },
+  { value: 3, label: 'March', short: 'Mar' },
+  { value: 4, label: 'April', short: 'Apr' },
+  { value: 5, label: 'May', short: 'May' },
+  { value: 6, label: 'June', short: 'Jun' },
+  { value: 7, label: 'July', short: 'Jul' },
+  { value: 8, label: 'August', short: 'Aug' },
+  { value: 9, label: 'September', short: 'Sep' },
+  { value: 10, label: 'October', short: 'Oct' },
+  { value: 11, label: 'November', short: 'Nov' },
+  { value: 12, label: 'December', short: 'Dec' },
 ]
+
+// Custom Month Select - shows full name in dropdown, short name when selected
+function MonthSelect({
+  value,
+  onChange,
+  hasError,
+}: {
+  value: number
+  onChange: (month: number) => void
+  hasError: boolean
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const selectedMonth = MONTHS.find((m) => m.value === value) || MONTHS[0]
+
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <label className="block text-xs text-neutral-600 mb-1">ماه</label>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          'w-full px-3 py-2.5 rounded-xl border transition-all',
+          'text-neutral-900 bg-white text-center',
+          'focus:outline-none focus:ring-2 focus:ring-offset-0',
+          'flex items-center justify-between',
+          {
+            'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
+            'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
+          }
+        )}
+      >
+        <span className="flex-1">{selectedMonth.short}</span>
+        <svg
+          className={cn('w-4 h-4 text-neutral-400 transition-transform', {
+            'rotate-180': isOpen,
+          })}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+          {MONTHS.map((m) => (
+            <button
+              key={m.value}
+              type="button"
+              onClick={() => {
+                onChange(m.value)
+                setIsOpen(false)
+              }}
+              className={cn(
+                'w-full px-3 py-2 text-right hover:bg-primary-50 transition-colors',
+                {
+                  'bg-primary-100 text-primary-700 font-medium': m.value === value,
+                  'text-neutral-700': m.value !== value,
+                }
+              )}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 /**
  * DateTimePicker با فیلدهای جداگانه برای سال، ماه، روز، ساعت و دقیقه
@@ -173,16 +256,6 @@ export default function DateTimePicker({
     }
   )
 
-  const selectClassName = cn(
-    'px-3 py-2.5 rounded-xl border transition-all',
-    'text-neutral-900 bg-white',
-    'focus:outline-none focus:ring-2 focus:ring-offset-0',
-    {
-      'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !error && !validationError,
-      'border-red-300 focus:border-red-500 focus:ring-red-100': error || validationError,
-    }
-  )
-
   return (
     <div className="w-full">
       {label && (
@@ -206,22 +279,12 @@ export default function DateTimePicker({
             />
           </div>
 
-          {/* Month */}
-          <div>
-            <label className="block text-xs text-neutral-600 mb-1">ماه</label>
-            <select
-              value={month}
-              onChange={(e) => handleMonthChange(parseInt(e.target.value))}
-              className={selectClassName}
-              style={{ width: '100%' }}
-            >
-              {MONTHS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Month - Custom Dropdown */}
+          <MonthSelect
+            value={month}
+            onChange={handleMonthChange}
+            hasError={!!error || !!validationError}
+          />
 
           {/* Day */}
           <div>

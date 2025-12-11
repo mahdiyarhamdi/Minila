@@ -98,7 +98,7 @@ export default function HeroSection() {
             </Button>
           </Link>
           <Link href="/cards">
-            <Button variant="outline" size="lg" className="w-full sm:w-auto px-8">
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto px-8">
               {t('landing.hero.secondaryCta')}
             </Button>
           </Link>

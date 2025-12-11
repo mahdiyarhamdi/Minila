@@ -62,7 +62,7 @@ export default function CardsCarousel() {
             </p>
           </div>
           <Link href="/cards">
-            <Button variant="outline" size="md">
+            <Button variant="secondary" size="md">
               {t('landing.cards.viewAll')}
               <svg className="w-4 h-4 ltr:ml-2 rtl:mr-2 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

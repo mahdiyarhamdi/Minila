@@ -111,7 +111,7 @@ export default function LandingNavbar() {
               <div className="border-t border-neutral-200 my-2"></div>
               <div className="flex flex-col gap-2 px-4">
                 <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="md" className="w-full">
+                  <Button variant="secondary" size="md" className="w-full">
                     {t('landing.navbar.login')}
                   </Button>
                 </Link>

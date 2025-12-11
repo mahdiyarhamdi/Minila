@@ -33,8 +33,14 @@ async def get_all(
     # اعمال فیلترها
     conditions = []
     
+    if filters.origin_country_id is not None:
+        conditions.append(Card.origin_country_id == filters.origin_country_id)
+    
     if filters.origin_city_id is not None:
         conditions.append(Card.origin_city_id == filters.origin_city_id)
+    
+    if filters.destination_country_id is not None:
+        conditions.append(Card.destination_country_id == filters.destination_country_id)
     
     if filters.destination_city_id is not None:
         conditions.append(Card.destination_city_id == filters.destination_city_id)

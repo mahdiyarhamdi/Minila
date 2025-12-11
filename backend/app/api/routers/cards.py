@@ -19,7 +19,9 @@ router = APIRouter(prefix="/api/v1/cards", tags=["cards"])
 **Authentication**: اختیاری
 
 فیلترهای موجود:
+- origin_country_id: کشور مبدأ
 - origin_city_id: شهر مبدأ
+- destination_country_id: کشور مقصد
 - destination_city_id: شهر مقصد
 - is_sender: نوع کارت (true=فرستنده، false=مسافر)
 - product_classification_id: دسته‌بندی محصول
@@ -36,7 +38,9 @@ async def get_cards(
     current_user: CurrentUserOptional,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+    origin_country_id: Optional[int] = None,
     origin_city_id: Optional[int] = None,
+    destination_country_id: Optional[int] = None,
     destination_city_id: Optional[int] = None,
     is_sender: Optional[bool] = None,
     product_classification_id: Optional[int] = None,
@@ -47,7 +51,9 @@ async def get_cards(
 ) -> PaginatedResponse[CardOut]:
     """جست‌وجوی کارت‌ها با فیلتر."""
     filters = CardFilter(
+        origin_country_id=origin_country_id,
         origin_city_id=origin_city_id,
+        destination_country_id=destination_country_id,
         destination_city_id=destination_city_id,
         is_sender=is_sender,
         product_classification_id=product_classification_id,

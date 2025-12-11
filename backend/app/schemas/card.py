@@ -101,7 +101,9 @@ class CardUpdate(BaseModel):
 class CardFilter(BaseModel):
     """فیلترهای جست‌وجوی Card."""
     
+    origin_country_id: Optional[int] = Field(None, description="فیلتر بر اساس کشور مبدأ")
     origin_city_id: Optional[int] = Field(None, description="فیلتر بر اساس شهر مبدأ")
+    destination_country_id: Optional[int] = Field(None, description="فیلتر بر اساس کشور مقصد")
     destination_city_id: Optional[int] = Field(None, description="فیلتر بر اساس شهر مقصد")
     is_sender: Optional[bool] = Field(None, description="فیلتر بر اساس نوع کارت")
     product_classification_id: Optional[int] = Field(None, description="فیلتر بر اساس دسته‌بندی محصول")
@@ -115,7 +117,9 @@ class CardFilter(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
+                "origin_country_id": 1,
                 "origin_city_id": 1,
+                "destination_country_id": 2,
                 "destination_city_id": 10,
                 "is_sender": False,
                 "product_classification_id": 1,

@@ -172,9 +172,12 @@ frontend/
 │   │   │   ├── StatsSection.tsx         # آمار پلتفرم
 │   │   │   ├── CTASection.tsx           # دعوت به اقدام
 │   │   │   └── Footer.tsx               # فوتر
+│   │   ├── BottomSheet.tsx              # شیت پایین (برای موبایل)
+│   │   ├── DateTimePicker.tsx           # انتخابگر تاریخ و زمان
 │   │   ├── cards/                       # کامپوننت‌های کارت
 │   │   │   ├── CardItem.tsx             # آیتم کارت
-│   │   │   └── FilterPanel.tsx          # پنل فیلتر
+│   │   │   ├── FilterChip.tsx           # تگ فیلتر فعال
+│   │   │   └── FilterPanel.tsx          # پنل فیلتر (موبایل‌فرندلی)
 │   │   ├── communities/                 # کامپوننت‌های کامیونیتی
 │   │   │   └── CommunityCard.tsx        # کارت کامیونیتی
 │   │   └── messages/                    # کامپوننت‌های پیام

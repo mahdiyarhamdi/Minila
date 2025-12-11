@@ -226,12 +226,15 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `DELETE` | `/{id}` | حذف کارت (owner only) | ✅ |
 
 **فیلترهای Cards**:
-- `origin_city_id`, `destination_city_id`
+- `origin_country_id`, `origin_city_id` (فیلتر مبدأ - کشور یا شهر)
+- `destination_country_id`, `destination_city_id` (فیلتر مقصد - کشور یا شهر)
 - `is_sender` (true=فرستنده، false=مسافر)
 - `product_classification_id`
 - `is_packed` (وضعیت بسته‌بندی)
 - `community_id`
 - `min_weight`, `max_weight`
+
+> **نکته**: می‌توانید فقط کشور را فیلتر کنید (بدون شهر) یا هم کشور و هم شهر را مشخص کنید.
 
 **فیلد currency**:
 - هر کارت دارای فیلد `currency` است (پیش‌فرض: `USD`)
