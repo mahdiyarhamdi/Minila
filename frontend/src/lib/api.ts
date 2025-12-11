@@ -81,6 +81,22 @@ class APIService {
           }
         }
         
+        // تبدیل خطای Pydantic/FastAPI به پیام خوانا
+        if (error.response?.data) {
+          const data = error.response.data
+          // خطای 422 (validation error)
+          if (Array.isArray(data.detail)) {
+            const messages = data.detail.map((err: any) => 
+              typeof err === 'string' ? err : err.msg || JSON.stringify(err)
+            ).join(', ')
+            error.message = messages || 'خطای اعتبارسنجی'
+          } else if (typeof data.detail === 'string') {
+            error.message = data.detail
+          } else if (data.message) {
+            error.message = data.message
+          }
+        }
+        
         return Promise.reject(error)
       }
     )
@@ -542,6 +558,370 @@ class APIService {
     )
     return response.data
   }
+
+  // ==================== Admin API ====================
+
+  /**
+   * دریافت آمار داشبورد ادمین
+   */
+  async getAdminStats(): Promise<AdminDashboardStats> {
+    const response = await this.client.get<AdminDashboardStats>('/api/v1/admin/stats')
+    return response.data
+  }
+
+  /**
+   * دریافت داده‌های نمودار کاربران
+   */
+  async getAdminUsersChart(days: number = 30): Promise<AdminChartData> {
+    const response = await this.client.get<AdminChartData>(`/api/v1/admin/stats/users-chart?days=${days}`)
+    return response.data
+  }
+
+  /**
+   * دریافت داده‌های نمودار کارت‌ها
+   */
+  async getAdminCardsChart(days: number = 30): Promise<AdminChartData> {
+    const response = await this.client.get<AdminChartData>(`/api/v1/admin/stats/cards-chart?days=${days}`)
+    return response.data
+  }
+
+  /**
+   * دریافت رویدادهای اخیر
+   */
+  async getAdminRecentActivities(limit: number = 10): Promise<AdminRecentActivity[]> {
+    const response = await this.client.get<AdminRecentActivity[]>(`/api/v1/admin/stats/recent-activities?limit=${limit}`)
+    return response.data
+  }
+
+  /**
+   * دریافت لیست کاربران (ادمین)
+   */
+  async getAdminUsers(params: AdminUsersParams = {}): Promise<AdminPaginatedResponse<AdminUser>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        searchParams.append(key, String(value))
+      }
+    })
+    const response = await this.client.get<AdminPaginatedResponse<AdminUser>>(`/api/v1/admin/users?${searchParams.toString()}`)
+    return response.data
+  }
+
+  /**
+   * بن/آن‌بن کاربر (ادمین)
+   */
+  async banUser(userId: number, isActive: boolean, reason?: string): Promise<{ message: string }> {
+    const response = await this.client.put<{ message: string }>(`/api/v1/admin/users/${userId}/ban`, {
+      is_active: isActive,
+      reason
+    })
+    return response.data
+  }
+
+  /**
+   * تغییر وضعیت ادمین کاربر
+   */
+  async toggleAdminStatus(userId: number, isAdmin: boolean): Promise<{ message: string }> {
+    const response = await this.client.put<{ message: string }>(`/api/v1/admin/users/${userId}/admin`, {
+      is_admin: isAdmin
+    })
+    return response.data
+  }
+
+  /**
+   * دریافت لیست کامیونیتی‌ها (ادمین)
+   */
+  async getAdminCommunities(params: AdminCommunitiesParams = {}): Promise<AdminPaginatedResponse<AdminCommunity>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        searchParams.append(key, String(value))
+      }
+    })
+    const response = await this.client.get<AdminPaginatedResponse<AdminCommunity>>(`/api/v1/admin/communities?${searchParams.toString()}`)
+    return response.data
+  }
+
+  /**
+   * حذف کامیونیتی (ادمین)
+   */
+  async deleteAdminCommunity(communityId: number): Promise<void> {
+    await this.client.delete(`/api/v1/admin/communities/${communityId}`)
+  }
+
+  /**
+   * دریافت لیست کارت‌ها (ادمین)
+   */
+  async getAdminCards(params: AdminCardsParams = {}): Promise<AdminPaginatedResponse<AdminCard>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        searchParams.append(key, String(value))
+      }
+    })
+    const response = await this.client.get<AdminPaginatedResponse<AdminCard>>(`/api/v1/admin/cards?${searchParams.toString()}`)
+    return response.data
+  }
+
+  /**
+   * حذف کارت (ادمین)
+   */
+  async deleteAdminCard(cardId: number): Promise<void> {
+    await this.client.delete(`/api/v1/admin/cards/${cardId}`)
+  }
+
+  /**
+   * دریافت لیست گزارش‌ها (ادمین)
+   */
+  async getAdminReports(params: { page?: number; page_size?: number } = {}): Promise<AdminPaginatedResponse<AdminReport>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, String(value))
+      }
+    })
+    const response = await this.client.get<AdminPaginatedResponse<AdminReport>>(`/api/v1/admin/reports?${searchParams.toString()}`)
+    return response.data
+  }
+
+  /**
+   * بستن گزارش (ادمین)
+   */
+  async resolveReport(reportId: number, action: string, note?: string): Promise<{ message: string }> {
+    const response = await this.client.put<{ message: string }>(`/api/v1/admin/reports/${reportId}/resolve`, {
+      action,
+      note
+    })
+    return response.data
+  }
+
+  /**
+   * دریافت لیست درخواست‌های عضویت (ادمین)
+   */
+  async getAdminRequests(params: AdminRequestsParams = {}): Promise<AdminPaginatedResponse<AdminRequest>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        searchParams.append(key, String(value))
+      }
+    })
+    const response = await this.client.get<AdminPaginatedResponse<AdminRequest>>(`/api/v1/admin/requests?${searchParams.toString()}`)
+    return response.data
+  }
+
+  /**
+   * دریافت لیست لاگ‌ها (ادمین)
+   */
+  async getAdminLogs(params: AdminLogsParams = {}): Promise<AdminPaginatedResponse<AdminLog>> {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        searchParams.append(key, String(value))
+      }
+    })
+    const response = await this.client.get<AdminPaginatedResponse<AdminLog>>(`/api/v1/admin/logs?${searchParams.toString()}`)
+    return response.data
+  }
+
+  /**
+   * دریافت تنظیمات سیستم (ادمین)
+   */
+  async getAdminSettings(): Promise<AdminSettings> {
+    const response = await this.client.get<AdminSettings>('/api/v1/admin/settings')
+    return response.data
+  }
+}
+
+// Admin Types
+export interface AdminDashboardStats {
+  total_users: number
+  active_users: number
+  banned_users: number
+  admin_users: number
+  verified_users: number
+  total_communities: number
+  total_cards: number
+  traveler_cards: number
+  sender_cards: number
+  total_messages: number
+  pending_requests: number
+  open_reports: number
+  new_users_today: number
+  new_users_week: number
+  new_users_month: number
+  new_cards_today: number
+  new_cards_week: number
+  new_cards_month: number
+}
+
+export interface AdminChartDataset {
+  label: string
+  data: number[]
+  color?: string
+}
+
+export interface AdminChartData {
+  labels: string[]
+  datasets: AdminChartDataset[]
+}
+
+export interface AdminRecentActivity {
+  id: number
+  event_type: string
+  description: string
+  actor_email?: string
+  target_email?: string
+  created_at: string
+}
+
+export interface AdminUser {
+  id: number
+  email: string
+  first_name?: string
+  last_name?: string
+  is_active: boolean
+  is_admin: boolean
+  email_verified: boolean
+  created_at: string
+  updated_at?: string
+  cards_count: number
+  communities_count: number
+  messages_sent_count: number
+}
+
+export interface AdminCommunity {
+  id: number
+  name: string
+  slug: string
+  bio?: string
+  created_at: string
+  updated_at?: string
+  owner_id: number
+  owner_email: string
+  owner_name?: string
+  members_count: number
+  pending_requests_count: number
+}
+
+export interface AdminCard {
+  id: number
+  is_sender: boolean
+  description?: string
+  weight?: number
+  price_aed?: number
+  currency?: string
+  created_at: string
+  updated_at?: string
+  owner_id: number
+  owner_email: string
+  owner_name?: string
+  origin_city: string
+  origin_country: string
+  destination_city: string
+  destination_country: string
+  start_time_frame?: string
+  end_time_frame?: string
+  ticket_date_time?: string
+}
+
+export interface AdminReport {
+  id: number
+  body: string
+  is_resolved: boolean
+  resolved_at?: string
+  resolved_by_id?: number
+  created_at: string
+  reporter_id?: number
+  reporter_email?: string
+  reporter_name?: string
+  reported_id?: number
+  reported_email?: string
+  reported_name?: string
+  card_id?: number
+}
+
+export interface AdminRequest {
+  id: number
+  is_approved?: boolean
+  created_at: string
+  updated_at?: string
+  user_id: number
+  user_email: string
+  user_name?: string
+  community_id: number
+  community_name: string
+  community_slug: string
+}
+
+export interface AdminLog {
+  id: number
+  event_type: string
+  ip?: string
+  user_agent?: string
+  payload?: string
+  created_at: string
+  actor_user_id?: number
+  actor_email?: string
+  target_user_id?: number
+  target_email?: string
+  card_id?: number
+  community_id?: number
+  community_name?: string
+}
+
+export interface AdminSettings {
+  smtp_configured: boolean
+  smtp_host?: string
+  redis_configured: boolean
+  messages_per_day_limit: number
+  app_version: string
+  environment: string
+}
+
+export interface AdminPaginatedResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export interface AdminUsersParams {
+  page?: number
+  page_size?: number
+  search?: string
+  is_active?: boolean
+  is_admin?: boolean
+  email_verified?: boolean
+}
+
+export interface AdminCommunitiesParams {
+  page?: number
+  page_size?: number
+  search?: string
+}
+
+export interface AdminCardsParams {
+  page?: number
+  page_size?: number
+  search?: string
+  is_sender?: boolean
+  owner_id?: number
+}
+
+export interface AdminRequestsParams {
+  page?: number
+  page_size?: number
+  status?: string
+  community_id?: number
+}
+
+export interface AdminLogsParams {
+  page?: number
+  page_size?: number
+  event_type?: string
+  actor_user_id?: number
+  date_from?: string
+  date_to?: string
 }
 
 export const apiService = new APIService()

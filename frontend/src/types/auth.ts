@@ -28,10 +28,11 @@ export interface AuthTokens {
 export interface User {
   id: number
   email: string
-  first_name: string
-  last_name: string
-  is_email_verified: boolean
-  is_system_banned: boolean
+  first_name: string | null
+  last_name: string | null
+  email_verified: boolean
+  is_active: boolean
+  is_admin: boolean
   created_at: string
   updated_at: string
 }

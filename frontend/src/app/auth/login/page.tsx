@@ -77,7 +77,14 @@ export default function LoginPage() {
         password: data.password,
       })
       await login(tokens.access_token, tokens.refresh_token)
-      router.push('/dashboard')
+      
+      // دریافت پروفایل برای بررسی ادمین بودن
+      const profile = await apiService.getProfile()
+      if (profile.is_admin) {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || t('auth.validation.invalidCredentials'))
     }
@@ -104,7 +111,14 @@ export default function LoginPage() {
         otp_code: data.otp_code,
       })
       await login(tokens.access_token, tokens.refresh_token)
-      router.push('/dashboard')
+      
+      // دریافت پروفایل برای بررسی ادمین بودن
+      const profile = await apiService.getProfile()
+      if (profile.is_admin) {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || t('errors.generic'))
     }

@@ -90,12 +90,12 @@ export default function BlockedUsersPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neutral-200 flex items-center justify-center flex-shrink-0">
                       <span className="text-neutral-600 font-bold text-base sm:text-lg">
-                        {user.first_name[0]}
+                        {(user.first_name || user.email)[0]?.toUpperCase()}
                       </span>
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium text-neutral-900 truncate">
-                        {user.first_name} {user.last_name}
+                        {user.first_name || ''} {user.last_name || ''}
                       </p>
                       <p className="text-xs sm:text-sm text-neutral-600 font-light truncate" dir="ltr">
                         {user.email}

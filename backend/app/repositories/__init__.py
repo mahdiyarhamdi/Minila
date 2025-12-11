@@ -4,7 +4,8 @@ from . import (
     community_repo,
     membership_repo,
     card_repo,
-    message_repo
+    message_repo,
+    admin_repo
 )
 
 __all__ = [
@@ -12,5 +13,6 @@ __all__ = [
     "community_repo",
     "membership_repo",
     "card_repo",
-    "message_repo"
+    "message_repo",
+    "admin_repo"
 ]

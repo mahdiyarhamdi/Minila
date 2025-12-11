@@ -107,7 +107,7 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-1 sm:mb-2">
-            {t('dashboard.welcome', { name: user.first_name })}
+            {t('dashboard.welcome', { name: user.first_name || '' })}
           </h2>
           <p className="text-sm sm:text-base text-neutral-600 font-light">
             {t('dashboard.subtitle')}

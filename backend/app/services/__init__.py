@@ -5,7 +5,8 @@ from . import (
     community_service,
     card_service,
     message_service,
-    log_service
+    log_service,
+    admin_service
 )
 
 __all__ = [
@@ -14,5 +15,6 @@ __all__ = [
     "community_service",
     "card_service",
     "message_service",
-    "log_service"
+    "log_service",
+    "admin_service"
 ]

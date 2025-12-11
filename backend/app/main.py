@@ -83,6 +83,10 @@ MVP v0.1.0
             "name": "locations",
             "description": "مکان‌ها - جستجوی کشورها و شهرها با پشتیبانی سه زبان"
         },
+        {
+            "name": "admin",
+            "description": "پنل مدیریت - داشبورد آماری، مدیریت کاربران، کامیونیتی‌ها و لاگ‌ها (فقط ادمین)"
+        },
     ]
 )
 
@@ -181,7 +185,7 @@ def root() -> dict[str, str]:
 
 # ==================== Router Registration ====================
 
-from .api.routers import auth, users, communities, cards, messages, locations
+from .api.routers import auth, users, communities, cards, messages, locations, admin
 
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -189,6 +193,7 @@ app.include_router(communities.router)
 app.include_router(cards.router)
 app.include_router(messages.router)
 app.include_router(locations.router)
+app.include_router(admin.router)
 
 logger.info("All routers registered successfully")
 

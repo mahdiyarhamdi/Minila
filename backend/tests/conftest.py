@@ -567,6 +567,51 @@ async def test_card(test_db: AsyncSession, test_user: dict, seed_locations: dict
 
 # ==================== Helper Fixtures ====================
 
+@pytest_asyncio.fixture
+async def admin_user(test_db: AsyncSession) -> dict:
+    """Create an admin user with JWT token.
+    
+    Args:
+        test_db: Test database session
+        
+    Returns:
+        dict: Admin user data with token
+    """
+    from app.models.user import User
+    from app.core.security import hash_password
+    
+    plain_password = "AdminPass123!"
+    
+    user = User(
+        email="admin@example.com",
+        password=hash_password(plain_password),
+        first_name="Admin",
+        last_name="User",
+        email_verified=True,
+        is_active=True,
+        is_admin=True
+    )
+    test_db.add(user)
+    await test_db.commit()
+    await test_db.refresh(user)
+    
+    # Generate token
+    token = create_access_token(
+        {"user_id": user.id, "email": user.email},
+        settings.SECRET_KEY,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    
+    return {
+        "user_id": user.id,
+        "email": user.email,
+        "token": token,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "password": plain_password
+    }
+
+
 @pytest.fixture
 def auth_headers(test_user: dict) -> dict:
     """Generate authorization headers for test user.
@@ -578,6 +623,19 @@ def auth_headers(test_user: dict) -> dict:
         dict: Authorization headers
     """
     return {"Authorization": f"Bearer {test_user['token']}"}
+
+
+@pytest.fixture
+def admin_auth_headers(admin_user: dict) -> dict:
+    """Generate authorization headers for admin user.
+    
+    Args:
+        admin_user: Admin user with token
+        
+    Returns:
+        dict: Authorization headers
+    """
+    return {"Authorization": f"Bearer {admin_user['token']}"}
 
 
 @pytest.fixture

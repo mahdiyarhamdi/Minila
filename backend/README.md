@@ -258,6 +258,33 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 - هنگام باز کردن مکالمه، پیام‌ها به‌طور خودکار به عنوان خوانده شده علامت‌گذاری می‌شوند
 - تعداد پیام‌های خوانده نشده در Navbar نمایش داده می‌شود (با badge قرمز)
 
+### Admin Panel (`/api/v1/admin`)
+
+| Method | Endpoint | توضیح | Auth |
+|--------|----------|-------|------|
+| `GET` | `/stats` | آمار کلی داشبورد | ✅ Admin |
+| `GET` | `/stats/users-chart?days=30` | داده‌های نمودار ثبت‌نام کاربران | ✅ Admin |
+| `GET` | `/stats/cards-chart?days=30` | داده‌های نمودار کارت‌های جدید | ✅ Admin |
+| `GET` | `/stats/recent-activities?limit=10` | رویدادهای اخیر | ✅ Admin |
+| `GET` | `/users` | لیست کاربران با فیلتر و صفحه‌بندی | ✅ Admin |
+| `GET` | `/users/{id}` | جزئیات کاربر | ✅ Admin |
+| `PUT` | `/users/{id}/ban` | بن/آن‌بن کاربر | ✅ Admin |
+| `PUT` | `/users/{id}/admin` | تغییر وضعیت ادمین کاربر | ✅ Admin |
+| `GET` | `/communities` | لیست کامیونیتی‌ها | ✅ Admin |
+| `DELETE` | `/communities/{id}` | حذف کامیونیتی | ✅ Admin |
+| `GET` | `/cards` | لیست کارت‌ها | ✅ Admin |
+| `DELETE` | `/cards/{id}` | حذف کارت | ✅ Admin |
+| `GET` | `/reports` | لیست گزارش‌ها | ✅ Admin |
+| `PUT` | `/reports/{id}/resolve` | بستن گزارش | ✅ Admin |
+| `GET` | `/requests` | لیست درخواست‌های عضویت | ✅ Admin |
+| `GET` | `/logs` | لیست لاگ‌های سیستم | ✅ Admin |
+| `GET` | `/settings` | تنظیمات سیستم | ✅ Admin |
+
+**نکات مهم**:
+- تمام endpointهای Admin فقط برای کاربرانی که `is_admin=true` هستند قابل دسترسی است
+- پنل فرانت‌اند در مسیر `/admin` قرار دارد
+- لاگ‌های تمام اقدامات ادمین ثبت می‌شود
+
 ---
 
 ### مثال‌های استفاده
@@ -560,6 +587,6 @@ pip install -r requirements.txt
 
 ---
 
-**نسخه**: 0.3.1  
-**آخرین به‌روزرسانی**: 2025-12-10
+**نسخه**: 0.4.0  
+**آخرین به‌روزرسانی**: 2025-12-12
 

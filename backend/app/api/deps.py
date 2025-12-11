@@ -180,3 +180,37 @@ async def verify_api_rate_limit(request: Request) -> None:
 MessageRateLimit = Annotated[None, Depends(verify_message_rate_limit)]
 APIRateLimit = Annotated[None, Depends(verify_api_rate_limit)]
 
+
+# ==================== Admin Dependencies ====================
+
+async def get_admin_user(
+    user: Dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Dict:
+    """بررسی دسترسی ادمین.
+    
+    Args:
+        user: کاربر فعلی
+        db: Database session
+        
+    Returns:
+        اطلاعات کاربر ادمین
+        
+    Raises:
+        HTTPException: 403 اگر کاربر ادمین نباشد
+    """
+    from ..repositories import user_repo
+    user_obj = await user_repo.get_by_id(db, user["user_id"])
+    
+    if not user_obj or not user_obj.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="دسترسی ادمین الزامی است"
+        )
+    
+    return user
+
+
+# Type alias for admin
+AdminUser = Annotated[Dict, Depends(get_admin_user)]
+

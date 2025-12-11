@@ -119,6 +119,7 @@ class UserMeOut(BaseModel):
     gender: Optional[str] = None
     birthday: Optional[date] = None
     postal_code: Optional[str] = None
+    email_verified: bool
     is_active: bool
     is_admin: bool
     avatar: Optional[AvatarOut] = None

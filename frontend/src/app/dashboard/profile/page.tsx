@@ -40,8 +40,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setFormData({
-        first_name: user.first_name,
-        last_name: user.last_name,
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
       })
     }
   }, [user])
@@ -166,7 +166,7 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary-100 flex items-center justify-center">
                 <span className="text-primary-600 font-extrabold text-2xl sm:text-3xl">
-                  {user.first_name[0]}
+                  {(user.first_name || user.email)[0]?.toUpperCase()}
                 </span>
               </div>
               <div className="text-center sm:text-start">

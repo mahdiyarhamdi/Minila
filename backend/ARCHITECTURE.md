@@ -2,8 +2,8 @@
 
 > راهنمای جامع معماری لایه‌ای برای پلتفرم هماهنگی مسافر-بار
 
-**نسخه**: 0.5.0  
-**آخرین به‌روزرسانی**: 2025-12-10
+**نسخه**: 0.6.0  
+**آخرین به‌روزرسانی**: 2025-12-12
 
 ---
 
@@ -58,7 +58,9 @@ backend/app/
 │       ├── users.py          # کاربران
 │       ├── communities.py    # کامیونیتی‌ها
 │       ├── cards.py          # کارت‌های سفر/بار
-│       └── messages.py       # پیام‌رسانی
+│       ├── messages.py       # پیام‌رسانی
+│       ├── locations.py      # کشورها و شهرها
+│       └── admin.py          # پنل مدیریت (فقط ادمین)
 │
 ├── core/                      # لایه هسته (تنظیمات و ابزار)
 │   ├── __init__.py
@@ -97,14 +99,19 @@ backend/app/
 │   ├── user_service.py       # منطق کاربران
 │   ├── community_service.py  # منطق کامیونیتی‌ها
 │   ├── card_service.py       # منطق کارت‌ها
-│   └── message_service.py    # منطق پیام + بررسی کامیونیتی مشترک
+│   ├── message_service.py    # منطق پیام + بررسی کامیونیتی مشترک
+│   ├── log_service.py        # منطق لاگ‌ها
+│   └── admin_service.py      # منطق پنل مدیریت
 │
 ├── repositories/              # لایه دسترسی به دیتا (CRUD)
 │   ├── __init__.py
 │   ├── user_repo.py          # کوئری‌های User
 │   ├── community_repo.py     # کوئری‌های Community
 │   ├── card_repo.py          # کوئری‌های Card + فیلترها
-│   └── message_repo.py       # کوئری‌های Message
+│   ├── message_repo.py       # کوئری‌های Message
+│   ├── membership_repo.py    # کوئری‌های Membership
+│   ├── location_repo.py      # کوئری‌های Country و City
+│   └── admin_repo.py         # کوئری‌های آماری پنل مدیریت
 │
 └── utils/                     # ابزارهای کمکی
     ├── __init__.py
@@ -150,6 +157,7 @@ async def create_card(...):
 - Dependency injection functions
 - `get_db()`: دریافت database session
 - `get_current_user()`: احراز هویت از JWT
+- `get_current_active_superuser()`: بررسی دسترسی ادمین (برای پنل مدیریت)
 - `verify_rate_limit()`: بررسی محدودیت نرخ
 
 ---
