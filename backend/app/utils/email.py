@@ -36,31 +36,29 @@ def _send_via_smtp(to_email: str, subject: str, body: str) -> bool:
         return False
 
 
-def _send_via_sendgrid(to_email: str, subject: str, body: str) -> bool:
-    """ارسال ایمیل با SendGrid."""
+def _send_via_resend(to_email: str, subject: str, body: str) -> bool:
+    """ارسال ایمیل با Resend."""
     try:
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail
+        import resend
         
-        message = Mail(
-            from_email=settings.EMAIL_FROM,
-            to_emails=to_email,
-            subject=subject,
-            plain_text_content=body
-        )
+        resend.api_key = settings.RESEND_API_KEY
         
-        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-        response = sg.send(message)
+        response = resend.Emails.send({
+            "from": settings.EMAIL_FROM,
+            "to": to_email,
+            "subject": subject,
+            "text": body
+        })
         
-        if response.status_code in [200, 201, 202]:
-            logger.info(f"Email sent via SendGrid to {to_email}")
+        if response and response.get("id"):
+            logger.info(f"Email sent via Resend to {to_email}, id: {response['id']}")
             return True
         else:
-            logger.error(f"SendGrid returned {response.status_code}")
+            logger.error(f"Resend failed: {response}")
             return False
             
     except Exception as e:
-        logger.error(f"SendGrid email failed to {to_email}: {str(e)}")
+        logger.error(f"Resend email failed to {to_email}: {str(e)}")
         return False
 
 
@@ -75,8 +73,8 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
     Returns:
         True در صورت موفقیت
     """
-    if settings.EMAIL_PROVIDER == "sendgrid" and settings.SENDGRID_API_KEY:
-        return _send_via_sendgrid(to_email, subject, body)
+    if settings.EMAIL_PROVIDER == "resend" and settings.RESEND_API_KEY:
+        return _send_via_resend(to_email, subject, body)
     else:
         return _send_via_smtp(to_email, subject, body)
 

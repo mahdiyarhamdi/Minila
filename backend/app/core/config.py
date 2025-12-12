@@ -42,8 +42,8 @@ class Settings(BaseSettings):
     SMTP_PASS: Optional[str] = None
     EMAIL_FROM: Union[EmailStr, str] = "no-reply@example.local"
     
-    # SendGrid
-    SENDGRID_API_KEY: Optional[str] = None
+    # Resend
+    RESEND_API_KEY: Optional[str] = None
 
     # Rate limit
     MESSAGES_PER_DAY: int = 50
