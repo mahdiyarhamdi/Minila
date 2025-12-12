@@ -119,6 +119,11 @@ export default function CardItem(card: CardType) {
               {t('cards.detail.packed')}
             </Badge>
           )}
+          {is_packed === false && (
+            <Badge variant="warning" size="sm">
+              {t('cards.detail.unpacked')}
+            </Badge>
+          )}
         </div>
       </Card>
     </Link>

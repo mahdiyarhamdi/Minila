@@ -56,7 +56,7 @@ function MonthSelect({
 
   return (
     <div ref={ref} className="relative">
-      <label className="block text-xs text-neutral-600 mb-1">ماه</label>
+      <label className="block text-xs text-neutral-600 mb-1">Month</label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -170,7 +170,7 @@ export default function DateTimePicker({
     
     // Check if date components match (e.g., Feb 31 would roll over to Mar 3)
     if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
-      return 'تاریخ وارد شده نامعتبر است'
+      return 'Invalid date'
     }
 
     // Check if date is in the past
@@ -179,14 +179,14 @@ export default function DateTimePicker({
       if (includeTime) {
         // For datetime, compare full datetime
         if (date < now) {
-          return 'تاریخ و ساعت نباید در گذشته باشد'
+          return 'Date and time cannot be in the past'
         }
       } else {
         // For date only, compare just the date part
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
         const selectedDate = new Date(y, m - 1, d)
         if (selectedDate < today) {
-          return 'تاریخ نباید در گذشته باشد'
+          return 'Date cannot be in the past'
         }
       }
     }
@@ -269,7 +269,7 @@ export default function DateTimePicker({
         <div className="grid grid-cols-3 gap-2">
           {/* Year */}
           <div>
-            <label className="block text-xs text-neutral-600 mb-1">سال</label>
+            <label className="block text-xs text-neutral-600 mb-1">Year</label>
             <input
               type="number"
               value={year}
@@ -288,7 +288,7 @@ export default function DateTimePicker({
 
           {/* Day */}
           <div>
-            <label className="block text-xs text-neutral-600 mb-1">روز</label>
+            <label className="block text-xs text-neutral-600 mb-1">Day</label>
             <input
               type="number"
               min="1"
@@ -315,7 +315,7 @@ export default function DateTimePicker({
           <div className="grid grid-cols-2 gap-2">
             {/* Hour */}
             <div>
-              <label className="block text-xs text-neutral-600 mb-1">ساعت</label>
+              <label className="block text-xs text-neutral-600 mb-1">Hour</label>
               <input
                 type="number"
                 min="0"
@@ -338,7 +338,7 @@ export default function DateTimePicker({
 
             {/* Minute */}
             <div>
-              <label className="block text-xs text-neutral-600 mb-1">دقیقه</label>
+              <label className="block text-xs text-neutral-600 mb-1">Minute</label>
               <input
                 type="number"
                 min="0"

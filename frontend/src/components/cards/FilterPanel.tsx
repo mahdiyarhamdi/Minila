@@ -579,8 +579,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
 
           <FilterFormContent currentFilters={tempFilters} onChange={handleTempChange} />
 
-          {/* Action Buttons - با فاصله کافی از پایین */}
-          <div className="mt-6 pt-4 pb-8 border-t border-neutral-200 flex gap-3">
+          {/* Action Buttons - با فاصله کافی از پایین برای جلوگیری از overlap با navbar */}
+          <div className="mt-6 pt-4 pb-24 border-t border-neutral-200 flex gap-3">
             <Button variant="ghost" onClick={handleCancel} className="flex-1">
               {t('cards.filters.cancel')}
             </Button>

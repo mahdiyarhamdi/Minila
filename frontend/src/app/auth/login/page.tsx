@@ -172,7 +172,10 @@ export default function LoginPage() {
                 maxLength={6}
                 error={errorsOTP.otp_code?.message}
                 dir="ltr"
-                autoComplete="one-time-code"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
                 className="text-center text-2xl tracking-widest"
               />
 

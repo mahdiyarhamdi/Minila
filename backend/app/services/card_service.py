@@ -94,19 +94,19 @@ async def create_card(
     Raises:
         ValueError: اگر داده‌ها نامعتبر باشند
     """
-    # Validation: بررسی بازه زمانی
+    # Validation: Check time frame
     if start_time_frame and end_time_frame:
         if start_time_frame >= end_time_frame:
-            raise ValueError("تاریخ پایان باید بعد از تاریخ شروع باشد")
+            raise ValueError("End date must be after start date")
     
-    # Validation: برای sender باید بازه زمانی داشته باشد
+    # Validation: Sender card requires time frame
     if is_sender and not (start_time_frame or end_time_frame):
-        raise ValueError("برای کارت فرستنده باید بازه زمانی مشخص شود")
+        raise ValueError("Sender card requires a time frame")
     
-    # Validation: برای traveler باید تاریخ دقیق یا بازه زمانی داشته باشد
+    # Validation: Traveler card requires travel date or time frame
     has_time_frame = start_time_frame or end_time_frame
     if not is_sender and not ticket_date_time and not has_time_frame:
-        raise ValueError("برای کارت مسافر باید تاریخ سفر یا بازه زمانی مشخص شود")
+        raise ValueError("Traveler card requires travel date or time frame")
     
     # ساخت کارت
     card_data = {
