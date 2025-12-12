@@ -109,10 +109,13 @@ class CardFilter(BaseModel):
     product_classification_id: Optional[int] = Field(None, description="فیلتر بر اساس دسته‌بندی محصول")
     is_packed: Optional[bool] = Field(None, description="فیلتر بر اساس وضعیت بسته‌بندی")
     community_id: Optional[int] = Field(None, description="فیلتر بر اساس کامیونیتی")
-    start_date: Optional[datetime] = Field(None, description="فیلتر از تاریخ")
-    end_date: Optional[datetime] = Field(None, description="فیلتر تا تاریخ")
+    date_from: Optional[datetime] = Field(None, description="فیلتر از تاریخ")
+    date_to: Optional[datetime] = Field(None, description="فیلتر تا تاریخ")
     min_weight: Optional[float] = Field(None, ge=0, description="حداقل وزن")
     max_weight: Optional[float] = Field(None, ge=0, description="حداکثر وزن")
+    min_price: Optional[float] = Field(None, ge=0, description="حداقل قیمت")
+    max_price: Optional[float] = Field(None, ge=0, description="حداکثر قیمت")
+    currency: Optional[str] = Field(None, max_length=3, description="واحد پول")
     
     model_config = ConfigDict(
         json_schema_extra={

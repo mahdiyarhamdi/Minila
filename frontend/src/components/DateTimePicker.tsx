@@ -443,28 +443,16 @@ export default function DateTimePicker({
       )}
 
       <div className="space-y-3">
-        {/* Year - Full width on mobile */}
-        <div className="block sm:hidden">
-          <YearInput
-            value={year}
-            onChange={handleYearChange}
-            label="Year"
-            hasError={!!error || !!validationError}
-          />
-        </div>
+        {/* Year - Always full width on separate row */}
+        <YearInput
+          value={year}
+          onChange={handleYearChange}
+          label="Year"
+          hasError={!!error || !!validationError}
+        />
 
-        {/* Date fields - Mobile: Month & Day only, Desktop: All three */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {/* Year - Desktop only */}
-          <div className="hidden sm:block">
-            <YearInput
-              value={year}
-              onChange={handleYearChange}
-              label="Year"
-              hasError={!!error || !!validationError}
-            />
-          </div>
-
+        {/* Month & Day */}
+        <div className="grid grid-cols-2 gap-2">
           {/* Month - Custom Dropdown */}
           <MonthSelect
             value={month}

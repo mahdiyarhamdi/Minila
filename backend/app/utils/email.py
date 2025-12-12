@@ -155,3 +155,19 @@ def send_membership_result(
         community_name=community_name
     )
     return send_email(email, subject, body)
+
+
+def send_role_change_notification(
+    email: str,
+    community_name: str,
+    new_role: str,
+    language: str = "en"
+) -> bool:
+    """اطلاع‌رسانی تغییر نقش کاربر."""
+    subject, body = get_template(
+        "role_change",
+        language,
+        community_name=community_name,
+        new_role=new_role
+    )
+    return send_email(email, subject, body)

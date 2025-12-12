@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/useTranslation'
 import Card from '../Card'
 import Badge from '../Badge'
 
@@ -10,23 +13,6 @@ interface CommunityCardProps {
   member_count?: number
   is_member?: boolean
   my_role?: 'owner' | 'member' | 'manager' | 'moderator' | null
-}
-
-/**
- * تبدیل نقش به متن فارسی
- */
-function getRoleLabel(role: string | null | undefined): string {
-  switch (role) {
-    case 'owner':
-      return 'مالک'
-    case 'manager':
-      return 'مدیر'
-    case 'moderator':
-      return 'ناظر'
-    case 'member':
-    default:
-      return 'عضو'
-  }
 }
 
 /**
@@ -47,6 +33,23 @@ function getRoleVariant(role: string | null | undefined): 'success' | 'warning' 
  * CommunityCard - کارت کامیونیتی
  */
 export default function CommunityCard({ id, name, slug, bio, member_count, is_member, my_role }: CommunityCardProps) {
+  const { t } = useTranslation()
+  
+  // Get translated role label
+  const getRoleLabel = (role: string | null | undefined): string => {
+    switch (role) {
+      case 'owner':
+        return t('communities.roles.owner')
+      case 'manager':
+        return t('communities.roles.manager')
+      case 'moderator':
+        return t('communities.roles.moderator')
+      case 'member':
+      default:
+        return t('communities.roles.member')
+    }
+  }
+
   return (
     <Link href={`/communities/${id}`}>
       <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer h-full">
@@ -92,7 +95,7 @@ export default function CommunityCard({ id, name, slug, bio, member_count, is_me
               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
             />
           </svg>
-          <span className="text-sm text-neutral-600">{member_count || 0} عضو</span>
+          <span className="text-sm text-neutral-600">{t('communities.detail.members', { count: (member_count || 0).toString() })}</span>
         </div>
       </Card>
     </Link>

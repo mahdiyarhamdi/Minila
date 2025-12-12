@@ -9,6 +9,8 @@ interface BottomSheetProps {
   children: ReactNode
   title?: string
   className?: string
+  closeOnBackdropClick?: boolean
+  closeOnSwipe?: boolean
 }
 
 /**
@@ -21,6 +23,8 @@ export default function BottomSheet({
   children,
   title,
   className,
+  closeOnBackdropClick = true,
+  closeOnSwipe = true,
 }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
   const startY = useRef<number>(0)
@@ -28,21 +32,24 @@ export default function BottomSheet({
 
   // Handle touch start for swipe gesture
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!closeOnSwipe) return
     startY.current = e.touches[0].clientY
-  }, [])
+  }, [closeOnSwipe])
 
   // Handle touch move for swipe gesture
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!closeOnSwipe) return
     currentY.current = e.touches[0].clientY
     const delta = currentY.current - startY.current
 
     if (delta > 0 && sheetRef.current) {
       sheetRef.current.style.transform = `translateY(${delta}px)`
     }
-  }, [])
+  }, [closeOnSwipe])
 
   // Handle touch end - close if swiped down enough
   const handleTouchEnd = useCallback(() => {
+    if (!closeOnSwipe) return
     const delta = currentY.current - startY.current
 
     if (delta > 100) {
@@ -52,7 +59,7 @@ export default function BottomSheet({
     if (sheetRef.current) {
       sheetRef.current.style.transform = ''
     }
-  }, [onClose])
+  }, [onClose, closeOnSwipe])
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -86,7 +93,7 @@ export default function BottomSheet({
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 transition-opacity duration-300 animate-fade-in"
-        onClick={onClose}
+        onClick={closeOnBackdropClick ? onClose : undefined}
         aria-hidden="true"
       />
 

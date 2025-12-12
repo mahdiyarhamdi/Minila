@@ -6,7 +6,7 @@ from ..models.membership import Membership, Request
 from ..repositories import community_repo, membership_repo
 from ..services import log_service
 from ..utils.pagination import PaginatedResponse
-from ..utils.email import send_membership_request_notification, send_membership_result
+from ..utils.email import send_membership_request_notification, send_membership_result, send_role_change_notification
 from ..utils.logger import logger
 
 
@@ -266,8 +266,28 @@ async def join_request(
     
     await db.commit()
     
-    # ارسال ایمیل به مدیران (async در پس‌زمینه)
-    # TODO: پیدا کردن ایمیل مدیران و ارسال نوتیفیکیشن
+    # ارسال ایمیل به مدیران
+    try:
+        # دریافت اطلاعات کاربر درخواست‌دهنده
+        from ..repositories import user_repo
+        user = await user_repo.get_by_id(db, user_id)
+        user_name = f"{user.first_name} {user.last_name}" if user else "Unknown User"
+        
+        # دریافت ایمیل مدیران
+        managers = await community_repo.get_managers_emails(db, community_id)
+        
+        for manager in managers:
+            try:
+                send_membership_request_notification(
+                    email=manager["email"],
+                    user_name=user_name,
+                    community_name=community.name,
+                    language=manager.get("language", "en")
+                )
+            except Exception as e:
+                logger.warning(f"Failed to send membership request email to {manager['email']}: {e}")
+    except Exception as e:
+        logger.warning(f"Failed to send membership request notifications: {e}")
     
     logger.info(f"Join request: user {user_id} → community {community_id}")
     return request
@@ -396,11 +416,19 @@ async def handle_request(
     
     await db.commit()
     
-    # ارسال ایمیل نتیجه
+    # ارسال ایمیل نتیجه به کاربر
     try:
-        # TODO: دریافت ایمیل کاربر و نام کامیونیتی
-        # send_membership_result(user_email, community_name, approve)
-        pass
+        from ..repositories import user_repo
+        user = await user_repo.get_by_id(db, request.user_id)
+        community = await community_repo.get_by_id(db, request.community_id)
+        
+        if user and community:
+            send_membership_result(
+                email=user.email,
+                community_name=community.name,
+                approved=approve,
+                language=getattr(user, "preferred_language", "en")
+            )
     except Exception as e:
         logger.warning(f"Failed to send membership result email: {e}")
     
@@ -582,6 +610,21 @@ async def change_member_role(
     )
     result = await db.execute(query)
     updated_membership = result.scalar_one_or_none()
+    
+    # ارسال ایمیل به کاربر
+    try:
+        from ..repositories import user_repo
+        user = await user_repo.get_by_id(db, target_user_id)
+        
+        if user:
+            send_role_change_notification(
+                email=user.email,
+                community_name=community.name,
+                new_role=new_role,
+                language=getattr(user, "preferred_language", "en")
+            )
+    except Exception as e:
+        logger.warning(f"Failed to send role change email: {e}")
     
     logger.info(f"Role changed: user {target_user_id} in community {community_id} → {new_role} by {actor_user_id}")
     return updated_membership

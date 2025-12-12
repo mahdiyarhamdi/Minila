@@ -47,9 +47,16 @@ async def get_cards(
     is_packed: Optional[bool] = None,
     community_id: Optional[int] = None,
     min_weight: Optional[float] = None,
-    max_weight: Optional[float] = None
+    max_weight: Optional[float] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    currency: Optional[str] = None
 ) -> PaginatedResponse[CardOut]:
     """جست‌وجوی کارت‌ها با فیلتر."""
+    from datetime import datetime
+    
     filters = CardFilter(
         origin_country_id=origin_country_id,
         origin_city_id=origin_city_id,
@@ -60,7 +67,12 @@ async def get_cards(
         is_packed=is_packed,
         community_id=community_id,
         min_weight=min_weight,
-        max_weight=max_weight
+        max_weight=max_weight,
+        date_from=datetime.fromisoformat(date_from.replace('Z', '+00:00')) if date_from else None,
+        date_to=datetime.fromisoformat(date_to.replace('Z', '+00:00')) if date_to else None,
+        min_price=min_price,
+        max_price=max_price,
+        currency=currency
     )
     
     result = await card_service.get_cards(db, filters, page, page_size)

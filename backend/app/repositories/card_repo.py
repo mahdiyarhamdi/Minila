@@ -55,32 +55,32 @@ async def get_all(
         conditions.append(Card.is_packed == filters.is_packed)
     
     # فیلتر بازه زمانی
-    if filters.start_date is not None:
+    if filters.date_from is not None:
         # برای کارت‌های sender: بررسی start_time_frame
         # برای کارت‌های traveler: بررسی ticket_date_time
         conditions.append(
             or_(
                 and_(
                     Card.is_sender == True,
-                    Card.start_time_frame >= filters.start_date
+                    Card.start_time_frame >= filters.date_from
                 ),
                 and_(
                     Card.is_sender == False,
-                    Card.ticket_date_time >= filters.start_date
+                    Card.ticket_date_time >= filters.date_from
                 )
             )
         )
     
-    if filters.end_date is not None:
+    if filters.date_to is not None:
         conditions.append(
             or_(
                 and_(
                     Card.is_sender == True,
-                    Card.end_time_frame <= filters.end_date
+                    Card.end_time_frame <= filters.date_to
                 ),
                 and_(
                     Card.is_sender == False,
-                    Card.ticket_date_time <= filters.end_date
+                    Card.ticket_date_time <= filters.date_to
                 )
             )
         )
@@ -91,6 +91,17 @@ async def get_all(
     
     if filters.max_weight is not None:
         conditions.append(Card.weight <= filters.max_weight)
+    
+    # فیلتر قیمت
+    if filters.min_price is not None:
+        conditions.append(Card.price_aed >= filters.min_price)
+    
+    if filters.max_price is not None:
+        conditions.append(Card.price_aed <= filters.max_price)
+    
+    # فیلتر واحد پول
+    if filters.currency is not None:
+        conditions.append(Card.currency == filters.currency)
     
     # فیلتر کامیونیتی
     if filters.community_id is not None:

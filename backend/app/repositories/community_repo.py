@@ -322,3 +322,60 @@ async def get_member_count(db: AsyncSession, community_id: int) -> int:
     result = await db.execute(query)
     return result.scalar() or 0
 
+
+async def get_managers_emails(
+    db: AsyncSession,
+    community_id: int
+) -> list[dict]:
+    """دریافت ایمیل مدیران و مالک کامیونیتی.
+    
+    Args:
+        db: Database session
+        community_id: شناسه کامیونیتی
+        
+    Returns:
+        لیست dict با email و preferred_language
+    """
+    from ..models.user import User
+    from ..models.role import Role
+    
+    # Get community to find owner
+    community = await get_by_id(db, community_id)
+    if not community:
+        return []
+    
+    managers = []
+    
+    # Add owner
+    if community.owner:
+        managers.append({
+            "email": community.owner.email,
+            "language": getattr(community.owner, "preferred_language", "en"),
+            "name": f"{community.owner.first_name} {community.owner.last_name}"
+        })
+    
+    # Get managers (role = manager)
+    query = (
+        select(Membership)
+        .options(
+            selectinload(Membership.user),
+            selectinload(Membership.role)
+        )
+        .where(Membership.community_id == community_id)
+        .where(Membership.is_active == True)
+    )
+    result = await db.execute(query)
+    memberships = result.scalars().all()
+    
+    for m in memberships:
+        if m.role and m.role.name == "manager" and m.user:
+            # Don't add owner twice
+            if m.user.id != community.owner_id:
+                managers.append({
+                    "email": m.user.email,
+                    "language": getattr(m.user, "preferred_language", "en"),
+                    "name": f"{m.user.first_name} {m.user.last_name}"
+                })
+    
+    return managers
+

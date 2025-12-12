@@ -362,6 +362,12 @@
       "members": "{{count}} أعضاء",
       "viewDetails": "عرض التفاصيل"
     },
+    "roles": {
+      "owner": "مالك",
+      "manager": "مدير",
+      "moderator": "مشرف",
+      "member": "عضو"
+    },
     "new": {
       "title": "إنشاء مجتمع جديد",
       "subtitle": "أنشئ مجتمعاً جديداً وادعُ الأعضاء",

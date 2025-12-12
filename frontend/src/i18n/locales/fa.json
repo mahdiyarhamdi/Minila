@@ -413,6 +413,12 @@
       "members": "{{count}} عضو",
       "viewDetails": "مشاهده جزئیات"
     },
+    "roles": {
+      "owner": "مالک",
+      "manager": "مدیر",
+      "moderator": "ناظر",
+      "member": "عضو"
+    },
     "new": {
       "title": "ایجاد کامیونیتی جدید",
       "subtitle": "یک کامیونیتی برای گروه خود بسازید",

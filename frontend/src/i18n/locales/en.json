@@ -413,6 +413,12 @@
       "members": "{{count}} members",
       "viewDetails": "View details"
     },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "moderator": "Moderator",
+      "member": "Member"
+    },
     "new": {
       "title": "Create New Community",
       "subtitle": "Create a community for your group",

@@ -301,6 +301,37 @@ Minila Team"""
 فريق Minila"""
         }
     },
+    
+    # ==================== Role Change ====================
+    "role_change": {
+        "fa": {
+            "subject": "تغییر نقش شما در {community_name}",
+            "body": """سلام،
+
+نقش شما در کامیونیتی {community_name} به «{new_role}» تغییر یافت.
+
+---
+تیم Minila"""
+        },
+        "en": {
+            "subject": "Your role in {community_name} has changed",
+            "body": """Hello,
+
+Your role in {community_name} has been changed to "{new_role}".
+
+---
+Minila Team"""
+        },
+        "ar": {
+            "subject": "تم تغيير دورك في {community_name}",
+            "body": """مرحباً،
+
+تم تغيير دورك في {community_name} إلى "{new_role}".
+
+---
+فريق Minila"""
+        }
+    },
 }
 
 

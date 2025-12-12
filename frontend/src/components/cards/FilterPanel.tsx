@@ -563,6 +563,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         isOpen={isBottomSheetOpen}
         onClose={handleCancel}
         title={t('cards.filters.title')}
+        closeOnBackdropClick={false}
+        closeOnSwipe={false}
       >
         <div className="p-4">
           {/* Reset button in header */}
