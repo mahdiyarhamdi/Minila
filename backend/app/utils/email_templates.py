@@ -335,24 +335,21 @@ Minila Team"""
 }
 
 
-def get_template(template_name: str, language: str, **kwargs: Any) -> tuple[str, str]:
+def get_template(template_name: str, language: str = "en", **kwargs: Any) -> tuple[str, str]:
     """دریافت قالب ایمیل با متغیرها.
     
     Args:
         template_name: نام قالب
-        language: زبان (fa, en, ar)
+        language: زبان - ignored, always uses English
         **kwargs: متغیرهای قالب
         
     Returns:
         tuple (subject, body)
     """
-    # Default to Farsi if language not found
-    if language not in ["fa", "en", "ar"]:
-        language = "fa"
-    
-    template = TEMPLATES.get(template_name, {}).get(language)
+    # Always use English templates
+    template = TEMPLATES.get(template_name, {}).get("en")
     if not template:
-        # Fallback to Farsi
+        # Fallback to any available language
         template = TEMPLATES.get(template_name, {}).get("fa", {
             "subject": template_name,
             "body": str(kwargs)
