@@ -13,6 +13,194 @@ interface DateTimePickerProps {
   validatePast?: boolean // اگر true، تاریخ‌های گذشته invalid هستند
 }
 
+// Number input with increment/decrement buttons for mobile
+function NumberInput({
+  value,
+  onChange,
+  min,
+  max,
+  label,
+  hasError,
+  padZero = false,
+}: {
+  value: number
+  onChange: (value: number) => void
+  min: number
+  max: number
+  label: string
+  hasError: boolean
+  padZero?: boolean
+}) {
+  const [inputValue, setInputValue] = useState(padZero ? value.toString().padStart(2, '0') : value.toString())
+  
+  useEffect(() => {
+    setInputValue(padZero ? value.toString().padStart(2, '0') : value.toString())
+  }, [value, padZero])
+
+  const handleIncrement = () => {
+    const newValue = value >= max ? min : value + 1
+    onChange(newValue)
+  }
+
+  const handleDecrement = () => {
+    const newValue = value <= min ? max : value - 1
+    onChange(newValue)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setInputValue(newValue)
+    
+    // Allow empty string for editing
+    if (newValue === '') return
+    
+    const parsed = parseInt(newValue, 10)
+    if (!isNaN(parsed)) {
+      // Clamp value to valid range
+      const clamped = Math.max(min, Math.min(max, parsed))
+      onChange(clamped)
+    }
+  }
+
+  const handleBlur = () => {
+    // On blur, reset to current value if empty
+    if (inputValue === '' || isNaN(parseInt(inputValue, 10))) {
+      setInputValue(padZero ? value.toString().padStart(2, '0') : value.toString())
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-xs text-neutral-600 mb-1">{label}</label>
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={handleDecrement}
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-l-xl border border-r-0 border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+        >
+          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          className={cn(
+            'w-full px-2 py-2.5 border-y transition-all',
+            'text-neutral-900 text-center',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
+            {
+              'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
+              'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
+            }
+          )}
+        />
+        <button
+          type="button"
+          onClick={handleIncrement}
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-r-xl border border-l-0 border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+        >
+          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// Year input - special case with wider range
+function YearInput({
+  value,
+  onChange,
+  label,
+  hasError,
+}: {
+  value: number
+  onChange: (value: number) => void
+  label: string
+  hasError: boolean
+}) {
+  const [inputValue, setInputValue] = useState(value.toString())
+  
+  useEffect(() => {
+    setInputValue(value.toString())
+  }, [value])
+
+  const handleIncrement = () => {
+    onChange(value + 1)
+  }
+
+  const handleDecrement = () => {
+    onChange(Math.max(2020, value - 1))
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setInputValue(newValue)
+    
+    if (newValue === '') return
+    
+    const parsed = parseInt(newValue, 10)
+    if (!isNaN(parsed) && parsed >= 2020 && parsed <= 2100) {
+      onChange(parsed)
+    }
+  }
+
+  const handleBlur = () => {
+    if (inputValue === '' || isNaN(parseInt(inputValue, 10))) {
+      setInputValue(value.toString())
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-xs text-neutral-600 mb-1">{label}</label>
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={handleDecrement}
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-l-xl border border-r-0 border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+        >
+          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          className={cn(
+            'w-full px-2 py-2.5 border-y transition-all',
+            'text-neutral-900 text-center',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
+            {
+              'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
+              'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
+            }
+          )}
+        />
+        <button
+          type="button"
+          onClick={handleIncrement}
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-r-xl border border-l-0 border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+        >
+          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 const MONTHS = [
   { value: 1, label: 'January', short: 'Jan' },
   { value: 2, label: 'February', short: 'Feb' },
@@ -246,16 +434,6 @@ export default function DateTimePicker({
     notifyChange(year, month, day, hour, adjustedMinute)
   }
 
-  const inputClassName = cn(
-    'px-3 py-2.5 rounded-xl border transition-all',
-    'text-neutral-900 text-center',
-    'focus:outline-none focus:ring-2 focus:ring-offset-0',
-    {
-      'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !error && !validationError,
-      'border-red-300 focus:border-red-500 focus:ring-red-100': error || validationError,
-    }
-  )
-
   return (
     <div className="w-full">
       {label && (
@@ -268,16 +446,12 @@ export default function DateTimePicker({
         {/* Date fields */}
         <div className="grid grid-cols-3 gap-2">
           {/* Year */}
-          <div>
-            <label className="block text-xs text-neutral-600 mb-1">Year</label>
-            <input
-              type="number"
-              value={year}
-              onChange={(e) => handleYearChange(parseInt(e.target.value) || now.getFullYear())}
-              className={inputClassName}
-              style={{ width: '100%' }}
-            />
-          </div>
+          <YearInput
+            value={year}
+            onChange={handleYearChange}
+            label="Year"
+            hasError={!!error || !!validationError}
+          />
 
           {/* Month - Custom Dropdown */}
           <MonthSelect
@@ -287,77 +461,40 @@ export default function DateTimePicker({
           />
 
           {/* Day */}
-          <div>
-            <label className="block text-xs text-neutral-600 mb-1">Day</label>
-            <input
-              type="number"
-              min="1"
-              max="31"
-              value={day}
-              onChange={(e) => handleDayChange(parseInt(e.target.value) || 1)}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowUp') {
-                  e.preventDefault()
-                  handleDayChange(day >= 31 ? 1 : day + 1)
-                } else if (e.key === 'ArrowDown') {
-                  e.preventDefault()
-                  handleDayChange(day <= 1 ? 31 : day - 1)
-                }
-              }}
-              className={inputClassName}
-              style={{ width: '100%' }}
-            />
-          </div>
+          <NumberInput
+            value={day}
+            onChange={handleDayChange}
+            min={1}
+            max={31}
+            label="Day"
+            hasError={!!error || !!validationError}
+          />
         </div>
 
         {/* Time fields */}
         {includeTime && (
           <div className="grid grid-cols-2 gap-2">
             {/* Hour */}
-            <div>
-              <label className="block text-xs text-neutral-600 mb-1">Hour</label>
-              <input
-                type="number"
-                min="0"
-                max="23"
-                value={hour.toString().padStart(2, '0')}
-                onChange={(e) => handleHourChange(parseInt(e.target.value) || 0)}
-                onKeyDown={(e) => {
-                  if (e.key === 'ArrowUp') {
-                    e.preventDefault()
-                    handleHourChange(hour >= 23 ? 0 : hour + 1)
-                  } else if (e.key === 'ArrowDown') {
-                    e.preventDefault()
-                    handleHourChange(hour <= 0 ? 23 : hour - 1)
-                  }
-                }}
-                className={inputClassName}
-                style={{ width: '100%' }}
-              />
-            </div>
+            <NumberInput
+              value={hour}
+              onChange={handleHourChange}
+              min={0}
+              max={23}
+              label="Hour"
+              hasError={!!error || !!validationError}
+              padZero
+            />
 
             {/* Minute */}
-            <div>
-              <label className="block text-xs text-neutral-600 mb-1">Minute</label>
-              <input
-                type="number"
-                min="0"
-                max="59"
-                value={minute.toString().padStart(2, '0')}
-                onChange={(e) => handleMinuteChange(parseInt(e.target.value) || 0)}
-                onKeyDown={(e) => {
-                  if (e.key === 'ArrowUp') {
-                    e.preventDefault()
-                    handleMinuteChange(minute >= 59 ? 0 : minute + 1)
-                  } else if (e.key === 'ArrowDown') {
-                    e.preventDefault()
-                    handleMinuteChange(minute <= 0 ? 59 : minute - 1)
-                  }
-                }}
-                className={inputClassName}
-                style={{ width: '100%' }}
-              />
-            </div>
+            <NumberInput
+              value={minute}
+              onChange={handleMinuteChange}
+              min={0}
+              max={59}
+              label="Minute"
+              hasError={!!error || !!validationError}
+              padZero
+            />
           </div>
         )}
       </div>
