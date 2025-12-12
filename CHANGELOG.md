@@ -4,6 +4,26 @@
 
 ## [Unreleased]
 
+### Added - 2025-12-12
+
+#### Production Deployment
+- 🚀 Deploy پروژه روی سرور production
+- 🌐 دامنه: https://minila.app (Frontend) و https://api.minila.app (API)
+- 🔐 SSL با Cloudflare Origin Certificate
+- 🐳 Docker Compose برای production
+
+### Fixed - 2025-12-12
+
+#### Frontend API Fix
+- اصلاح trailing slash در API endpoints برای جلوگیری از 307 redirect
+- مسیرهای `/api/v1/cards?...` به `/api/v1/cards/?...` تغییر کردند
+- مسیرهای `/api/v1/communities?...` به `/api/v1/communities/?...` تغییر کردند
+
+#### Translation Fix
+- اضافه شدن فیلدهای `subtitle`, `successRedirect`, `securityNote` به بخش `changePassword` در `ar.json`
+
+---
+
 ### Added - 2024-12-11
 
 #### Frontend - Mobile Navigation & UX Improvements

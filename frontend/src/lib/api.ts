@@ -220,7 +220,7 @@ class APIService {
         }
       })
     }
-    const response = await this.client.get<CardListResponse>(`/api/v1/cards?${params.toString()}`)
+    const response = await this.client.get<CardListResponse>(`/api/v1/cards/?${params.toString()}`)
     return response.data
   }
 
@@ -269,7 +269,7 @@ class APIService {
    * دریافت لیست کامیونیتی‌ها
    */
   async getCommunities(page: number = 1, page_size: number = 20): Promise<CommunityListResponse> {
-    const response = await this.client.get<CommunityListResponse>(`/api/v1/communities?page=${page}&page_size=${page_size}`)
+    const response = await this.client.get<CommunityListResponse>(`/api/v1/communities/?page=${page}&page_size=${page_size}`)
     return response.data
   }
 

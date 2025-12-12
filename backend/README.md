@@ -552,6 +552,61 @@ pip install -r requirements.txt
 
 ---
 
+## 🌐 Production
+
+### آدرس‌های Production
+
+| سرویس | آدرس |
+|-------|------|
+| **وب‌سایت** | https://minila.app |
+| **API** | https://api.minila.app |
+| **API Docs** | https://api.minila.app/docs |
+| **Health Check** | https://api.minila.app/health |
+
+### مشخصات سرور
+
+- **OS**: Ubuntu 22.04 LTS
+- **Location**: OVH Datacenter (Europe)
+- **SSL**: Cloudflare Origin Certificate
+- **Reverse Proxy**: Caddy
+
+### نحوه Deploy
+
+```bash
+# 1. SSH به سرور
+ssh root@<SERVER_IP>
+
+# 2. رفتن به پوشه پروژه
+cd /opt/minila
+
+# 3. Pull آخرین تغییرات
+git pull origin main
+
+# 4. Rebuild و راه‌اندازی مجدد
+docker compose -f docker-compose.prod.yml up -d --build
+
+# 5. اجرای migrations (در صورت نیاز)
+docker exec minila_backend alembic upgrade head
+
+# 6. بررسی سلامت
+curl https://api.minila.app/health
+```
+
+### لاگ‌ها
+
+```bash
+# لاگ‌های backend
+docker logs minila_backend --tail 100 -f
+
+# لاگ‌های frontend
+docker logs minila_frontend --tail 100 -f
+
+# لاگ‌های Caddy (reverse proxy)
+docker logs minila_caddy --tail 100 -f
+```
+
+---
+
 ## 📚 منابع مرتبط
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - معماری جامع backend
