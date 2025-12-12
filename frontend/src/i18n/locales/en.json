@@ -608,7 +608,28 @@
     "unauthorized": "Please login to continue.",
     "forbidden": "You don't have access to this resource.",
     "notFound": "The requested item was not found.",
-    "validation": "Please check the entered information."
+    "validation": "Please check the entered information.",
+    "api": {
+      "emailAlreadyExists": "This email is already registered",
+      "emailNotVerified": "Please verify your email first",
+      "userNotFound": "No user found with this email",
+      "invalidOtp": "Invalid verification code",
+      "otpExpired": "Verification code has expired",
+      "invalidCredentials": "Invalid email or password",
+      "accountDisabled": "Your account has been disabled",
+      "emailAlreadyVerified": "Email is already verified",
+      "passwordNotSet": "Password is not set",
+      "wrongCurrentPassword": "Current password is incorrect",
+      "cannotMessageSelf": "You cannot message yourself",
+      "receiverNotFound": "Recipient not found",
+      "receiverInactive": "Recipient is inactive",
+      "noCommonCommunity": "You don't share any community with this user",
+      "communityNotFound": "Community not found",
+      "alreadyMember": "You are already a member of this community",
+      "alreadyRequested": "You have already requested to join",
+      "cardNotFound": "Card not found",
+      "notCardOwner": "You are not the owner of this card"
+    }
   },
   "toast": {
     "success": "Success",

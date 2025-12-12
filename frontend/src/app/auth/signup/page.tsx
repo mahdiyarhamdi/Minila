@@ -12,6 +12,7 @@ import LanguageSelector from '@/components/LanguageSelector'
 import Logo from '@/components/Logo'
 import { apiService } from '@/lib/api'
 import { useTranslation } from '@/hooks/useTranslation'
+import { translateError } from '@/lib/errorTranslation'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -56,7 +57,8 @@ export default function SignupPage() {
         router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`)
       }, 1500)
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('errors.generic'))
+      const errorMsg = err.response?.data?.detail || ''
+      setError(translateError(errorMsg, t, t('errors.generic')))
     }
   }
 

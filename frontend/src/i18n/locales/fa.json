@@ -608,7 +608,28 @@
     "unauthorized": "لطفاً وارد حساب کاربری خود شوید.",
     "forbidden": "شما به این بخش دسترسی ندارید.",
     "notFound": "مورد درخواستی یافت نشد.",
-    "validation": "لطفاً اطلاعات وارد شده را بررسی کنید."
+    "validation": "لطفاً اطلاعات وارد شده را بررسی کنید.",
+    "api": {
+      "emailAlreadyExists": "این ایمیل قبلاً ثبت شده است",
+      "emailNotVerified": "ابتدا باید ایمیل خود را تایید کنید",
+      "userNotFound": "کاربری با این ایمیل یافت نشد",
+      "invalidOtp": "کد تایید نامعتبر است",
+      "otpExpired": "کد تایید منقضی شده است",
+      "invalidCredentials": "ایمیل یا رمز عبور نادرست است",
+      "accountDisabled": "حساب کاربری شما غیرفعال شده است",
+      "emailAlreadyVerified": "ایمیل قبلاً تایید شده است",
+      "passwordNotSet": "رمز عبور تنظیم نشده است",
+      "wrongCurrentPassword": "رمز عبور فعلی نادرست است",
+      "cannotMessageSelf": "نمی‌توانید به خودتان پیام ارسال کنید",
+      "receiverNotFound": "گیرنده پیام یافت نشد",
+      "receiverInactive": "گیرنده پیام غیرفعال است",
+      "noCommonCommunity": "شما و گیرنده پیام هیچ کامیونیتی مشترکی ندارید",
+      "communityNotFound": "کامیونیتی یافت نشد",
+      "alreadyMember": "شما قبلاً عضو این کامیونیتی هستید",
+      "alreadyRequested": "شما قبلاً درخواست عضویت داده‌اید",
+      "cardNotFound": "کارت یافت نشد",
+      "notCardOwner": "شما مالک این کارت نیستید"
+    }
   },
   "toast": {
     "success": "موفقیت",

@@ -13,6 +13,7 @@ import Logo from '@/components/Logo'
 import { apiService } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTranslation } from '@/hooks/useTranslation'
+import { translateError } from '@/lib/errorTranslation'
 
 type OTPFormData = { otp_code: string }
 
@@ -60,7 +61,8 @@ export default function VerifyEmailPage() {
       await login(tokens.access_token, tokens.refresh_token)
       router.push('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('errors.generic'))
+      const errorMsg = err.response?.data?.detail || ''
+      setError(translateError(errorMsg, t, t('errors.generic')))
     }
   }
 
@@ -72,7 +74,8 @@ export default function VerifyEmailPage() {
       setError('')
       setResendMessage(t('auth.otp.resendSuccess'))
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('errors.generic'))
+      const errorMsg = err.response?.data?.detail || ''
+      setError(translateError(errorMsg, t, t('errors.generic')))
     } finally {
       setResendLoading(false)
     }

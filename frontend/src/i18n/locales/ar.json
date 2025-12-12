@@ -451,7 +451,28 @@
     "unauthorized": "يرجى تسجيل الدخول للمتابعة.",
     "forbidden": "ليس لديك صلاحية الوصول لهذا المورد.",
     "notFound": "لم يتم العثور على العنصر المطلوب.",
-    "validation": "يرجى التحقق من المعلومات المدخلة."
+    "validation": "يرجى التحقق من المعلومات المدخلة.",
+    "api": {
+      "emailAlreadyExists": "هذا البريد الإلكتروني مسجل بالفعل",
+      "emailNotVerified": "يرجى التحقق من بريدك الإلكتروني أولاً",
+      "userNotFound": "لم يتم العثور على مستخدم بهذا البريد الإلكتروني",
+      "invalidOtp": "رمز التحقق غير صالح",
+      "otpExpired": "انتهت صلاحية رمز التحقق",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+      "accountDisabled": "تم تعطيل حسابك",
+      "emailAlreadyVerified": "تم التحقق من البريد الإلكتروني بالفعل",
+      "passwordNotSet": "لم يتم تعيين كلمة المرور",
+      "wrongCurrentPassword": "كلمة المرور الحالية غير صحيحة",
+      "cannotMessageSelf": "لا يمكنك إرسال رسالة لنفسك",
+      "receiverNotFound": "لم يتم العثور على المستلم",
+      "receiverInactive": "المستلم غير نشط",
+      "noCommonCommunity": "لا يوجد مجتمع مشترك بينك وبين هذا المستخدم",
+      "communityNotFound": "لم يتم العثور على المجتمع",
+      "alreadyMember": "أنت بالفعل عضو في هذا المجتمع",
+      "alreadyRequested": "لقد قدمت طلب انضمام بالفعل",
+      "cardNotFound": "لم يتم العثور على البطاقة",
+      "notCardOwner": "لست مالك هذه البطاقة"
+    }
   },
   "toast": {
     "success": "نجاح",

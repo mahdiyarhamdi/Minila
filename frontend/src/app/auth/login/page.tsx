@@ -13,6 +13,7 @@ import Logo from '@/components/Logo'
 import { apiService } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTranslation } from '@/hooks/useTranslation'
+import { translateError } from '@/lib/errorTranslation'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -86,7 +87,8 @@ export default function LoginPage() {
         router.push('/dashboard')
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('auth.validation.invalidCredentials'))
+      const errorMsg = err.response?.data?.detail || ''
+      setError(translateError(errorMsg, t, t('auth.validation.invalidCredentials')))
     }
   }
 
@@ -98,7 +100,8 @@ export default function LoginPage() {
       setEmail(data.email)
       setStep('otp')
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('errors.generic'))
+      const errorMsg = err.response?.data?.detail || ''
+      setError(translateError(errorMsg, t, t('errors.generic')))
     }
   }
 
@@ -120,7 +123,8 @@ export default function LoginPage() {
         router.push('/dashboard')
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('errors.generic'))
+      const errorMsg = err.response?.data?.detail || ''
+      setError(translateError(errorMsg, t, t('errors.generic')))
     }
   }
 
