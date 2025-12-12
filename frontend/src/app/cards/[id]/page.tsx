@@ -141,15 +141,12 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
                 {card.product_classification && (
                   <Badge variant="neutral">{card.product_classification.name}</Badge>
                 )}
-                <Badge variant={
-                  card.is_packed === true ? "success" : 
-                  card.is_packed === false ? "neutral" : 
-                  "neutral"
-                }>
-                  {card.is_packed === true ? t('cards.detail.packed') : 
-                   card.is_packed === false ? t('cards.detail.unpacked') : 
-                   t('cards.detail.doesntMatter')}
-                </Badge>
+                {card.is_packed === true && (
+                  <Badge variant="success">{t('cards.detail.packed')}</Badge>
+                )}
+                {card.is_packed === false && (
+                  <Badge variant="warning">{t('cards.detail.unpacked')}</Badge>
+                )}
               </div>
             </div>
 

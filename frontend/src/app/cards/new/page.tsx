@@ -460,7 +460,7 @@ export default function NewCardPage() {
               />
 
               {/* Community selection */}
-              {communities && communities.items.length > 0 && (
+              {communities && communities.items.length > 0 ? (
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-3">
                     {t('cards.new.communities')}
@@ -487,6 +487,25 @@ export default function NewCardPage() {
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-amber-800">
+                        {t('cards.new.noCommunityWarning')}
+                      </p>
+                      <p className="text-sm text-amber-700 mt-1">
+                        {t('cards.new.noCommunityHint')}
+                      </p>
+                      <a href="/communities" className="inline-block mt-2 text-sm font-medium text-amber-800 hover:text-amber-900 underline">
+                        {t('cards.new.browseCommunities')}
+                      </a>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </Card>
@@ -504,6 +523,7 @@ export default function NewCardPage() {
             <Button
               type="submit"
               isLoading={createCardMutation.isPending}
+              disabled={!communities || communities.items.length === 0}
               className="w-full sm:w-auto"
             >
               {t('cards.new.submit')}

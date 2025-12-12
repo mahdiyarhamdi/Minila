@@ -293,6 +293,9 @@
       "descriptionHelper": "اختياري - أي معلومات إضافية تعتقد أنها مفيدة",
       "communities": "عرض في المجتمعات",
       "communitiesHint": "إذا لم يتم اختيار مجتمع، ستكون البطاقة مرئية للجميع",
+      "noCommunityWarning": "يجب الانضمام إلى مجتمع أولاً",
+      "noCommunityHint": "لإنشاء بطاقة، يجب أن تكون عضواً في مجتمع واحد على الأقل.",
+      "browseCommunities": "تصفح المجتمعات ←",
       "submit": "إنشاء البطاقة",
       "validation": {
         "originCountry": "بلد المصدر مطلوب",

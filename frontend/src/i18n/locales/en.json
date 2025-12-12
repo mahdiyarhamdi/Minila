@@ -293,6 +293,9 @@
       "descriptionHelper": "Optional - Any additional information you think is useful",
       "communities": "Display in communities",
       "communitiesHint": "If no community is selected, the card will be visible to everyone",
+      "noCommunityWarning": "You must join a community first",
+      "noCommunityHint": "To create a card, you need to be a member of at least one community.",
+      "browseCommunities": "Browse communities →",
       "submit": "Create card",
       "validation": {
         "originCountry": "Origin country is required",

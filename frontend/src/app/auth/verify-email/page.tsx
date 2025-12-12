@@ -123,10 +123,9 @@ export default function VerifyEmailPage() {
             maxLength={6}
             error={errors.otp_code?.message}
             dir="ltr"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
+            autoComplete="new-password"
+            data-form-type="other"
+            data-lpignore="true"
             className="text-center text-2xl tracking-widest"
           />
 
