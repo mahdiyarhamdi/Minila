@@ -114,15 +114,11 @@ export default function CardItem(card: CardType) {
               {product_classification.name}
             </Badge>
           )}
-          <Badge variant={
-            is_packed === true ? "success" : 
-            is_packed === false ? "neutral" : 
-            "neutral"
-          } size="sm">
-            {is_packed === true ? t('cards.detail.packed') : 
-             is_packed === false ? t('cards.detail.unpacked') : 
-             t('cards.new.doesntMatter')}
-          </Badge>
+          {is_packed === true && (
+            <Badge variant="success" size="sm">
+              {t('cards.detail.packed')}
+            </Badge>
+          )}
         </div>
       </Card>
     </Link>

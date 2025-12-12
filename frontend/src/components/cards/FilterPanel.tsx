@@ -564,7 +564,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         onClose={handleCancel}
         title={t('cards.filters.title')}
       >
-        <div className="p-4 pb-safe">
+        <div className="p-4">
           {/* Reset button in header */}
           {activeFilterCount > 0 && (
             <div className="flex justify-end mb-4">
@@ -579,16 +579,16 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
 
           <FilterFormContent currentFilters={tempFilters} onChange={handleTempChange} />
 
-          {/* Action Buttons */}
-          <div className="mt-6 pt-4 border-t border-neutral-200 flex gap-3">
+          {/* Action Buttons - با فاصله کافی از پایین */}
+          <div className="mt-6 pt-4 pb-8 border-t border-neutral-200 flex gap-3">
             <Button variant="ghost" onClick={handleCancel} className="flex-1">
               {t('cards.filters.cancel')}
             </Button>
             <Button onClick={handleApplyFilters} className="flex-1">
               {t('cards.filters.apply')}
             </Button>
-      </div>
-    </div>
+          </div>
+        </div>
       </BottomSheet>
     </>
   )
