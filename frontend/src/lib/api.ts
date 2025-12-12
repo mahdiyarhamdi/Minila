@@ -439,7 +439,7 @@ class APIService {
    * ویرایش پروفایل
    */
   async updateProfile(data: { first_name?: string; last_name?: string }): Promise<User> {
-    const response = await this.client.put<User>('/api/v1/users/me', data)
+    const response = await this.client.put<User>('/api/v1/users/me/', data)
     return response.data
   }
 

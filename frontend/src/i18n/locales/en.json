@@ -531,7 +531,16 @@
         "loginButton": "Login to account",
         "backButton": "Back to community"
       },
-      "settingsComingSoon": "More settings coming soon..."
+      "settingsComingSoon": "More settings coming soon...",
+      "settings": {
+        "name": "Community Name",
+        "namePlaceholder": "Enter community name",
+        "nameRequired": "Community name is required",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter community description (optional)",
+        "save": "Save Changes",
+        "saved": "Settings saved successfully"
+      }
     },
     "myCommunities": {
       "title": "My Communities",

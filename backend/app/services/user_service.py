@@ -50,7 +50,7 @@ async def update_profile(
     # بررسی وجود کاربر
     user = await user_repo.get_by_id(db, user_id)
     if not user:
-        raise ValueError("کاربر یافت نشد")
+        raise ValueError("User not found")
     
     # حذف فیلدهای None (که کاربر ارسال نکرده)
     updates_clean = {k: v for k, v in updates.items() if v is not None}
@@ -103,14 +103,14 @@ async def change_password(
     # دریافت کاربر
     user = await user_repo.get_by_id(db, user_id)
     if not user:
-        raise ValueError("کاربر یافت نشد")
+        raise ValueError("User not found")
     
     # بررسی password فعلی
     if not user.password:
-        raise ValueError("رمز عبور تنظیم نشده است")
+        raise ValueError("Password not set")
     
     if not verify_password(old_password, user.password):
-        raise ValueError("رمز عبور فعلی نادرست است")
+        raise ValueError("Current password is incorrect")
     
     # هش کردن password جدید
     hashed_new_password = hash_password(new_password)

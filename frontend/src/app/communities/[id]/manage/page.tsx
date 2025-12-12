@@ -11,12 +11,15 @@ import {
   useRejectJoinRequest,
   useRemoveCommunityMember,
   useChangeMemberRole,
+  useUpdateCommunity,
 } from '@/hooks/useCommunities'
 import { useTranslation } from '@/hooks/useTranslation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Badge from '@/components/Badge'
 import Tabs from '@/components/Tabs'
+import Input from '@/components/Input'
+import Textarea from '@/components/Textarea'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
 import Modal from '@/components/Modal'
@@ -47,9 +50,26 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
   const rejectMutation = useRejectJoinRequest()
   const removeMutation = useRemoveCommunityMember()
   const changeRoleMutation = useChangeMemberRole()
+  const updateMutation = useUpdateCommunity(communityId)
   const [activeTab, setActiveTab] = useState('requests')
   const [removeMemberId, setRemoveMemberId] = useState<number | null>(null)
   const [roleChangeTarget, setRoleChangeTarget] = useState<{ userId: number; currentRole: string; userName: string } | null>(null)
+  
+  // Settings form state
+  const [settingsForm, setSettingsForm] = useState({
+    name: '',
+    description: '',
+  })
+  
+  // Initialize settings form when community data loads
+  useEffect(() => {
+    if (community) {
+      setSettingsForm({
+        name: community.name || '',
+        description: community.description || '',
+      })
+    }
+  }, [community])
   
   // Force refresh community data when entering page to check access
   useEffect(() => {
@@ -110,6 +130,24 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
         ? t('communities.manage.toast.promotedToManager') 
         : t('communities.manage.toast.demotedToMember'))
       setRoleChangeTarget(null)
+    } catch (error: any) {
+      showToast('error', extractErrorMessage(error))
+    }
+  }
+
+  const handleSaveSettings = async () => {
+    if (!settingsForm.name.trim()) {
+      showToast('error', t('communities.manage.settings.nameRequired'))
+      return
+    }
+
+    try {
+      await updateMutation.mutateAsync({
+        name: settingsForm.name.trim(),
+        description: settingsForm.description.trim() || undefined,
+      })
+      showToast('success', t('communities.manage.settings.saved'))
+      refetchCommunity()
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
@@ -392,10 +430,35 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
           {/* Settings Tab */}
           {activeTab === 'settings' && (
             <Card variant="bordered" className="p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-3 sm:mb-4">{t('communities.manage.settings')}</h3>
-              <p className="text-sm sm:text-base text-neutral-600 font-light">
-                {t('communities.manage.settingsComingSoon')}
-              </p>
+              <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-4 sm:mb-6">{t('communities.manage.settings')}</h3>
+              
+              <div className="space-y-4">
+                <Input
+                  label={t('communities.manage.settings.name')}
+                  value={settingsForm.name}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
+                  placeholder={t('communities.manage.settings.namePlaceholder')}
+                  required
+                />
+                
+                <Textarea
+                  label={t('communities.manage.settings.description')}
+                  value={settingsForm.description}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, description: e.target.value })}
+                  placeholder={t('communities.manage.settings.descriptionPlaceholder')}
+                  rows={4}
+                />
+                
+                <div className="pt-4">
+                  <Button
+                    onClick={handleSaveSettings}
+                    isLoading={updateMutation.isPending}
+                    disabled={!settingsForm.name.trim()}
+                  >
+                    {t('communities.manage.settings.save')}
+                  </Button>
+                </div>
+              </div>
             </Card>
           )}
         </Tabs>

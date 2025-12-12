@@ -404,6 +404,15 @@
         "removeMember": "إزالة",
         "approve": "موافقة",
         "reject": "رفض"
+      },
+      "settings": {
+        "name": "اسم المجتمع",
+        "namePlaceholder": "أدخل اسم المجتمع",
+        "nameRequired": "اسم المجتمع مطلوب",
+        "description": "الوصف",
+        "descriptionPlaceholder": "أدخل وصف المجتمع (اختياري)",
+        "save": "حفظ التغييرات",
+        "saved": "تم حفظ الإعدادات بنجاح"
       }
     }
   },

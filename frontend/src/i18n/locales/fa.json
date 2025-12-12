@@ -531,7 +531,16 @@
         "loginButton": "ورود به حساب کاربری",
         "backButton": "بازگشت به کامیونیتی"
       },
-      "settingsComingSoon": "تنظیمات بیشتر به زودی اضافه خواهد شد..."
+      "settingsComingSoon": "تنظیمات بیشتر به زودی اضافه خواهد شد...",
+      "settings": {
+        "name": "نام کامیونیتی",
+        "namePlaceholder": "نام کامیونیتی را وارد کنید",
+        "nameRequired": "نام کامیونیتی الزامی است",
+        "description": "توضیحات",
+        "descriptionPlaceholder": "توضیحات کامیونیتی را وارد کنید (اختیاری)",
+        "save": "ذخیره تغییرات",
+        "saved": "تنظیمات با موفقیت ذخیره شد"
+      }
     },
     "myCommunities": {
       "title": "کامیونیتی‌های من",
