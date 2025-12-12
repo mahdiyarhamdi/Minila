@@ -105,9 +105,11 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `SECRET_KEY` | کلید مخفی JWT (32+ کاراکتر) | - | ✅ |
 | `DATABASE_URL` | آدرس PostgreSQL | `postgresql+psycopg://...` | ✅ |
 | `REDIS_URL` | آدرس Redis | `redis://redis:6379/0` | ✅ |
-| `SMTP_HOST` | سرور SMTP | `mailhog` | ✅ |
-| `SMTP_PORT` | پورت SMTP | `1025` | ✅ |
-| `EMAIL_FROM` | ایمیل فرستنده | `no-reply@example.local` | ✅ |
+| `EMAIL_PROVIDER` | سرویس ایمیل (smtp/sendgrid) | `smtp` | ✅ |
+| `EMAIL_FROM` | ایمیل فرستنده | `no-reply@minila.app` | ✅ |
+| `SMTP_HOST` | سرور SMTP (برای dev) | `mailhog` | ❌ |
+| `SMTP_PORT` | پورت SMTP (برای dev) | `1025` | ❌ |
+| `SENDGRID_API_KEY` | کلید API SendGrid (برای prod) | - | ❌ |
 | `CORS_ORIGINS` | لیست domainهای مجاز | `["http://localhost:3000"]` | ❌ |
 | `OTP_EXPIRY_MINUTES` | زمان اعتبار OTP (دقیقه) | `10` | ❌ |
 | `MESSAGES_PER_DAY` | محدودیت پیام روزانه | `50` | ❌ |
@@ -125,10 +127,16 @@ DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/minila
 # Redis
 REDIS_URL=redis://redis:6379/0
 
-# Email (MailHog for dev)
+# Email Settings
+EMAIL_PROVIDER=smtp  # smtp (dev) or sendgrid (prod)
+EMAIL_FROM=no-reply@minila.app
+
+# SMTP (for development with MailHog)
 SMTP_HOST=mailhog
 SMTP_PORT=1025
-EMAIL_FROM=no-reply@minila.local
+
+# SendGrid (for production)
+# SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
 
 # Security
 OTP_EXPIRY_MINUTES=10

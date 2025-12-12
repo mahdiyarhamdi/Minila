@@ -34,12 +34,16 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@db:5432/app"
     REDIS_URL: str = "redis://redis:6379/0"
 
-    # Email (dev با MailHog)
+    # Email Settings
+    EMAIL_PROVIDER: str = "smtp"  # smtp, sendgrid
     SMTP_HOST: str = "mailhog"
     SMTP_PORT: int = 1025
     SMTP_USER: Optional[str] = None
     SMTP_PASS: Optional[str] = None
     EMAIL_FROM: Union[EmailStr, str] = "no-reply@example.local"
+    
+    # SendGrid
+    SENDGRID_API_KEY: Optional[str] = None
 
     # Rate limit
     MESSAGES_PER_DAY: int = 50

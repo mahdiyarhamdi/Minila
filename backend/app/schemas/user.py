@@ -67,6 +67,11 @@ class UserUpdate(BaseModel):
     avatar_id: Optional[int] = None
     country_id: Optional[int] = None
     city_id: Optional[int] = None
+    preferred_language: Optional[str] = Field(
+        None, 
+        pattern="^(fa|en|ar)$",
+        description="زبان ترجیحی (fa, en, ar)"
+    )
     
     model_config = ConfigDict(
         json_schema_extra={
@@ -74,7 +79,8 @@ class UserUpdate(BaseModel):
                 "first_name": "علی",
                 "last_name": "احمدی",
                 "avatar_id": 1,
-                "city_id": 1
+                "city_id": 1,
+                "preferred_language": "fa"
             }
         }
     )
@@ -122,6 +128,7 @@ class UserMeOut(BaseModel):
     email_verified: bool
     is_active: bool
     is_admin: bool
+    preferred_language: str = "fa"
     avatar: Optional[AvatarOut] = None
     country: Optional[CountryOut] = None
     city: Optional[CityOut] = None
@@ -142,6 +149,7 @@ class UserMeOut(BaseModel):
                 "postal_code": "1234567890",
                 "is_active": True,
                 "is_admin": False,
+                "preferred_language": "fa",
                 "avatar": {"id": 1, "url": "https://example.com/avatar.jpg", "mime_type": "image/jpeg"},
                 "country": {"id": 1, "name": "ایران"},
                 "city": {"id": 1, "name": "تهران", "country_id": 1},

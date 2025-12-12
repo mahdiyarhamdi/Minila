@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.message import Message
 from ..repositories import message_repo, community_repo, user_repo
 from ..services import log_service
+from ..services import notification_service
 from ..utils.pagination import PaginatedResponse
-from ..utils.email import send_message_notification
 from ..utils.logger import logger
 
 
@@ -76,14 +76,22 @@ async def send_message(
     
     await db.commit()
     
-    # ارسال ایمیل notification
+    # ارسال ایمیل notification هوشمند
     try:
         sender = await user_repo.get_by_id(db, sender_id)
-        sender_name = f"{sender.first_name} {sender.last_name}" if sender.first_name else sender.email
-        send_message_notification(
-            receiver.email,
-            sender_name,
-            "پیام جدید"
+        sender_name = (
+            f"{sender.first_name} {sender.last_name}".strip() 
+            if sender.first_name 
+            else sender.email.split('@')[0]
+        )
+        
+        # Smart notification - فقط اولین پیام خوانده نشده
+        await notification_service.send_smart_notification(
+            receiver_email=receiver.email,
+            receiver_id=receiver_id,
+            receiver_language=receiver.preferred_language,
+            sender_id=sender_id,
+            sender_name=sender_name
         )
     except Exception as e:
         logger.warning(f"Failed to send message notification email: {e}")
@@ -241,6 +249,10 @@ async def mark_conversation_as_read(
             target_user_id=other_user_id,
             payload={"count": count}
         )
+        
+        # پاک کردن flag notification برای این مکالمه
+        # تا اگر پیام جدید بیاد، دوباره ایمیل بفرسته
+        await notification_service.clear_notification_flag(user_id, other_user_id)
     
     logger.info(f"Marked {count} messages as read: {other_user_id} → {user_id}")
     return count

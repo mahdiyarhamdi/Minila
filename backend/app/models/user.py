@@ -36,6 +36,11 @@ class User(BaseModel):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     
+    # Preferences
+    preferred_language: Mapped[str] = mapped_column(
+        String(5), default="fa", nullable=False
+    )  # fa, en, ar
+    
     # Foreign Keys
     avatar_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("avatar.id", ondelete="SET NULL"),

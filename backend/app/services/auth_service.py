@@ -90,9 +90,9 @@ async def signup(
     
     await db.commit()
     
-    # ارسال OTP برای تایید ایمیل
+    # ارسال OTP برای تایید ایمیل (کاربر جدید، زبان پیش‌فرض fa)
     try:
-        send_otp_email(email, otp_code)
+        send_otp_email(email, otp_code, language="fa")
     except Exception as e:
         logger.warning(f"Failed to send verification OTP: {e}")
     
@@ -212,8 +212,8 @@ async def request_otp(
     
     await db.commit()
     
-    # ارسال ایمیل
-    send_otp_email(email, otp_code)
+    # ارسال ایمیل با زبان ترجیحی کاربر
+    send_otp_email(email, otp_code, language=user.preferred_language)
     
     logger.info(f"OTP requested for: {email}")
     return True
