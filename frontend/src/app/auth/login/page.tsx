@@ -18,7 +18,7 @@ import { translateError } from '@/lib/errorTranslation'
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password')
   const [step, setStep] = useState<'form' | 'otp'>('form')
   const [email, setEmail] = useState('')
@@ -96,7 +96,7 @@ export default function LoginPage() {
   const onSubmitEmail = async (data: EmailFormData) => {
     try {
       setError('')
-      await apiService.requestOTP({ email: data.email })
+      await apiService.requestOTP({ email: data.email, language: language })
       setEmail(data.email)
       setStep('otp')
     } catch (err: any) {

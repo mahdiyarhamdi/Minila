@@ -236,7 +236,7 @@ class APIService {
    * ایجاد کارت جدید
    */
   async createCard(data: CardCreate): Promise<Card> {
-    const response = await this.client.post<Card>('/api/v1/cards', data)
+    const response = await this.client.post<Card>('/api/v1/cards/', data)
     return response.data
   }
 
@@ -293,7 +293,7 @@ class APIService {
    * ایجاد کامیونیتی جدید
    */
   async createCommunity(data: CommunityCreate): Promise<Community> {
-    const response = await this.client.post<Community>('/api/v1/communities', data)
+    const response = await this.client.post<Community>('/api/v1/communities/', data)
     return response.data
   }
 
@@ -413,7 +413,7 @@ class APIService {
    * ارسال پیام
    */
   async sendMessage(data: MessageCreate): Promise<Message> {
-    const response = await this.client.post<Message>('/api/v1/messages', data)
+    const response = await this.client.post<Message>('/api/v1/messages/', data)
     return response.data
   }
 

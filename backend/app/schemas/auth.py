@@ -1,4 +1,5 @@
 """Authentication schemas برای ورود و احراز هویت."""
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
@@ -6,11 +7,17 @@ class AuthRequestOTPIn(BaseModel):
     """درخواست OTP برای ورود."""
     
     email: EmailStr = Field(..., description="آدرس ایمیل کاربر")
+    language: Optional[str] = Field(
+        default=None,
+        pattern="^(fa|en|ar)$",
+        description="زبان ترجیحی برای ایمیل (fa, en, ar)"
+    )
     
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "email": "user@example.com"
+                "email": "user@example.com",
+                "language": "fa"
             }
         }
     )
@@ -73,6 +80,11 @@ class AuthSignupIn(BaseModel):
     password: str = Field(..., min_length=8, max_length=100, description="رمز عبور (حداقل 8 کاراکتر)")
     first_name: str = Field(..., min_length=1, max_length=100, description="نام")
     last_name: str = Field(..., min_length=1, max_length=100, description="نام خانوادگی")
+    language: Optional[str] = Field(
+        default="fa",
+        pattern="^(fa|en|ar)$",
+        description="زبان ترجیحی (fa, en, ar)"
+    )
     
     model_config = ConfigDict(
         json_schema_extra={
@@ -80,7 +92,8 @@ class AuthSignupIn(BaseModel):
                 "email": "newuser@example.com",
                 "password": "SecurePass123!",
                 "first_name": "علی",
-                "last_name": "احمدی"
+                "last_name": "احمدی",
+                "language": "fa"
             }
         }
     )

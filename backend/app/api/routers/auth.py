@@ -63,6 +63,7 @@ async def signup(
             password=data.password,
             first_name=data.first_name,
             last_name=data.last_name,
+            language=data.language or "fa",
             ip=ip,
             user_agent=user_agent
         )
@@ -101,6 +102,7 @@ async def request_otp(
         await auth_service.request_otp(
             db,
             email=data.email,
+            language=data.language,
             ip=ip,
             user_agent=user_agent
         )

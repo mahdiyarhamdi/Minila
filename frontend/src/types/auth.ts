@@ -7,10 +7,12 @@ export interface SignupData {
   password: string
   first_name: string
   last_name: string
+  language?: string
 }
 
 export interface RequestOTPData {
   email: string
+  language?: string
 }
 
 export interface VerifyOTPData {

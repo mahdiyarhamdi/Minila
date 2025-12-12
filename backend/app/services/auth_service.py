@@ -35,6 +35,7 @@ async def signup(
     password: str,
     first_name: str,
     last_name: str,
+    language: str = "fa",
     ip: Optional[str] = None,
     user_agent: Optional[str] = None
 ) -> User:
@@ -46,6 +47,7 @@ async def signup(
         password: رمز عبور
         first_name: نام
         last_name: نام خانوادگی
+        language: زبان ترجیحی (fa, en, ar)
         ip: آدرس IP کاربر
         user_agent: User-Agent
         
@@ -75,7 +77,8 @@ async def signup(
         last_name=last_name,
         email_verified=False,
         otp_code=otp_code,
-        otp_expires_at=otp_expires_at
+        otp_expires_at=otp_expires_at,
+        preferred_language=language
     )
     
     # ثبت لاگ
@@ -90,9 +93,9 @@ async def signup(
     
     await db.commit()
     
-    # ارسال OTP برای تایید ایمیل (کاربر جدید، زبان پیش‌فرض fa)
+    # ارسال OTP برای تایید ایمیل با زبان انتخابی
     try:
-        send_otp_email(email, otp_code, language="fa")
+        send_otp_email(email, otp_code, language=language)
     except Exception as e:
         logger.warning(f"Failed to send verification OTP: {e}")
     
@@ -164,6 +167,7 @@ async def verify_email_otp(
 async def request_otp(
     db: AsyncSession,
     email: str,
+    language: Optional[str] = None,
     ip: Optional[str] = None,
     user_agent: Optional[str] = None
 ) -> bool:
@@ -172,6 +176,7 @@ async def request_otp(
     Args:
         db: Database session
         email: آدرس ایمیل کاربر
+        language: زبان ایمیل (اختیاری - اگر نباشد از preferred_language کاربر)
         ip: آدرس IP
         user_agent: User-Agent
         
@@ -212,8 +217,9 @@ async def request_otp(
     
     await db.commit()
     
-    # ارسال ایمیل با زبان ترجیحی کاربر
-    send_otp_email(email, otp_code, language=user.preferred_language)
+    # ارسال ایمیل - اولویت با زبان ارسالی، سپس preferred_language کاربر
+    email_language = language or user.preferred_language
+    send_otp_email(email, otp_code, language=email_language)
     
     logger.info(f"OTP requested for: {email}")
     return True

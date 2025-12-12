@@ -16,7 +16,7 @@ import { translateError } from '@/lib/errorTranslation'
 
 export default function SignupPage() {
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
@@ -50,6 +50,7 @@ export default function SignupPage() {
         password: data.password,
         first_name: data.first_name,
         last_name: data.last_name,
+        language: language,
       })
       setSuccess(true)
       
