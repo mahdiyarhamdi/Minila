@@ -532,7 +532,7 @@ async def seed_locations():
     # Create async engine
     engine = create_async_engine(
         settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
-        echo=True
+        echo=False  # Disable SQL echo for cleaner output
     )
     
     # Create async session
@@ -545,25 +545,42 @@ async def seed_locations():
     async with async_session() as session:
         print("Starting location seeding...")
         
-        # Check if countries already exist
-        result = await session.execute(select(Country).limit(1))
-        existing = result.scalar_one_or_none()
+        # Get existing countries by ISO code
+        existing_countries = {}
+        result = await session.execute(select(Country))
+        for country in result.scalars().all():
+            if country.iso_code:
+                existing_countries[country.iso_code] = country.id
         
-        if existing:
-            print("Countries already exist in database. Skipping seed.")
-            return
+        print(f"Found {len(existing_countries)} existing countries")
         
         # Create countries and store their IDs
-        country_ids = {}
+        country_ids = existing_countries.copy()
+        countries_added = 0
         
         for country_data in COUNTRIES:
+            iso_code = country_data["iso_code"]
+            if iso_code in existing_countries:
+                print(f"Country exists: {country_data['name_en']}")
+                continue
+            
             country = Country(**country_data)
             session.add(country)
             await session.flush()
-            country_ids[country_data["iso_code"]] = country.id
+            country_ids[iso_code] = country.id
+            countries_added += 1
             print(f"Added country: {country_data['name_en']}")
         
+        # Get existing cities by name_en and country_id
+        existing_cities = set()
+        city_result = await session.execute(select(City))
+        for city in city_result.scalars().all():
+            existing_cities.add((city.country_id, city.name_en))
+        
+        print(f"Found {len(existing_cities)} existing cities")
+        
         # Create cities
+        cities_added = 0
         for iso_code, cities in CITIES.items():
             if iso_code not in country_ids:
                 print(f"Warning: Country with ISO code {iso_code} not found, skipping cities")
@@ -571,17 +588,22 @@ async def seed_locations():
             
             country_id = country_ids[iso_code]
             for city_data in cities:
+                if (country_id, city_data["name_en"]) in existing_cities:
+                    print(f"City exists: {city_data['name_en']}")
+                    continue
+                
                 city = City(
                     country_id=country_id,
                     **city_data
                 )
                 session.add(city)
+                cities_added += 1
                 print(f"Added city: {city_data['name_en']}")
         
         await session.commit()
         print(f"\nSeeding complete!")
-        print(f"Total countries: {len(COUNTRIES)}")
-        print(f"Total cities: {sum(len(cities) for cities in CITIES.values())}")
+        print(f"Countries added: {countries_added}")
+        print(f"Cities added: {cities_added}")
 
 
 if __name__ == "__main__":
