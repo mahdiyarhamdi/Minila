@@ -190,7 +190,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
       const result = await apiService.searchCountries(query, 10)
       return result.items.map((country: Country) => ({
         id: country.id,
-        label: country.name_fa || country.name_en,
+        label: country.name_en,
         value: String(country.id),
         isoCode: country.iso_code,
       }))
@@ -206,7 +206,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
       const result = await apiService.searchCities(countryId, query, 10)
       return result.items.map((city: City) => ({
         id: city.id,
-        label: `${city.name_fa || city.name_en} (${city.airport_code || ''})`,
+        label: `${city.name_en} (${city.airport_code || ''})`,
         value: String(city.id),
       }))
     } catch (error) {

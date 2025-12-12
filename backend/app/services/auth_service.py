@@ -35,7 +35,7 @@ async def signup(
     password: str,
     first_name: str,
     last_name: str,
-    language: str = "fa",
+    language: str = "en",
     ip: Optional[str] = None,
     user_agent: Optional[str] = None
 ) -> User:

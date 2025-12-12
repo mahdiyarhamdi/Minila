@@ -81,9 +81,9 @@ class AuthSignupIn(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100, description="نام")
     last_name: str = Field(..., min_length=1, max_length=100, description="نام خانوادگی")
     language: Optional[str] = Field(
-        default="fa",
+        default="en",
         pattern="^(fa|en|ar)$",
-        description="زبان ترجیحی (fa, en, ar)"
+        description="Preferred language (en, fa, ar)"
     )
     
     model_config = ConfigDict(

@@ -38,8 +38,8 @@ class User(BaseModel):
     
     # Preferences
     preferred_language: Mapped[str] = mapped_column(
-        String(5), default="fa", nullable=False
-    )  # fa, en, ar
+        String(5), default="en", nullable=False
+    )  # en, fa, ar
     
     # Foreign Keys
     avatar_id: Mapped[Optional[int]] = mapped_column(
