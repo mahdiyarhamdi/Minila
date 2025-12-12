@@ -2,7 +2,7 @@
 
 > راهنمای جامع معماری لایه‌ای برای پلتفرم هماهنگی مسافر-بار
 
-**نسخه**: 0.6.0  
+**نسخه**: 0.7.0  
 **آخرین به‌روزرسانی**: 2025-12-12
 
 ---
@@ -907,6 +907,72 @@ City (new)
  └─→ User/Card (as location reference)
 
 Role ←→ Access (many-to-many via RoleAccess)
+```
+
+---
+
+## 📧 سیستم ایمیل
+
+### نمای کلی
+
+سیستم ایمیل از **Resend API** برای ارسال ایمیل در production استفاده می‌کند.
+
+### ویژگی‌ها
+
+- **زبان ثابت**: تمام ایمیل‌ها **همیشه به انگلیسی** ارسال می‌شوند (صرف‌نظر از زبان کاربر)
+- **Smart Notification**: برای پیام‌های جدید، فقط اولین پیام خوانده‌نشده از هر فرستنده ایمیل ارسال می‌شود
+- **Redis Tracking**: ایمیل‌های ارسال‌شده با TTL 24 ساعته در Redis ذخیره می‌شوند
+
+### قالب‌های ایمیل
+
+```
+backend/app/utils/email_templates.py
+```
+
+| Template | موارد استفاده |
+|----------|---------------|
+| `otp` | کد یکبار مصرف ورود/ثبت‌نام |
+| `welcome` | خوش‌آمدگویی پس از ثبت‌نام |
+| `new_message` | پیام جدید از کاربر دیگر |
+| `unread_summary` | خلاصه پیام‌های خوانده‌نشده |
+| `membership_request` | درخواست عضویت جدید (ارسال به مدیران) |
+| `membership_approved` | تایید عضویت |
+| `membership_rejected` | رد عضویت |
+| `role_change` | تغییر نقش کاربر در کامیونیتی |
+
+### معماری
+
+```
+User Action
+    ↓
+Service Layer (auth_service, community_service, message_service)
+    ↓
+Email Utils (backend/app/utils/email.py)
+    ↓
+Email Templates (get_template → always returns English)
+    ↓
+Resend API (production) / SMTP (development)
+```
+
+### کد نمونه
+
+```python
+# ارسال ایمیل OTP
+from app.utils.email import send_otp_email
+send_otp_email("user@example.com", "123456")
+
+# ارسال نوتیفیکیشن تغییر نقش
+from app.utils.email import send_role_change_notification
+send_role_change_notification("user@example.com", "My Community", "Manager")
+```
+
+### تنظیمات
+
+```env
+# Provider: smtp (dev) یا resend (prod)
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+EMAIL_FROM=noreply@minila.app
 ```
 
 ---
