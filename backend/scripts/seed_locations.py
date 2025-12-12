@@ -13,7 +13,9 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select, text
 from app.models.location import Country, City
-from app.core.config import settings
+from app.core.config import get_settings
+
+settings = get_settings()
 
 # World countries data with ISO codes and currency codes
 COUNTRIES = [
