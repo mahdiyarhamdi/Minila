@@ -195,17 +195,17 @@ export default function DashboardPage() {
                 </svg>
               </div>
 
-              {/* Step 3 */}
+              {/* Step 3 - رنگ sand (مثل step 2) */}
               <Link href="/cards" className="group h-full">
-                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-primary-300 hover:shadow-lg transition-all duration-300 h-full">
+                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-sand-300 hover:shadow-lg transition-all duration-300 h-full">
                   {/* Step number badge */}
-                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg ring-4 ring-white">
+                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-sand-400 to-sand-500 flex items-center justify-center shadow-lg ring-4 ring-white">
                     <span className="text-white text-sm font-bold">{t('dashboard.tutorial.steps.step3.number')}</span>
                   </div>
                   
                   {/* Icon */}
-                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                    <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <svg className="w-8 h-8 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
@@ -221,22 +221,22 @@ export default function DashboardPage() {
 
               {/* Arrow 3 - Desktop only */}
               <div className="hidden md:flex absolute top-1/2 ltr:right-[22%] rtl:left-[22%] -translate-y-1/2 items-center justify-center w-8 pointer-events-none">
-                <svg className="w-6 h-6 text-primary-300 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-sand-300 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
 
-              {/* Step 4 */}
+              {/* Step 4 - رنگ primary (مثل step 1) */}
               <Link href="/messages" className="group h-full">
-                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-sand-300 hover:shadow-lg transition-all duration-300 h-full">
+                <div className="relative flex flex-col items-center text-center p-5 pt-6 rounded-2xl bg-white shadow-sm border border-neutral-100 hover:border-primary-300 hover:shadow-lg transition-all duration-300 h-full">
                   {/* Step number badge */}
-                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-sand-400 to-sand-500 flex items-center justify-center shadow-lg ring-4 ring-white">
+                  <div className="absolute -top-4 w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg ring-4 ring-white">
                     <span className="text-white text-sm font-bold">{t('dashboard.tutorial.steps.step4.number')}</span>
                   </div>
                   
                   {/* Icon */}
-                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
-                    <svg className="w-8 h-8 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="mt-2 mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   </div>
