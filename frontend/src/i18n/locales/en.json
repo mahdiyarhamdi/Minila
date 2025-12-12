@@ -153,7 +153,23 @@
           "title": "Coordinate",
           "description": "Arrange with traveler or sender"
         }
-      }
+      },
+      "gotIt": "Got it, don't show again",
+      "showGuide": "Show guide"
+    },
+    "a2hs": {
+      "title": "Add to Home Screen",
+      "subtitle": "Get the best experience by adding Minila to your home screen",
+      "iosTitle": "On iPhone/iPad:",
+      "iosStep1": "Tap the Share button at the bottom of Safari",
+      "iosStep2": "Scroll down and tap \"Add to Home Screen\"",
+      "iosStep3": "Tap \"Add\" in the top right corner",
+      "androidTitle": "On Android:",
+      "androidStep1": "Tap the menu icon (⋮) in Chrome",
+      "androidStep2": "Tap \"Add to Home screen\"",
+      "androidStep3": "Tap \"Add\" to confirm",
+      "gotIt": "Got it",
+      "dontShowAgain": "Don't show this again"
     },
     "joinRequests": {
       "title": "Join Requests",

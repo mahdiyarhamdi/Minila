@@ -46,6 +46,68 @@ export default function DashboardPage() {
     communityName: string
     action: 'approve' | 'reject'
   } | null>(null)
+  
+  // State for tutorial visibility (stored in localStorage)
+  const [showTutorial, setShowTutorial] = useState(true)
+  
+  // State for Add to Home Screen bottom sheet
+  const [showA2HS, setShowA2HS] = useState(false)
+  
+  // Check localStorage for tutorial preference on mount
+  useEffect(() => {
+    const tutorialDismissed = localStorage.getItem('minila_tutorial_dismissed')
+    if (tutorialDismissed === 'true') {
+      setShowTutorial(false)
+    }
+  }, [])
+  
+  // Check if should show Add to Home Screen prompt
+  useEffect(() => {
+    // Only check on client side
+    if (typeof window === 'undefined') return
+    
+    // Check if already dismissed for this session
+    const a2hsShownThisSession = sessionStorage.getItem('minila_a2hs_shown')
+    if (a2hsShownThisSession === 'true') return
+    
+    // Check if user already installed PWA (standalone mode)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         (window.navigator as any).standalone === true
+    if (isStandalone) return
+    
+    // Check if mobile device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    if (!isMobile) return
+    
+    // Check if user permanently dismissed
+    const a2hsDismissed = localStorage.getItem('minila_a2hs_dismissed')
+    if (a2hsDismissed === 'true') return
+    
+    // Show after small delay
+    const timer = setTimeout(() => {
+      setShowA2HS(true)
+      sessionStorage.setItem('minila_a2hs_shown', 'true')
+    }, 2000)
+    
+    return () => clearTimeout(timer)
+  }, [])
+  
+  const handleDismissTutorial = () => {
+    localStorage.setItem('minila_tutorial_dismissed', 'true')
+    setShowTutorial(false)
+  }
+  
+  const handleShowTutorial = () => {
+    localStorage.removeItem('minila_tutorial_dismissed')
+    setShowTutorial(true)
+  }
+  
+  const handleDismissA2HS = (permanent: boolean = false) => {
+    if (permanent) {
+      localStorage.setItem('minila_a2hs_dismissed', 'true')
+    }
+    setShowA2HS(false)
+  }
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -115,6 +177,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Tutorial Section */}
+        {showTutorial ? (
         <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-sand-50 border border-primary-100">
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
@@ -250,8 +313,34 @@ export default function DashboardPage() {
                 </div>
               </Link>
             </div>
+            
+            {/* Dismiss Button */}
+            <div className="mt-8 text-center">
+              <button
+                onClick={handleDismissTutorial}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-white/50 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                {t('dashboard.tutorial.gotIt')}
+              </button>
+            </div>
           </div>
         </div>
+        ) : (
+        <div className="mb-8">
+          <button
+            onClick={handleShowTutorial}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors border border-primary-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {t('dashboard.tutorial.showGuide')}
+          </button>
+        </div>
+        )}
 
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -566,6 +655,104 @@ export default function DashboardPage() {
           </div>
         )}
       </Modal>
+
+      {/* Add to Home Screen Bottom Sheet */}
+      {showA2HS && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 transition-opacity"
+            onClick={() => handleDismissA2HS(false)}
+          />
+          
+          {/* Bottom Sheet */}
+          <div className="relative w-full max-w-lg bg-white rounded-t-3xl shadow-xl transform transition-transform animate-slide-up">
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-12 h-1.5 bg-neutral-200 rounded-full" />
+            </div>
+            
+            <div className="px-6 pb-8">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                  {t('dashboard.a2hs.title')}
+                </h3>
+                <p className="text-sm text-neutral-600 font-light">
+                  {t('dashboard.a2hs.subtitle')}
+                </p>
+              </div>
+              
+              {/* Instructions based on device */}
+              <div className="space-y-4 mb-6">
+                {/* iOS Safari */}
+                {/iPhone|iPad|iPod/.test(typeof navigator !== 'undefined' ? navigator.userAgent : '') && (
+                  <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100">
+                    <h4 className="font-medium text-neutral-900 mb-3 text-sm">{t('dashboard.a2hs.iosTitle')}</h4>
+                    <ol className="space-y-2 text-sm text-neutral-600">
+                      <li className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-xs flex items-center justify-center font-medium">1</span>
+                        <span>{t('dashboard.a2hs.iosStep1')}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-xs flex items-center justify-center font-medium">2</span>
+                        <span>{t('dashboard.a2hs.iosStep2')}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-xs flex items-center justify-center font-medium">3</span>
+                        <span>{t('dashboard.a2hs.iosStep3')}</span>
+                      </li>
+                    </ol>
+                  </div>
+                )}
+                
+                {/* Android Chrome */}
+                {/Android/.test(typeof navigator !== 'undefined' ? navigator.userAgent : '') && (
+                  <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100">
+                    <h4 className="font-medium text-neutral-900 mb-3 text-sm">{t('dashboard.a2hs.androidTitle')}</h4>
+                    <ol className="space-y-2 text-sm text-neutral-600">
+                      <li className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-xs flex items-center justify-center font-medium">1</span>
+                        <span>{t('dashboard.a2hs.androidStep1')}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-xs flex items-center justify-center font-medium">2</span>
+                        <span>{t('dashboard.a2hs.androidStep2')}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-xs flex items-center justify-center font-medium">3</span>
+                        <span>{t('dashboard.a2hs.androidStep3')}</span>
+                      </li>
+                    </ol>
+                  </div>
+                )}
+              </div>
+              
+              {/* Actions */}
+              <div className="space-y-3">
+                <Button
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => handleDismissA2HS(false)}
+                >
+                  {t('dashboard.a2hs.gotIt')}
+                </Button>
+                <button
+                  onClick={() => handleDismissA2HS(true)}
+                  className="w-full text-sm text-neutral-500 hover:text-neutral-700 py-2"
+                >
+                  {t('dashboard.a2hs.dontShowAgain')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
