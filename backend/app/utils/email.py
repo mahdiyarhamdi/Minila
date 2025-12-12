@@ -81,22 +81,22 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
 
 # ==================== Email Functions ====================
 
-def send_otp_email(email: str, otp_code: str, language: str = "fa") -> bool:
+def send_otp_email(email: str, otp_code: str, language: str = "en") -> bool:
     """ارسال کد OTP به ایمیل کاربر."""
     subject, body = get_template("otp", language, otp_code=otp_code)
     return send_email(email, subject, body)
 
 
-def send_welcome_email(email: str, first_name: str, language: str = "fa") -> bool:
+def send_welcome_email(email: str, first_name: str, language: str = "en") -> bool:
     """ارسال ایمیل خوش‌آمدگویی."""
-    subject, body = get_template("welcome", language, first_name=first_name or "کاربر")
+    subject, body = get_template("welcome", language, first_name=first_name or "User")
     return send_email(email, subject, body)
 
 
 def send_message_notification(
     email: str,
     sender_name: str,
-    language: str = "fa",
+    language: str = "en",
     app_url: str = "https://minila.app"
 ) -> bool:
     """اطلاع‌رسانی دریافت پیام جدید."""
@@ -112,7 +112,7 @@ def send_message_notification(
 def send_unread_summary(
     email: str,
     count: int,
-    language: str = "fa",
+    language: str = "en",
     app_url: str = "https://minila.app"
 ) -> bool:
     """ارسال خلاصه پیام‌های خوانده نشده."""
@@ -129,7 +129,7 @@ def send_membership_request_notification(
     email: str,
     user_name: str,
     community_name: str,
-    language: str = "fa"
+    language: str = "en"
 ) -> bool:
     """اطلاع‌رسانی درخواست عضویت جدید."""
     subject, body = get_template(
@@ -145,7 +145,7 @@ def send_membership_result(
     email: str,
     community_name: str,
     approved: bool,
-    language: str = "fa"
+    language: str = "en"
 ) -> bool:
     """اطلاع‌رسانی نتیجه درخواست عضویت."""
     template_name = "membership_approved" if approved else "membership_rejected"
