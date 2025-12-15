@@ -377,6 +377,28 @@
       "notAuthorized": "شما مجاز به ویرایش این کارت نیستید",
       "success": "کارت با موفقیت ویرایش شد"
     },
+    "price": {
+      "suggestedPrice": "قیمت پیشنهادی",
+      "perKg": "کیلوگرم",
+      "range": "بازه قیمت",
+      "totalEstimate": "تخمین کل",
+      "confidenceHigh": "اطمینان بالا",
+      "confidenceMedium": "اطمینان متوسط",
+      "confidenceLow": "اطمینان پایین",
+      "showBreakdown": "نمایش جزئیات",
+      "hideBreakdown": "پنهان کردن جزئیات",
+      "useThisPrice": "استفاده از این قیمت",
+      "enterCustom": "وارد کردن دستی",
+      "factors": {
+        "base": "قیمت پایه",
+        "route": "مسیر",
+        "season": "فصل",
+        "demand": "عرضه/تقاضا",
+        "urgency": "فوریت",
+        "weight": "وزن",
+        "category": "دسته‌بندی"
+      }
+    },
     "joinCommunity": {
       "title": "کامیونیتی مشترکی ندارید",
       "description": "برای ارسال پیام به {{name}}، باید حداقل در یکی از کامیونیتی‌های مشترک عضو باشید.",

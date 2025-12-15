@@ -1,10 +1,13 @@
 """Card management endpoints."""
 from typing import Annotated, Optional
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from ...api.deps import DBSession, CurrentUser, CurrentUserOptional
 from ...schemas.card import CardCreate, CardUpdate, CardFilter, CardOut
+from ...schemas.price import PriceSuggestionOut
 from ...utils.pagination import PaginatedResponse
 from ...services import card_service
+from ...services.dynamic_pricing_service import dynamic_pricing_service
 
 router = APIRouter(prefix="/api/v1/cards", tags=["cards"])
 
@@ -77,6 +80,65 @@ async def get_cards(
     
     result = await card_service.get_cards(db, filters, page, page_size)
     return result
+
+
+@router.get(
+    "/price-suggestion/",
+    status_code=status.HTTP_200_OK,
+    response_model=PriceSuggestionOut,
+    summary="پیشنهاد قیمت",
+    description="""
+دریافت قیمت پیشنهادی به ازای هر کیلوگرم برای یک مسیر.
+
+**Authentication**: اختیاری
+
+این endpoint یک قیمت پیشنهادی بر اساس عوامل زیر محاسبه می‌کند:
+- **Base Price**: قیمت پایه از جدول مسیرها
+- **Route Factor**: بر اساس محبوبیت مسیر
+- **Season Factor**: بر اساس فصل سفر (نوروز، تابستان، ...)
+- **Demand Factor**: نسبت عرضه/تقاضا (Surge Pricing مشابه اسنپ)
+- **Urgency Factor**: فوریت سفر
+- **Weight Factor**: تخفیف برای وزن بالا
+- **Category Factor**: نوع محصول
+
+خروجی شامل:
+- قیمت پیشنهادی
+- بازه قیمت (min/max)
+- سطح اطمینان (high/medium/low)
+- جزئیات محاسبه (breakdown)
+    """
+)
+async def get_price_suggestion(
+    db: DBSession,
+    origin_city_id: int = Query(..., description="شناسه شهر مبدأ"),
+    destination_city_id: int = Query(..., description="شناسه شهر مقصد"),
+    travel_date: Optional[str] = Query(None, description="تاریخ سفر (ISO format)"),
+    weight: Optional[float] = Query(None, ge=0, description="وزن بسته (کیلوگرم)"),
+    category_id: Optional[int] = Query(None, description="شناسه دسته‌بندی محصول")
+) -> PriceSuggestionOut:
+    """دریافت قیمت پیشنهادی برای مسیر."""
+    # Parse travel date if provided
+    parsed_date = None
+    if travel_date:
+        try:
+            parsed_date = datetime.fromisoformat(travel_date.replace('Z', '+00:00'))
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid date format. Use ISO format (e.g., 2025-07-15T10:00:00)"
+            )
+    
+    # Calculate price suggestion
+    suggestion = await dynamic_pricing_service.calculate_price(
+        db=db,
+        origin_city_id=origin_city_id,
+        destination_city_id=destination_city_id,
+        travel_date=parsed_date,
+        weight=weight,
+        category_id=category_id
+    )
+    
+    return suggestion
 
 
 @router.post(

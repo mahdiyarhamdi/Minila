@@ -76,7 +76,18 @@ class Card(BaseModel):
     # Package details
     weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     is_packed: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
-    price_aed: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    price_aed: Mapped[Optional[float]] = mapped_column(Float, nullable=True, comment="قیمت کل (قدیمی)")
+    price_per_kg: Mapped[Optional[float]] = mapped_column(
+        Float, 
+        nullable=True,
+        comment="قیمت به ازای هر کیلوگرم"
+    )
+    is_legacy_price: Mapped[Optional[bool]] = mapped_column(
+        Boolean, 
+        nullable=True, 
+        default=False,
+        comment="True if price is total, not per kg"
+    )
     currency: Mapped[Optional[str]] = mapped_column(
         String(3), 
         nullable=True, 

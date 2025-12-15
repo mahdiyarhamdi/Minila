@@ -12,6 +12,7 @@ import Textarea from '@/components/Textarea'
 import Button from '@/components/Button'
 import Autocomplete, { AutocompleteOption } from '@/components/Autocomplete'
 import DateTimePicker from '@/components/DateTimePicker'
+import { PriceSuggestionWidget } from '@/components/cards/PriceSuggestionWidget'
 import { useToast } from '@/components/Toast'
 import { apiService } from '@/lib/api'
 import { extractErrorMessage } from '@/utils/errors'
@@ -29,7 +30,8 @@ interface CardFormData {
   ticket_date_time?: string
   weight?: number
   is_packed?: boolean
-  price_aed?: number
+  price_per_kg?: number
+  price_aed?: number  // Legacy
   currency?: string
   description?: string
   product_classification_id?: number
@@ -56,11 +58,14 @@ export default function NewCardPage() {
     is_sender: false,
     weight: undefined,
     is_packed: undefined,
-    price_aed: undefined,
+    price_per_kg: undefined,
     currency: 'USD',
     description: '',
     community_ids: [],
   })
+  
+  // Track if user wants custom price input
+  const [showCustomPrice, setShowCustomPrice] = useState(false)
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   
@@ -179,8 +184,8 @@ export default function NewCardPage() {
       if (formData.is_packed !== undefined) {
         submitData.is_packed = formData.is_packed
       }
-      if (formData.price_aed) {
-        submitData.price_aed = Number(formData.price_aed)
+      if (formData.price_per_kg) {
+        submitData.price_per_kg = Number(formData.price_per_kg)
       }
       if (formData.currency) {
         submitData.currency = formData.currency
@@ -412,29 +417,69 @@ export default function NewCardPage() {
                 helperText={t('common.optional')}
               />
               
-              {/* Price and currency */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-2">
-                  <Input
-                    label={t('cards.new.price')}
-                    type="number"
-                    step="0.01"
-                    placeholder={t('cards.new.pricePlaceholder')}
-                    value={formData.price_aed || ''}
-                    onChange={(e) => handleChange('price_aed', e.target.value)}
-                    helperText={t('common.optional')}
+              {/* Price Suggestion Widget */}
+              {originCity && destinationCity && !showCustomPrice && (
+                <PriceSuggestionWidget
+                  originCityId={originCity.id}
+                  destinationCityId={destinationCity.id}
+                  travelDate={formData.ticket_date_time || formData.start_time_frame}
+                  weight={formData.weight}
+                  categoryId={formData.product_classification_id}
+                  onPriceSelect={(price) => {
+                    if (price !== null) {
+                      handleChange('price_per_kg', price)
+                      setShowCustomPrice(false)
+                    } else {
+                      setShowCustomPrice(true)
+                    }
+                  }}
+                />
+              )}
+
+              {/* Price and currency - show if widget not available or user wants custom */}
+              {(showCustomPrice || !originCity || !destinationCity) && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <Input
+                      label={`${t('cards.new.price')} (${t('cards.price.perKg')})`}
+                      type="number"
+                      step="0.01"
+                      placeholder={t('cards.new.pricePlaceholder')}
+                      value={formData.price_per_kg || ''}
+                      onChange={(e) => handleChange('price_per_kg', e.target.value)}
+                      helperText={t('common.optional')}
+                    />
+                  </div>
+                  <Select
+                    label={t('cards.new.currency')}
+                    value={formData.currency || 'USD'}
+                    onChange={(e) => handleChange('currency', e.target.value)}
+                    options={currencyOptions.map((opt) => ({
+                      value: opt.value,
+                      label: opt.label,
+                    }))}
                   />
                 </div>
-                <Select
-                  label={t('cards.new.currency')}
-                  value={formData.currency || 'USD'}
-                  onChange={(e) => handleChange('currency', e.target.value)}
-                  options={currencyOptions.map((opt) => ({
-                    value: opt.value,
-                    label: opt.label,
-                  }))}
-                />
-              </div>
+              )}
+              
+              {/* Show current price if set from suggestion */}
+              {formData.price_per_kg && !showCustomPrice && originCity && destinationCity && (
+                <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                  <span className="text-sm text-green-700">
+                    {t('cards.price.suggestedPrice')}: <strong>${formData.price_per_kg}/{t('cards.price.perKg')}</strong>
+                    {formData.weight && (
+                      <span className="ml-2">({t('cards.price.totalEstimate')}: ${(formData.price_per_kg * formData.weight).toFixed(2)})</span>
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomPrice(true)}
+                    className="text-sm text-green-600 hover:text-green-700 underline"
+                  >
+                    {t('cards.price.enterCustom')}
+                  </button>
+                </div>
+              )}
 
               {/* Packaging status */}
                 <Select

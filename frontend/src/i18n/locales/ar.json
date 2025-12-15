@@ -342,6 +342,28 @@
       "editCard": "تعديل البطاقة",
       "deleteCard": "حذف البطاقة",
       "communities": "مرئي في المجتمعات"
+    },
+    "price": {
+      "suggestedPrice": "السعر المقترح",
+      "perKg": "كغ",
+      "range": "نطاق السعر",
+      "totalEstimate": "التقدير الإجمالي",
+      "confidenceHigh": "ثقة عالية",
+      "confidenceMedium": "ثقة متوسطة",
+      "confidenceLow": "ثقة منخفضة",
+      "showBreakdown": "عرض التفاصيل",
+      "hideBreakdown": "إخفاء التفاصيل",
+      "useThisPrice": "استخدم هذا السعر",
+      "enterCustom": "أدخل سعراً مخصصاً",
+      "factors": {
+        "base": "السعر الأساسي",
+        "route": "المسار",
+        "season": "الموسم",
+        "demand": "العرض/الطلب",
+        "urgency": "الاستعجال",
+        "weight": "الوزن",
+        "category": "الفئة"
+      }
     }
   },
   "communities": {

@@ -93,3 +93,5 @@ def downgrade() -> None:
     op.drop_column('card', 'currency')
     op.drop_column('country', 'currency_code')
 
+
+

@@ -21,7 +21,10 @@ export default function CardItem(card: CardType) {
     start_time_frame,
     end_time_frame,
     weight,
+    price_per_kg,
     price_aed,
+    is_legacy_price,
+    total_price,
     currency,
     is_sender,
     product_classification,
@@ -88,13 +91,28 @@ export default function CardItem(card: CardType) {
             </div>
           )}
 
-          {price_aed && (
+          {/* Price display - prioritize price_per_kg */}
+          {(price_per_kg || price_aed) && (
             <div className="flex items-center gap-2 text-sm">
               <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="text-neutral-700 font-medium">
-                {formatNumber(price_aed)} {getCurrencyName(currency)}
+                {price_per_kg ? (
+                  <>
+                    {formatNumber(price_per_kg)} {getCurrencyName(currency)}/{t('cards.detail.kg')}
+                    {weight && total_price && (
+                      <span className="text-neutral-500 font-normal ml-1">
+                        ({formatNumber(total_price)} {t('common.total')})
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {formatNumber(price_aed || 0)} {getCurrencyName(currency)}
+                    {is_legacy_price && <span className="text-xs text-neutral-400 ml-1">(total)</span>}
+                  </>
+                )}
               </span>
             </div>
           )}

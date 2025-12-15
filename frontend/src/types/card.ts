@@ -33,7 +33,10 @@ export interface Card {
   ticket_date_time?: string
   weight?: number
   is_packed?: boolean
-  price_aed?: number
+  price_per_kg?: number
+  price_aed?: number  // Legacy field
+  is_legacy_price?: boolean
+  total_price?: number  // Computed: price_per_kg × weight
   currency?: string
   description?: string
   product_classification?: {
@@ -64,7 +67,8 @@ export interface CardCreate {
   ticket_date_time?: string
   weight?: number
   is_packed?: boolean
-  price_aed?: number
+  price_per_kg?: number
+  price_aed?: number  // Legacy field
   currency?: string
   description?: string
   product_classification_id?: number
@@ -82,7 +86,8 @@ export interface CardUpdate {
   ticket_date_time?: string
   weight?: number
   is_packed?: boolean | null
-  price_aed?: number
+  price_per_kg?: number
+  price_aed?: number  // Legacy field
   currency?: string
   description?: string
   product_classification_id?: number
@@ -98,8 +103,10 @@ export interface CardFilter {
   date_to?: string
   min_weight?: number
   max_weight?: number
-  min_price?: number
-  max_price?: number
+  min_price_per_kg?: number
+  max_price_per_kg?: number
+  min_price?: number  // Legacy
+  max_price?: number  // Legacy
   currency?: string
   is_packed?: boolean
   community_id?: number
@@ -117,5 +124,41 @@ export interface CardListResponse {
 interface Community {
   id: number
   name: string
+}
+
+// ========== Price Suggestion Types ==========
+
+export interface PriceFactorBreakdown {
+  label: string
+  value: number
+  factor: number
+}
+
+export interface PriceSuggestion {
+  suggested_price_per_kg: number
+  currency: string
+  min_price: number
+  max_price: number
+  confidence: 'high' | 'medium' | 'low'
+  base_ticket_price?: number
+  source: string
+  factors: {
+    route: number
+    season: number
+    demand: number
+    urgency: number
+    weight: number
+    category: number
+  }
+  breakdown: PriceFactorBreakdown[]
+  message: string
+}
+
+export interface PriceSuggestionParams {
+  origin_city_id: number
+  destination_city_id: number
+  travel_date?: string
+  weight?: number
+  category_id?: number
 }
 

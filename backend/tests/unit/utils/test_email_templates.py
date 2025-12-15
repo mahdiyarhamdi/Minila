@@ -140,3 +140,4 @@ class TestTemplatesStructure:
                 persian_chars = any('\u0600' <= c <= '\u06FF' for c in subject)
                 assert not persian_chars, f"{template_name}[en] subject contains Persian/Arabic"
 
+

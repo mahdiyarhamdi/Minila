@@ -39,7 +39,8 @@ class CardCreate(BaseModel):
     # جزئیات بسته
     weight: Optional[float] = Field(None, ge=0, description="وزن (کیلوگرم)")
     is_packed: Optional[bool] = Field(None, description="وضعیت بسته‌بندی")
-    price_aed: Optional[float] = Field(None, ge=0, description="قیمت پیشنهادی")
+    price_per_kg: Optional[float] = Field(None, ge=0, description="قیمت به ازای هر کیلوگرم")
+    price_aed: Optional[float] = Field(None, ge=0, description="قیمت کل (قدیمی - برای backward compatibility)")
     currency: Optional[str] = Field("USD", max_length=3, description="واحد پول (ISO 4217)")
     description: Optional[str] = Field(None, max_length=2000, description="توضیحات")
     product_classification_id: Optional[int] = Field(None, description="شناسه دسته‌بندی محصول")
@@ -81,7 +82,8 @@ class CardUpdate(BaseModel):
     ticket_date_time: Optional[datetime] = None
     weight: Optional[float] = Field(None, ge=0)
     is_packed: Optional[bool] = None
-    price_aed: Optional[float] = Field(None, ge=0)
+    price_per_kg: Optional[float] = Field(None, ge=0, description="قیمت به ازای هر کیلوگرم")
+    price_aed: Optional[float] = Field(None, ge=0, description="قیمت کل (قدیمی)")
     currency: Optional[str] = Field(None, max_length=3, description="واحد پول (ISO 4217)")
     description: Optional[str] = Field(None, max_length=2000)
     product_classification_id: Optional[int] = None
@@ -91,8 +93,8 @@ class CardUpdate(BaseModel):
         json_schema_extra={
             "example": {
                 "description": "توضیحات جدید",
-                "price_aed": 60.0,
-                "currency": "AED"
+                "price_per_kg": 2.5,
+                "currency": "USD"
             }
         }
     )
@@ -113,8 +115,10 @@ class CardFilter(BaseModel):
     date_to: Optional[datetime] = Field(None, description="فیلتر تا تاریخ")
     min_weight: Optional[float] = Field(None, ge=0, description="حداقل وزن")
     max_weight: Optional[float] = Field(None, ge=0, description="حداکثر وزن")
-    min_price: Optional[float] = Field(None, ge=0, description="حداقل قیمت")
-    max_price: Optional[float] = Field(None, ge=0, description="حداکثر قیمت")
+    min_price_per_kg: Optional[float] = Field(None, ge=0, description="حداقل قیمت به ازای هر کیلوگرم")
+    max_price_per_kg: Optional[float] = Field(None, ge=0, description="حداکثر قیمت به ازای هر کیلوگرم")
+    min_price: Optional[float] = Field(None, ge=0, description="حداقل قیمت کل (قدیمی)")
+    max_price: Optional[float] = Field(None, ge=0, description="حداکثر قیمت کل (قدیمی)")
     currency: Optional[str] = Field(None, max_length=3, description="واحد پول")
     
     model_config = ConfigDict(
@@ -148,7 +152,10 @@ class CardOut(BaseModel):
     ticket_date_time: Optional[datetime] = None
     weight: Optional[float] = None
     is_packed: Optional[bool] = None
+    price_per_kg: Optional[float] = None
     price_aed: Optional[float] = None
+    is_legacy_price: Optional[bool] = None
+    total_price: Optional[float] = None  # Computed: price_per_kg × weight
     currency: Optional[str] = None
     description: Optional[str] = None
     product_classification: Optional[ProductClassificationOut] = None
@@ -168,7 +175,8 @@ class CardOut(BaseModel):
                 "ticket_date_time": "2024-02-15T10:00:00",
                 "weight": 5.0,
                 "is_packed": True,
-                "price_aed": 50.0,
+                "price_per_kg": 2.5,
+                "total_price": 12.5,
                 "currency": "USD",
                 "description": "می‌توانم بسته کوچک حمل کنم",
                 "product_classification": {"id": 1, "name": "پوشاک"},

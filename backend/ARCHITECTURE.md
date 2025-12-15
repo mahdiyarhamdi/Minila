@@ -2,8 +2,8 @@
 
 > راهنمای جامع معماری لایه‌ای برای پلتفرم هماهنگی مسافر-بار
 
-**نسخه**: 0.7.0  
-**آخرین به‌روزرسانی**: 2025-12-12
+**نسخه**: 0.8.0  
+**آخرین به‌روزرسانی**: 2025-12-15
 
 ---
 
@@ -79,6 +79,7 @@ backend/app/
 │   ├── community.py          # مدل Community
 │   ├── membership.py         # مدل Membership و Request
 │   ├── card.py               # مدل Card و CardCommunity
+│   ├── route_price.py        # مدل RoutePrice (قیمت پایه مسیرها)
 │   ├── message.py            # مدل Message
 │   ├── user_block.py         # مدل UserBlock
 │   ├── report.py             # مدل Report
@@ -91,6 +92,7 @@ backend/app/
 │   ├── community.py          # CommunityCreate, CommunityOut (با is_member و my_role)
 │   ├── membership.py         # MembershipOut, RequestOut (با status computed field)
 │   ├── card.py               # CardCreate, CardOut, CardFilter
+│   ├── price.py              # PriceSuggestionOut, PriceFactorBreakdown
 │   └── message.py            # MessageCreate, MessageOut, ConversationOut
 │
 ├── services/                  # لایه منطق کسب‌وکار
@@ -98,6 +100,7 @@ backend/app/
 │   ├── auth_service.py       # منطق احراز هویت
 │   ├── user_service.py       # منطق کاربران
 │   ├── community_service.py  # منطق کامیونیتی‌ها
+│   ├── dynamic_pricing_service.py  # الگوریتم قیمت‌گذاری پویا
 │   ├── card_service.py       # منطق کارت‌ها
 │   ├── message_service.py    # منطق پیام + بررسی کامیونیتی مشترک
 │   ├── log_service.py        # منطق لاگ‌ها

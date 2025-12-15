@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import type { SignupData, RequestOTPData, VerifyOTPData, AuthTokens, User } from '@/types/auth'
-import type { Card, CardCreate, CardUpdate, CardFilter, CardListResponse } from '@/types/card'
+import type { Card, CardCreate, CardUpdate, CardFilter, CardListResponse, PriceSuggestion, PriceSuggestionParams } from '@/types/card'
 import type { Community, CommunityCreate, CommunityUpdate, CommunityListResponse, JoinRequest, JoinRequestListResponse, Member, MemberListResponse, SlugCheckResponse } from '@/types/community'
 import type { Message, MessageCreate, MessageListResponse, Conversation, ConversationListResponse } from '@/types/message'
 
@@ -260,6 +260,26 @@ class APIService {
    */
   async getMyCards(): Promise<CardListResponse> {
     const response = await this.client.get<CardListResponse>('/api/v1/users/me/cards')
+    return response.data
+  }
+
+  /**
+   * دریافت قیمت پیشنهادی برای یک مسیر
+   */
+  async getPriceSuggestion(params: PriceSuggestionParams): Promise<PriceSuggestion> {
+    const searchParams = new URLSearchParams()
+    searchParams.append('origin_city_id', String(params.origin_city_id))
+    searchParams.append('destination_city_id', String(params.destination_city_id))
+    if (params.travel_date) {
+      searchParams.append('travel_date', params.travel_date)
+    }
+    if (params.weight !== undefined) {
+      searchParams.append('weight', String(params.weight))
+    }
+    if (params.category_id !== undefined) {
+      searchParams.append('category_id', String(params.category_id))
+    }
+    const response = await this.client.get<PriceSuggestion>(`/api/v1/cards/price-suggestion/?${searchParams.toString()}`)
     return response.data
   }
 

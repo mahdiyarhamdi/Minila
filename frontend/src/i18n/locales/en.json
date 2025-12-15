@@ -377,6 +377,28 @@
       "notAuthorized": "You are not authorized to edit this card",
       "success": "Card updated successfully"
     },
+    "price": {
+      "suggestedPrice": "Suggested Price",
+      "perKg": "kg",
+      "range": "Price range",
+      "totalEstimate": "Total estimate",
+      "confidenceHigh": "High confidence",
+      "confidenceMedium": "Medium confidence",
+      "confidenceLow": "Low confidence",
+      "showBreakdown": "Show breakdown",
+      "hideBreakdown": "Hide breakdown",
+      "useThisPrice": "Use this price",
+      "enterCustom": "Enter custom",
+      "factors": {
+        "base": "Base price",
+        "route": "Route",
+        "season": "Season",
+        "demand": "Supply/Demand",
+        "urgency": "Urgency",
+        "weight": "Weight",
+        "category": "Category"
+      }
+    },
     "joinCommunity": {
       "title": "No shared community",
       "description": "To send a message to {{name}}, you must be a member of at least one shared community.",
