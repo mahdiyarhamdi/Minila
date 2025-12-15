@@ -1,7 +1,7 @@
 """Add card analytics (card_view table) for tracking views and clicks.
 
 Revision ID: 008_add_card_analytics
-Revises: 007_add_dynamic_pricing
+Revises: 007_dynamic_pricing
 Create Date: 2025-12-15
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '008_add_card_analytics'
-down_revision: Union[str, None] = '007_add_dynamic_pricing'
+down_revision: Union[str, None] = '007_dynamic_pricing'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
