@@ -150,31 +150,47 @@ export default function MessagesPage() {
         )}
 
         {filteredConversations && filteredConversations.length === 0 && (
-          <EmptyState
-            icon={
-              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-            }
-            title={t('messages.noConversations')}
-            description={
-              searchQuery
-                ? t('messages.noConversationsSearch')
-                : t('messages.noConversationsEmpty')
-            }
-            action={
-              <Link href="/cards">
-                <button className="text-primary-600 hover:text-primary-700 font-medium">
-                  {t('messages.viewCards')}
-                </button>
-              </Link>
-            }
-          />
+          <div className="space-y-4">
+            <EmptyState
+              icon={
+                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+              }
+              title={t('messages.noConversations')}
+              description={
+                searchQuery
+                  ? t('messages.noConversationsSearch')
+                  : t('messages.noConversationsEmpty')
+              }
+              action={
+                <Link href="/cards">
+                  <button className="text-primary-600 hover:text-primary-700 font-medium">
+                    {t('messages.viewCards')}
+                  </button>
+                </Link>
+              }
+            />
+            {/* Info box about messaging rules */}
+            {!searchQuery && (
+              <Card variant="bordered" className="p-4 bg-blue-50 border-blue-200">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">{t('messages.howToMessage.title')}</p>
+                    <p className="font-light">{t('messages.howToMessage.description')}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+          </div>
         )}
 
         {filteredConversations && filteredConversations.length > 0 && (

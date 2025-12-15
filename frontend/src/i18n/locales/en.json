@@ -102,6 +102,7 @@
     "validation": {
       "emailRequired": "Please enter a valid email",
       "passwordMin": "Password must be at least 8 characters",
+      "passwordNumber": "Password must contain at least one number",
       "passwordMatch": "Passwords do not match",
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
@@ -288,8 +289,11 @@
       "searchCity": "Search city...",
       "selectCountryFirst": "Select country first",
       "cardType": "Card type",
+      "cardTypeQuestion": "What describes you best?",
       "traveler": "Traveler",
+      "travelerDescription": "I'm traveling and have extra luggage space to carry items for others",
       "sender": "Sender",
+      "senderDescription": "I want to send something and need a traveler to carry it",
       "dateNotSpecified": "My exact travel date is not set",
       "exactDate": "Exact travel date",
       "exactDateHelper": "Optional - Your planned travel date and time",
@@ -594,6 +598,10 @@
     "noConversationsSearch": "No conversation found with this name",
     "noConversationsEmpty": "You haven't chatted with anyone yet. Start a chat by sending a message through cards.",
     "viewCards": "View cards",
+    "howToMessage": {
+      "title": "How to send a message?",
+      "description": "To send a message, find a card and contact its owner. You must share at least one community with the card owner to message them."
+    },
     "error": "Error loading conversations",
     "blocked": "Blocked",
     "block": "Block",

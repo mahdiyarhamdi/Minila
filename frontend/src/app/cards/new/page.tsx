@@ -265,6 +265,66 @@ export default function NewCardPage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
+          {/* Card Type Question - First */}
+          <div className="bg-primary-50 border border-primary-200 rounded-xl p-4 sm:p-6 mb-6">
+            <label className="block text-base sm:text-lg font-semibold text-neutral-900 mb-4">
+              {t('cards.new.cardTypeQuestion')}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleChange('is_sender', false)}
+                className={`p-4 rounded-xl border-2 text-start transition-all ${
+                  !formData.is_sender
+                    ? 'border-primary-500 bg-white shadow-sm'
+                    : 'border-neutral-200 bg-white hover:border-neutral-300'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    !formData.is_sender ? 'border-primary-500' : 'border-neutral-300'
+                  }`}>
+                    {!formData.is_sender && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
+                    )}
+                  </div>
+                  <span className="font-semibold text-neutral-900">
+                    {t('cards.new.traveler')}
+                  </span>
+                </div>
+                <p className="text-sm text-neutral-600 font-light ltr:pl-8 rtl:pr-8">
+                  {t('cards.new.travelerDescription')}
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleChange('is_sender', true)}
+                className={`p-4 rounded-xl border-2 text-start transition-all ${
+                  formData.is_sender
+                    ? 'border-primary-500 bg-white shadow-sm'
+                    : 'border-neutral-200 bg-white hover:border-neutral-300'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    formData.is_sender ? 'border-primary-500' : 'border-neutral-300'
+                  }`}>
+                    {formData.is_sender && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
+                    )}
+                  </div>
+                  <span className="font-semibold text-neutral-900">
+                    {t('cards.new.sender')}
+                  </span>
+                </div>
+                <p className="text-sm text-neutral-600 font-light ltr:pl-8 rtl:pr-8">
+                  {t('cards.new.senderDescription')}
+                </p>
+              </button>
+            </div>
+          </div>
+
           <Card variant="elevated" className="p-6 sm:p-8 mb-6">
             <div className="space-y-6">
               {/* Origin */}
@@ -324,17 +384,6 @@ export default function NewCardPage() {
                   required
                 />
               </div>
-
-              {/* Card type */}
-              <Select
-                label={t('cards.new.cardType')}
-                value={formData.is_sender ? 'sender' : 'traveler'}
-                onChange={(e) => handleChange('is_sender', e.target.value === 'sender')}
-                options={[
-                  { value: 'traveler', label: t('cards.new.traveler') },
-                  { value: 'sender', label: t('cards.new.sender') },
-                ]}
-              />
 
               {/* Date/time range based on card type */}
               {formData.is_sender ? (

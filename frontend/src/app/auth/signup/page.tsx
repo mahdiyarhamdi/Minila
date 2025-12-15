@@ -23,7 +23,9 @@ export default function SignupPage() {
   // Schema with translated messages
   const signupSchema = z.object({
     email: z.string().email(t('auth.validation.emailRequired')),
-    password: z.string().min(8, t('auth.validation.passwordMin')),
+    password: z.string()
+      .min(8, t('auth.validation.passwordMin'))
+      .regex(/\d/, t('auth.validation.passwordNumber')),
     confirm_password: z.string(),
     first_name: z.string().min(1, t('auth.validation.firstNameRequired')),
     last_name: z.string().min(1, t('auth.validation.lastNameRequired')),
