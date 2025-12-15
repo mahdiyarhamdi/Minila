@@ -728,7 +728,38 @@
       "subtitle": "Minila is a smart platform that connects travelers with spare luggage space to people who need to send packages. Safe, fast, and free.",
       "cta": "Get Started Free",
       "secondaryCta": "Browse Cards",
-      "trustedBy": "Trusted by thousands of users"
+      "trustedBy": "Trusted by thousands of users",
+      "mainQuestion": "So, which one sounds like you?",
+      "traveler": {
+        "title": "I'm Traveling",
+        "subtitle": "Got some extra room in my luggage",
+        "pain": "Flights aren't cheap these days...",
+        "solution": "Turn that empty space into cash. Help someone out, cover part of your trip.",
+        "cta": "Let's go →"
+      },
+      "sender": {
+        "title": "I Need to Send Something",
+        "subtitle": "But finding someone I can trust? Not easy.",
+        "pain": "Shipping costs are crazy, and strangers? Risky.",
+        "solution": "Find travelers from communities you trust. Free to connect, safe to send.",
+        "cta": "Find a traveler →"
+      }
+    },
+    "concepts": {
+      "title": "Wait, how does this actually work?",
+      "community": {
+        "title": "What's a Community?",
+        "description": "Think of it like this: A group where everyone knows at least one person in common — the community creator. That shared connection builds trust.",
+        "example": "Like \"Sarah's Dubai Friends\" — if you're in, you probably know Sarah. That's your trust anchor."
+      },
+      "card": {
+        "title": "What's a Card?",
+        "description": "Just a simple post saying: \"Hey, I'm going from A to B and I've got space\" or \"I need to send something from here to there.\" That's it."
+      },
+      "trust": {
+        "title": "Why can't I just message anyone?",
+        "description": "Good question! Here's the thing: when you share a community with someone, you both know a common person. If anything goes sideways, there's someone accountable. No shared community = no trust foundation = no messaging. Simple."
+      }
     },
     "features": {
       "title": "Why Choose Minila?",
