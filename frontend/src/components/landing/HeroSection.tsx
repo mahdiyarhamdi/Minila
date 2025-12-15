@@ -64,9 +64,14 @@ export default function HeroSection() {
         </div>
 
         {/* Main Question */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-neutral-900 text-center mb-10 sm:mb-14">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-neutral-900 text-center mb-4">
           {t('landing.hero.mainQuestion')}
         </h1>
+        
+        {/* SEO Subtitle */}
+        <p className="text-base sm:text-lg text-neutral-600 font-light text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          {t('landing.hero.seoSubtitle')}
+        </p>
 
         {/* Persona Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-12">
@@ -171,8 +176,8 @@ export default function HeroSection() {
 
         {/* Scroll indicator */}
         <div className="flex justify-center">
-          <a href="#concepts" className="flex flex-col items-center text-neutral-400 hover:text-primary-600 transition-colors animate-bounce">
-            <span className="text-sm font-medium mb-2">{t('landing.concepts.title')}</span>
+          <a href="#features" className="flex flex-col items-center text-neutral-400 hover:text-primary-600 transition-colors animate-bounce">
+            <span className="text-sm font-medium mb-2">{t('common.learnMore')}</span>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>

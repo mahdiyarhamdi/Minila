@@ -2,7 +2,6 @@
 
 import LandingNavbar from '@/components/landing/LandingNavbar'
 import HeroSection from '@/components/landing/HeroSection'
-import ConceptsSection from '@/components/landing/ConceptsSection'
 import FeaturesSection from '@/components/landing/FeaturesSection'
 import HowItWorks from '@/components/landing/HowItWorks'
 import CardsCarousel from '@/components/landing/CardsCarousel'
@@ -21,9 +20,6 @@ export default function LandingPage() {
 
       {/* Hero */}
       <HeroSection />
-
-      {/* Concepts - How it works */}
-      <ConceptsSection />
 
       {/* Features */}
       <FeaturesSection />

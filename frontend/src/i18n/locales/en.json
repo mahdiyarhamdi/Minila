@@ -30,6 +30,7 @@
     "tryAgain": "Try again",
     "goBack": "Go back",
     "viewAll": "View all",
+    "learnMore": "Learn more",
     "page": "Page",
     "of": "of",
     "showing": "Showing",
@@ -743,23 +744,8 @@
         "pain": "Shipping costs are crazy, and strangers? Risky.",
         "solution": "Find travelers from communities you trust. Free to connect, safe to send.",
         "cta": "Find a traveler →"
-      }
-    },
-    "concepts": {
-      "title": "Wait, how does this actually work?",
-      "community": {
-        "title": "What's a Community?",
-        "description": "Think of it like this: A group where everyone knows at least one person in common — the community creator. That shared connection builds trust.",
-        "example": "Like \"Sarah's Dubai Friends\" — if you're in, you probably know Sarah. That's your trust anchor."
       },
-      "card": {
-        "title": "What's a Card?",
-        "description": "Just a simple post saying: \"Hey, I'm going from A to B and I've got space\" or \"I need to send something from here to there.\" That's it."
-      },
-      "trust": {
-        "title": "Why can't I just message anyone?",
-        "description": "Good question! Here's the thing: when you share a community with someone, you both know a common person. If anything goes sideways, there's someone accountable. No shared community = no trust foundation = no messaging. Simple."
-      }
+      "seoSubtitle": "Connect with trusted travelers and senders through community-based coordination. Safe, simple, free."
     },
     "features": {
       "title": "Why Choose Minila?",
@@ -782,19 +768,22 @@
       }
     },
     "howItWorks": {
-      "title": "How It Works",
-      "subtitle": "Get started in three simple steps",
-      "step1": {
-        "title": "Create Your Account",
-        "description": "Sign up with your email and verify your account to get started."
+      "title": "How Minila Works",
+      "subtitle": "Three simple concepts that make everything possible",
+      "community": {
+        "title": "Join a Community",
+        "description": "A community is a group where everyone knows at least one person in common — the community creator. That shared connection builds trust.",
+        "hint": "Like \"Sarah's Dubai Friends\" — if you're in, you probably know Sarah. That's your trust anchor."
       },
-      "step2": {
-        "title": "Create or Search Cards",
-        "description": "Post a travel card if you're a traveler, or search for available cards if you need to send cargo."
+      "card": {
+        "title": "Create or Find a Card",
+        "description": "A card is a simple announcement: \"I'm traveling from A to B with space\" or \"I need to send something from here to there.\"",
+        "hint": "Post your own card or browse existing ones to find the perfect match for your needs."
       },
-      "step3": {
-        "title": "Connect & Coordinate",
-        "description": "Send messages, discuss details, and coordinate the perfect cargo delivery."
+      "connect": {
+        "title": "Connect Safely",
+        "description": "You can only message someone when you share a community. This means there's always someone accountable if things go sideways.",
+        "hint": "No shared community = no trust foundation = no messaging. Simple and safe."
       }
     },
     "cards": {
@@ -819,9 +808,9 @@
       "connections": "Successful Connections"
     },
     "cta": {
-      "title": "Ready to Get Started?",
-      "subtitle": "Join thousands of users who trust Minila for their cargo coordination needs.",
-      "button": "Create Free Account"
+      "title": "Your First Delivery Starts Here",
+      "subtitle": "Join a community, find a traveler, send your package. It's that simple.",
+      "button": "Get Started Free"
     },
     "footer": {
       "description": "Smart platform for coordination between travelers and cargo senders.",

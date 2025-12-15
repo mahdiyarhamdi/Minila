@@ -2,31 +2,41 @@
 
 تمام تغییرات قابل توجه در این پروژه در این فایل ثبت می‌شود.
 
+## [0.9.1] - 2025-12-15
+
+### Changed
+
+#### Landing Page Optimization (UX/SEO/Copywriting Audit)
+- 🔄 **Merged Redundant Sections**: ConceptsSection merged into HowItWorks
+  - Single unified "How Minila Works" section
+  - Three steps: Join Community → Create/Find Card → Connect Safely
+  - Each step includes description + practical hint
+- 🔍 **SEO Improvement**: Added seoSubtitle to Hero for search engines
+- ✍️ **CTA Copy Rewrite**: "Ready to Get Started?" → "Your First Delivery Starts Here"
+- 🔗 **Footer Cleanup**: Removed placeholder social links
+
+### Removed
+- ❌ Deleted standalone ConceptsSection.tsx (content merged into HowItWorks)
+
+---
+
 ## [0.9.0] - 2025-12-15
 
 ### Added
 
 #### Hero Section Redesign (User-Centric Approach)
-- 🎯 **Persona-Based Hero**: طراحی جدید Hero با دو کارت مسافر/فرستنده
+- Persona-Based Hero: دو کارت مسافر/فرستنده
   - "So, which one sounds like you?" رویکرد سوال‌محور
   - کارت مسافر با Pain Point و Solution
   - کارت فرستنده با Pain Point و Solution
   - CTAهای واضح برای هر نوع کاربر
 
-#### Concepts Section (New)
-- 📚 **بخش توضیح مفاهیم کلیدی** بلافاصله بعد از Hero
-  - "کامیونیتی چیه؟" - توضیح اعتماد مبتنی بر آشنایی مشترک
-  - "کارت چیه؟" - توضیح ساده اعلام نیاز
-  - "چرا نمیشه به همه پیام داد؟" - توضیح منطق امنیتی پلتفرم
-- 🎨 ویژوال‌های تعاملی برای هر مفهوم
-- 💬 کپی‌رایتینگ صمیمی و غیررسمی (نه محاوره‌ای)
-
 ### Changed
 
 #### Copywriting Overhaul
-- ✍️ بازنویسی کامل متن‌ها با لحن صمیمی
-- 🌍 ترجمه‌های جدید برای انگلیسی، فارسی و عربی
-- 🎯 متمرکز بر نیاز واقعی کاربر (Pain → Solution)
+- بازنویسی کامل متن‌ها با لحن صمیمی
+- ترجمه‌های جدید برای انگلیسی، فارسی و عربی
+- متمرکز بر نیاز واقعی کاربر (Pain → Solution)
 
 ---
 
