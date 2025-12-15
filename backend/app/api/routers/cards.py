@@ -1,13 +1,14 @@
 """Card management endpoints."""
 from typing import Annotated, Optional
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, status, Depends, Query
+from fastapi import APIRouter, HTTPException, status, Depends, Query, Request
 from ...api.deps import DBSession, CurrentUser, CurrentUserOptional
-from ...schemas.card import CardCreate, CardUpdate, CardFilter, CardOut
+from ...schemas.card import CardCreate, CardUpdate, CardFilter, CardOut, CardStatsOut
 from ...schemas.price import PriceSuggestionOut
 from ...utils.pagination import PaginatedResponse
 from ...services import card_service
 from ...services.dynamic_pricing_service import dynamic_pricing_service
+from ...repositories import card_view_repo
 
 router = APIRouter(prefix="/api/v1/cards", tags=["cards"])
 
@@ -319,4 +320,146 @@ async def delete_card(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e)
         )
+
+
+# ========== Card Analytics Endpoints ==========
+
+
+@router.post(
+    "/{card_id}/view",
+    status_code=status.HTTP_201_CREATED,
+    summary="Record card view (impression)",
+    description="""
+Record a card impression (when card appears in a list).
+
+**Authentication**: Optional
+
+Used for tracking card visibility. Duplicates within 30 minutes from
+the same user/IP are ignored.
+    """
+)
+async def record_card_view(
+    card_id: int,
+    request: Request,
+    db: DBSession,
+    current_user: CurrentUserOptional
+) -> dict:
+    """Record card impression."""
+    user_id = current_user["user_id"] if current_user else None
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent", "")[:500]
+    
+    # Check if card exists
+    try:
+        await card_service.get_card(db, card_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Card not found"
+        )
+    
+    # Check for duplicate
+    if await card_view_repo.check_recent_view(
+        db, card_id, 'impression', user_id, ip_address, minutes=30
+    ):
+        return {"success": True, "message": "Already recorded"}
+    
+    # Record view
+    await card_view_repo.record_view(
+        db, card_id, 'impression',
+        user_id=user_id,
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
+    
+    await db.commit()
+    return {"success": True}
+
+
+@router.post(
+    "/{card_id}/click",
+    status_code=status.HTTP_201_CREATED,
+    summary="Record card click",
+    description="""
+Record a card click (when user clicks to view card details).
+
+**Authentication**: Optional
+
+Used for tracking card engagement. Duplicates within 30 minutes from
+the same user/IP are ignored.
+    """
+)
+async def record_card_click(
+    card_id: int,
+    request: Request,
+    db: DBSession,
+    current_user: CurrentUserOptional
+) -> dict:
+    """Record card click."""
+    user_id = current_user["user_id"] if current_user else None
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent", "")[:500]
+    
+    # Check if card exists
+    try:
+        await card_service.get_card(db, card_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Card not found"
+        )
+    
+    # Check for duplicate
+    if await card_view_repo.check_recent_view(
+        db, card_id, 'click', user_id, ip_address, minutes=30
+    ):
+        return {"success": True, "message": "Already recorded"}
+    
+    # Record click
+    await card_view_repo.record_view(
+        db, card_id, 'click',
+        user_id=user_id,
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
+    
+    await db.commit()
+    return {"success": True}
+
+
+@router.get(
+    "/{card_id}/stats",
+    status_code=status.HTTP_200_OK,
+    response_model=CardStatsOut,
+    summary="Get card statistics",
+    description="""
+Get view and click statistics for a card.
+
+**Authentication**: Optional (owner gets more detailed stats in future)
+
+Returns:
+- view_count: Number of impressions
+- click_count: Number of clicks
+    """
+)
+async def get_card_stats(
+    card_id: int,
+    db: DBSession
+) -> CardStatsOut:
+    """Get card statistics."""
+    # Check if card exists
+    try:
+        await card_service.get_card(db, card_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Card not found"
+        )
+    
+    stats = await card_view_repo.get_stats(db, card_id)
+    return CardStatsOut(
+        card_id=card_id,
+        view_count=stats["view_count"],
+        click_count=stats["click_count"]
+    )
 

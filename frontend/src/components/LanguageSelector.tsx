@@ -58,7 +58,6 @@ export default function LanguageSelector({ className, variant = 'desktop' }: Lan
                 : 'text-neutral-700 hover:bg-neutral-100'
             )}
           >
-            <span className="text-lg">{getLanguageFlag(code)}</span>
             <span>{config.nativeName}</span>
             {code === language && (
               <svg className="w-4 h-4 ltr:ml-auto rtl:mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,13 +111,12 @@ export default function LanguageSelector({ className, variant = 'desktop' }: Lan
               key={code}
               onClick={() => handleLanguageChange(code)}
               className={cn(
-                'w-full px-4 py-2 text-sm transition-colors flex items-center gap-3',
+                'w-full px-4 py-2 text-sm transition-colors flex items-center gap-2',
                 code === language
                   ? 'bg-primary-50 text-primary-600 font-medium'
                   : 'text-neutral-700 hover:bg-neutral-50'
               )}
             >
-              <span className="text-base">{getLanguageFlag(code)}</span>
               <span>{config.nativeName}</span>
               {code === language && (
                 <svg className="w-4 h-4 ltr:ml-auto rtl:mr-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,21 +129,5 @@ export default function LanguageSelector({ className, variant = 'desktop' }: Lan
       )}
     </div>
   )
-}
-
-/**
- * Get flag emoji for language
- */
-function getLanguageFlag(lang: Language): string {
-  switch (lang) {
-    case 'en':
-      return '🇬🇧'
-    case 'ar':
-      return '🇸🇦'
-    case 'fa':
-      return '🇮🇷'
-    default:
-      return '🌐'
-  }
 }
 

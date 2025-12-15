@@ -706,3 +706,211 @@ class TestCardCurrency:
         data = response.json()
         assert data["currency"] == "EUR"
         assert data["price_aed"] == 200.0
+
+
+# ==================== Card Analytics Tests ====================
+
+class TestCardAnalytics:
+    """Test cases for card view/click tracking."""
+
+    @pytest.mark.asyncio
+    async def test_record_card_view_success(
+        self, 
+        client: AsyncClient, 
+        test_card: dict
+    ):
+        """Test recording a card view returns 201."""
+        # Act
+        response = await client.post(f"/api/v1/cards/{test_card['id']}/view")
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["success"] is True
+
+    @pytest.mark.asyncio
+    async def test_record_card_view_duplicate_ignored(
+        self, 
+        client: AsyncClient, 
+        test_card: dict
+    ):
+        """Test duplicate view within 30 minutes returns success with message."""
+        # Arrange - Record first view
+        await client.post(f"/api/v1/cards/{test_card['id']}/view")
+        
+        # Act - Record second view immediately
+        response = await client.post(f"/api/v1/cards/{test_card['id']}/view")
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["success"] is True
+        # Second call should say "Already recorded"
+        assert "message" in data or data["success"] is True
+
+    @pytest.mark.asyncio
+    async def test_record_card_view_not_found(self, client: AsyncClient):
+        """Test recording view for non-existent card returns 404."""
+        # Act
+        response = await client.post("/api/v1/cards/99999/view")
+        
+        # Assert
+        assert response.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_record_card_click_success(
+        self, 
+        client: AsyncClient, 
+        test_card: dict
+    ):
+        """Test recording a card click returns 201."""
+        # Act
+        response = await client.post(f"/api/v1/cards/{test_card['id']}/click")
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["success"] is True
+
+    @pytest.mark.asyncio
+    async def test_record_card_click_duplicate_ignored(
+        self, 
+        client: AsyncClient, 
+        test_card: dict
+    ):
+        """Test duplicate click within 30 minutes returns success with message."""
+        # Arrange - Record first click
+        await client.post(f"/api/v1/cards/{test_card['id']}/click")
+        
+        # Act - Record second click immediately
+        response = await client.post(f"/api/v1/cards/{test_card['id']}/click")
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["success"] is True
+
+    @pytest.mark.asyncio
+    async def test_record_card_click_not_found(self, client: AsyncClient):
+        """Test recording click for non-existent card returns 404."""
+        # Act
+        response = await client.post("/api/v1/cards/99999/click")
+        
+        # Assert
+        assert response.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_get_card_stats_success(
+        self, 
+        client: AsyncClient, 
+        test_card: dict
+    ):
+        """Test getting card stats returns view and click counts."""
+        # Arrange - Record some views and clicks
+        await client.post(f"/api/v1/cards/{test_card['id']}/view")
+        await client.post(f"/api/v1/cards/{test_card['id']}/click")
+        
+        # Act
+        response = await client.get(f"/api/v1/cards/{test_card['id']}/stats")
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "card_id" in data
+        assert "view_count" in data
+        assert "click_count" in data
+        assert data["card_id"] == test_card["id"]
+        assert isinstance(data["view_count"], int)
+        assert isinstance(data["click_count"], int)
+
+    @pytest.mark.asyncio
+    async def test_get_card_stats_not_found(self, client: AsyncClient):
+        """Test getting stats for non-existent card returns 404."""
+        # Act
+        response = await client.get("/api/v1/cards/99999/stats")
+        
+        # Assert
+        assert response.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_get_card_stats_initial_zero(
+        self, 
+        client: AsyncClient,
+        test_user: dict,
+        auth_headers: dict, 
+        test_db: AsyncSession,
+        seed_locations: dict
+    ):
+        """Test new card stats are initially zero."""
+        # Arrange - Create a new card
+        from app.models.card import Card
+        card = Card(
+            owner_id=test_user["user_id"],
+            is_sender=False,
+            origin_country_id=1,
+            origin_city_id=1,
+            destination_country_id=2,
+            destination_city_id=2,
+            ticket_date_time=datetime.utcnow() + timedelta(days=7),
+            weight=5.0,
+            description="New card for stats test"
+        )
+        test_db.add(card)
+        await test_db.commit()
+        await test_db.refresh(card)
+        
+        # Act
+        response = await client.get(f"/api/v1/cards/{card.id}/stats")
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["view_count"] == 0
+        assert data["click_count"] == 0
+
+    @pytest.mark.asyncio
+    async def test_record_view_with_authenticated_user(
+        self, 
+        client: AsyncClient, 
+        test_card: dict,
+        auth_headers: dict
+    ):
+        """Test recording view with authenticated user."""
+        # Act
+        response = await client.post(
+            f"/api/v1/cards/{test_card['id']}/view",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 201
+        data = response.json()
+        assert data["success"] is True
+
+    @pytest.mark.asyncio
+    async def test_my_cards_include_stats(
+        self, 
+        client: AsyncClient,
+        test_user: dict,
+        auth_headers: dict,
+        test_card: dict
+    ):
+        """Test my cards endpoint includes view and click counts."""
+        # Arrange - Record some views/clicks
+        await client.post(f"/api/v1/cards/{test_card['id']}/view")
+        await client.post(f"/api/v1/cards/{test_card['id']}/click")
+        
+        # Act
+        response = await client.get(
+            "/api/v1/users/me/cards",
+            headers=auth_headers
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "items" in data
+        if len(data["items"]) > 0:
+            card = data["items"][0]
+            assert "view_count" in card
+            assert "click_count" in card

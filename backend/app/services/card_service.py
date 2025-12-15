@@ -2,7 +2,7 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.card import Card
-from ..repositories import card_repo
+from ..repositories import card_repo, card_view_repo
 from ..schemas.card import CardFilter
 from ..services import log_service
 from ..utils.pagination import PaginatedResponse
@@ -280,7 +280,7 @@ async def get_user_cards(
     page: int,
     page_size: int
 ):
-    """دریافت کارت‌های یک کاربر.
+    """دریافت کارت‌های یک کاربر همراه با آمار بازدید.
     
     Args:
         db: Database session
@@ -289,9 +289,15 @@ async def get_user_cards(
         page_size: تعداد آیتم در صفحه
         
     Returns:
-        PaginatedResponse از کارت‌ها
+        PaginatedResponse از کارت‌ها با آمار بازدید
     """
     cards, total = await card_repo.get_by_owner_id(db, user_id, page, page_size)
+    
+    # Fetch stats for each card
+    for card in cards:
+        stats = await card_view_repo.get_stats(db, card.id)
+        card.view_count = stats["view_count"]
+        card.click_count = stats["click_count"]
     
     return PaginatedResponse.create(
         items=cards,

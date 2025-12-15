@@ -6,7 +6,6 @@ import FeaturesSection from '@/components/landing/FeaturesSection'
 import HowItWorks from '@/components/landing/HowItWorks'
 import CardsCarousel from '@/components/landing/CardsCarousel'
 import CommunitiesCarousel from '@/components/landing/CommunitiesCarousel'
-import StatsSection from '@/components/landing/StatsSection'
 import CTASection from '@/components/landing/CTASection'
 import Footer from '@/components/landing/Footer'
 
@@ -33,9 +32,6 @@ export default function LandingPage() {
 
       {/* Communities Carousel */}
       <CommunitiesCarousel />
-
-      {/* Statistics */}
-      <StatsSection />
 
       {/* CTA */}
       <CTASection />

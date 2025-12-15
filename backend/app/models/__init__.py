@@ -22,6 +22,7 @@ from .membership import Membership, Request
 
 # Card models
 from .card import Card, CardCommunity
+from .card_view import CardView
 
 # Pricing models
 from .route_price import RoutePrice
@@ -60,6 +61,7 @@ __all__ = [
     # Card
     "Card",
     "CardCommunity",
+    "CardView",
     # Pricing
     "RoutePrice",
     # Message

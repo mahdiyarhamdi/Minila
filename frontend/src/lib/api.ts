@@ -256,6 +256,38 @@ class APIService {
   }
 
   /**
+   * Record card view (impression)
+   */
+  async recordCardView(cardId: number): Promise<void> {
+    try {
+      await this.client.post(`/api/v1/cards/${cardId}/view`)
+    } catch (error) {
+      // Silently fail - analytics should not break the UI
+      console.debug('Failed to record card view:', error)
+    }
+  }
+
+  /**
+   * Record card click
+   */
+  async recordCardClick(cardId: number): Promise<void> {
+    try {
+      await this.client.post(`/api/v1/cards/${cardId}/click`)
+    } catch (error) {
+      // Silently fail - analytics should not break the UI
+      console.debug('Failed to record card click:', error)
+    }
+  }
+
+  /**
+   * Get card statistics
+   */
+  async getCardStats(cardId: number): Promise<{ card_id: number; view_count: number; click_count: number }> {
+    const response = await this.client.get<{ card_id: number; view_count: number; click_count: number }>(`/api/v1/cards/${cardId}/stats`)
+    return response.data
+  }
+
+  /**
    * دریافت کارت‌های خودم
    */
   async getMyCards(): Promise<CardListResponse> {

@@ -23,9 +23,12 @@ from app.schemas.price import PriceSuggestionOut, PriceFactorBreakdown, BasePric
 class DynamicPricingService:
     """Dynamic pricing algorithm similar to Snapp/Uber surge pricing."""
     
+    # Global price multiplier (to adjust overall price level)
+    PRICE_MULTIPLIER = 2.5
+    
     # Price bounds (USD per kg)
-    MIN_PRICE_PER_KG = 0.5
-    MAX_PRICE_PER_KG = 20.0
+    MIN_PRICE_PER_KG = 1.0
+    MAX_PRICE_PER_KG = 50.0
     
     # Confidence thresholds
     CONFIDENCE_THRESHOLD_HIGH = 0.8
@@ -89,6 +92,9 @@ class DynamicPricingService:
             multiplier *= factor_value
         
         final_price = base_price.price * multiplier
+        
+        # Apply global price multiplier (2.5x)
+        final_price *= self.PRICE_MULTIPLIER
         
         # Apply bounds
         final_price = max(self.MIN_PRICE_PER_KG, min(self.MAX_PRICE_PER_KG, final_price))

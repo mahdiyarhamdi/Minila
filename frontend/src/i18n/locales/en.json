@@ -288,8 +288,8 @@
       "searchCity": "Search city...",
       "selectCountryFirst": "Select country first",
       "cardType": "Card type",
-      "traveler": "Traveler (carrying cargo)",
-      "sender": "Cargo sender",
+      "traveler": "Traveler",
+      "sender": "Sender",
       "dateNotSpecified": "My exact travel date is not set",
       "exactDate": "Exact travel date",
       "exactDateHelper": "Optional - Your planned travel date and time",
@@ -301,7 +301,7 @@
       "pricePlaceholder": "e.g., 50",
       "currency": "Currency",
       "packagingStatus": "Packaging status",
-      "doesntMatter": "Doesn't matter",
+      "doesntMatter": "No packaging info",
       "packed": "Packed",
       "unpacked": "Unpacked",
       "description": "Description",
@@ -325,7 +325,7 @@
     "detail": {
       "type": {
         "traveler": "Traveler",
-        "sender": "Cargo Sender"
+        "sender": "Sender"
       },
       "route": "{{origin}} → {{destination}}",
       "weight": "Weight",
@@ -336,7 +336,7 @@
       "packaging": "Packaging",
       "packed": "Packed",
       "unpacked": "Unpacked",
-      "doesntMatter": "Doesn't matter",
+      "doesntMatter": "No packaging info",
       "description": "Description",
       "owner": "Card owner",
       "sendMessage": "Send message",
@@ -389,6 +389,7 @@
       "hideBreakdown": "Hide breakdown",
       "useThisPrice": "Use this price",
       "enterCustom": "Enter custom",
+      "getNewSuggestion": "Get new suggestion",
       "factors": {
         "base": "Base price",
         "route": "Route",
@@ -398,6 +399,10 @@
         "weight": "Weight",
         "category": "Category"
       }
+    },
+    "analytics": {
+      "views": "Views",
+      "clicks": "Clicks"
     },
     "joinCommunity": {
       "title": "No shared community",
@@ -712,7 +717,7 @@
     "hero": {
       "title": "Connect Travelers with Cargo Senders",
       "titleHighlight": "Effortlessly",
-      "subtitle": "Minila is a smart platform that connects travelers with spare luggage space to people who need to send packages. Safe, fast, and affordable.",
+      "subtitle": "Minila is a smart platform that connects travelers with spare luggage space to people who need to send packages. Safe, fast, and free.",
       "cta": "Get Started Free",
       "secondaryCta": "Browse Cards",
       "trustedBy": "Trusted by thousands of users"

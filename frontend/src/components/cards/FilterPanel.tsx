@@ -179,7 +179,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
       max_weight: state.max_weight ? Number(state.max_weight) : undefined,
       min_price: state.min_price ? Number(state.min_price) : undefined,
       max_price: state.max_price ? Number(state.max_price) : undefined,
-      currency: (state.min_price || state.max_price) ? state.currency : undefined,
+      currency: state.currency !== 'USD' || state.min_price || state.max_price ? state.currency : undefined,
       is_packed: state.is_packed === '' ? undefined : state.is_packed === 'true',
     }
   }, [])

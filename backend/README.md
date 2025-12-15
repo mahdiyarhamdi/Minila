@@ -228,10 +228,14 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | Method | Endpoint | توضیح | Auth |
 |--------|----------|-------|------|
 | `GET` | `/` | جست‌وجوی کارت‌ها با فیلتر (paginated) | ❌ |
+| `GET` | `/price-suggestion/` | پیشنهاد قیمت برای مسیر | ❌ |
 | `POST` | `/` | ایجاد کارت جدید | ✅ |
 | `GET` | `/{id}` | جزئیات کارت | ❌ |
 | `PATCH` | `/{id}` | ویرایش کارت (owner only) | ✅ |
 | `DELETE` | `/{id}` | حذف کارت (owner only) | ✅ |
+| `POST` | `/{id}/view` | ثبت بازدید کارت (impression) | ❌ |
+| `POST` | `/{id}/click` | ثبت کلیک کارت | ❌ |
+| `GET` | `/{id}/stats` | آمار بازدید و کلیک کارت | ❌ |
 
 **فیلترهای Cards**:
 - `origin_country_id`, `origin_city_id` (فیلتر مبدأ - کشور یا شهر)

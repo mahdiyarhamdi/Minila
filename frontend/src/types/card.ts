@@ -46,6 +46,10 @@ export interface Card {
   communities?: Community[]
   created_at: string
   
+  // Analytics (only returned for owner's cards)
+  view_count?: number
+  click_count?: number
+  
   // Legacy fields for backward compatibility (computed)
   origin?: string
   destination?: string

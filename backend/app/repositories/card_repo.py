@@ -92,12 +92,31 @@ async def get_all(
     if filters.max_weight is not None:
         conditions.append(Card.weight <= filters.max_weight)
     
-    # فیلتر قیمت
+    # فیلتر قیمت (پشتیبانی از price_per_kg و price_aed قدیمی)
     if filters.min_price is not None:
-        conditions.append(Card.price_aed >= filters.min_price)
+        # Filter by price_per_kg (new) OR price_aed (legacy)
+        conditions.append(
+            or_(
+                and_(Card.price_per_kg.isnot(None), Card.price_per_kg >= filters.min_price),
+                and_(Card.price_per_kg.is_(None), Card.price_aed >= filters.min_price)
+            )
+        )
     
     if filters.max_price is not None:
-        conditions.append(Card.price_aed <= filters.max_price)
+        # Filter by price_per_kg (new) OR price_aed (legacy)
+        conditions.append(
+            or_(
+                and_(Card.price_per_kg.isnot(None), Card.price_per_kg <= filters.max_price),
+                and_(Card.price_per_kg.is_(None), Card.price_aed <= filters.max_price)
+            )
+        )
+    
+    # فیلتر قیمت به ازای کیلوگرم (جدید)
+    if filters.min_price_per_kg is not None:
+        conditions.append(Card.price_per_kg >= filters.min_price_per_kg)
+    
+    if filters.max_price_per_kg is not None:
+        conditions.append(Card.price_per_kg <= filters.max_price_per_kg)
     
     # فیلتر واحد پول
     if filters.currency is not None:

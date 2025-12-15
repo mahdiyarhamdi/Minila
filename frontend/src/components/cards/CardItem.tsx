@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useTranslation } from '@/hooks/useTranslation'
+import { apiService } from '@/lib/api'
 import Card from '../Card'
 import Badge from '../Badge'
 import type { Card as CardType } from '@/types/card'
@@ -12,6 +14,8 @@ import { getCurrencyByCode } from '@/utils/currency'
  */
 export default function CardItem(card: CardType) {
   const { t, formatDate, formatNumber, language } = useTranslation()
+  const cardRef = useRef<HTMLDivElement>(null)
+  const hasTrackedView = useRef(false)
   
   const {
     id,
@@ -31,6 +35,8 @@ export default function CardItem(card: CardType) {
     is_packed,
     description,
     owner,
+    view_count,
+    click_count,
   } = card
 
   // Calculate travel date
@@ -51,9 +57,38 @@ export default function CardItem(card: CardType) {
     }
   }
   
+  // Track card impression when it becomes visible
+  useEffect(() => {
+    if (!cardRef.current || hasTrackedView.current) return
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasTrackedView.current) {
+            hasTrackedView.current = true
+            apiService.recordCardView(id)
+          }
+        })
+      },
+      { threshold: 0.5 } // Card must be 50% visible
+    )
+    
+    observer.observe(cardRef.current)
+    
+    return () => {
+      observer.disconnect()
+    }
+  }, [id])
+  
+  // Track click
+  const handleClick = useCallback(() => {
+    apiService.recordCardClick(id)
+  }, [id])
+  
   return (
-    <Link href={`/cards/${id}`}>
-      <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer h-full">
+    <div ref={cardRef}>
+      <Link href={`/cards/${id}`} onClick={handleClick}>
+        <Card variant="bordered" className="p-6 hover:shadow-medium transition-shadow cursor-pointer h-full">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div>
@@ -126,24 +161,50 @@ export default function CardItem(card: CardType) {
         )}
 
         {/* Footer */}
-        <div className="pt-3 border-t border-neutral-100 flex gap-2">
-          {product_classification && (
-            <Badge variant="neutral" size="sm">
-              {product_classification.name}
-            </Badge>
-          )}
-          {is_packed === true && (
-            <Badge variant="success" size="sm">
-              {t('cards.detail.packed')}
-            </Badge>
-          )}
-          {is_packed === false && (
-            <Badge variant="warning" size="sm">
-              {t('cards.detail.unpacked')}
-            </Badge>
+        <div className="pt-3 border-t border-neutral-100 flex justify-between items-center">
+          <div className="flex gap-2">
+            {product_classification && (
+              <Badge variant="neutral" size="sm">
+                {product_classification.name}
+              </Badge>
+            )}
+            {is_packed === true && (
+              <Badge variant="success" size="sm">
+                {t('cards.detail.packed')}
+              </Badge>
+            )}
+            {is_packed === false && (
+              <Badge variant="warning" size="sm">
+                {t('cards.detail.unpacked')}
+              </Badge>
+            )}
+          </div>
+          
+          {/* Analytics - only shown for owner's cards */}
+          {(view_count !== undefined || click_count !== undefined) && (
+            <div className="flex items-center gap-3 text-xs text-neutral-500">
+              {view_count !== undefined && (
+                <div className="flex items-center gap-1" title={t('cards.analytics.views')}>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>{formatNumber(view_count)}</span>
+                </div>
+              )}
+              {click_count !== undefined && (
+                <div className="flex items-center gap-1" title={t('cards.analytics.clicks')}>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                  </svg>
+                  <span>{formatNumber(click_count)}</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </Card>
     </Link>
+    </div>
   )
 }

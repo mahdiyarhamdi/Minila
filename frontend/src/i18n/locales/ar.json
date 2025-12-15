@@ -288,8 +288,8 @@
       "searchCity": "بحث عن مدينة...",
       "selectCountryFirst": "اختر البلد أولاً",
       "cardType": "نوع البطاقة",
-      "traveler": "مسافر (حمل شحنة)",
-      "sender": "مرسل شحنة",
+      "traveler": "مسافر",
+      "sender": "مرسل",
       "dateNotSpecified": "تاريخ سفري غير محدد",
       "exactDate": "تاريخ السفر الدقيق",
       "exactDateHelper": "اختياري - تاريخ ووقت السفر المخطط",
@@ -301,7 +301,7 @@
       "pricePlaceholder": "مثال: 50",
       "currency": "العملة",
       "packagingStatus": "حالة التغليف",
-      "doesntMatter": "لا يهم",
+      "doesntMatter": "بدون معلومات التغليف",
       "packed": "معبأ",
       "unpacked": "غير معبأ",
       "description": "الوصف",
@@ -325,7 +325,7 @@
     "detail": {
       "type": {
         "traveler": "مسافر",
-        "sender": "مرسل شحنة"
+        "sender": "مرسل"
       },
       "route": "{{origin}} ← {{destination}}",
       "weight": "الوزن",
@@ -355,6 +355,7 @@
       "hideBreakdown": "إخفاء التفاصيل",
       "useThisPrice": "استخدم هذا السعر",
       "enterCustom": "أدخل سعراً مخصصاً",
+      "getNewSuggestion": "احصل على اقتراح جديد",
       "factors": {
         "base": "السعر الأساسي",
         "route": "المسار",
@@ -364,6 +365,10 @@
         "weight": "الوزن",
         "category": "الفئة"
       }
+    },
+    "analytics": {
+      "views": "مشاهدات",
+      "clicks": "نقرات"
     }
   },
   "communities": {
@@ -555,7 +560,7 @@
     "hero": {
       "title": "اربط المسافرين بمرسلي الشحنات",
       "titleHighlight": "بسهولة",
-      "subtitle": "مينيلا منصة ذكية تربط المسافرين الذين لديهم مساحة فارغة في أمتعتهم بالأشخاص الذين يحتاجون إلى إرسال طرود. آمن وسريع وبأسعار معقولة.",
+      "subtitle": "مينيلا منصة ذكية تربط المسافرين الذين لديهم مساحة فارغة في أمتعتهم بالأشخاص الذين يحتاجون إلى إرسال طرود. آمن وسريع ومجاني.",
       "cta": "ابدأ مجاناً",
       "secondaryCta": "تصفح البطاقات",
       "trustedBy": "موثوق به من آلاف المستخدمين"

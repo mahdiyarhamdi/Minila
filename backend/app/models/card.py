@@ -123,6 +123,10 @@ class Card(BaseModel):
         lazy="select"
     )
     
+    # Non-persistent attributes for analytics (computed from card_view table)
+    view_count: int = 0
+    click_count: int = 0
+    
     def __repr__(self) -> str:
         card_type = "sender" if self.is_sender else "traveler"
         return f"<Card(id={self.id}, type={card_type}, owner_id={self.owner_id})>"

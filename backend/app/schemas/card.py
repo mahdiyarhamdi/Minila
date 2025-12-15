@@ -160,6 +160,9 @@ class CardOut(BaseModel):
     description: Optional[str] = None
     product_classification: Optional[ProductClassificationOut] = None
     created_at: datetime
+    # Analytics (optional, only returned for owner's cards)
+    view_count: Optional[int] = None
+    click_count: Optional[int] = None
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -180,7 +183,9 @@ class CardOut(BaseModel):
                 "currency": "USD",
                 "description": "می‌توانم بسته کوچک حمل کنم",
                 "product_classification": {"id": 1, "name": "پوشاک"},
-                "created_at": "2024-01-01T12:00:00"
+                "created_at": "2024-01-01T12:00:00",
+                "view_count": 150,
+                "click_count": 42
             }
         }
     )
@@ -213,6 +218,24 @@ class CardDetailOut(CardOut):
                     {"id": 1, "name": "کامیونیتی مسافران تهران", "bio": "توضیحات"}
                 ],
                 "created_at": "2024-01-01T12:00:00"
+            }
+        }
+    )
+
+
+class CardStatsOut(BaseModel):
+    """آمار بازدید و کلیک کارت."""
+    
+    card_id: int
+    view_count: int = Field(..., description="تعداد بازدید (impression)")
+    click_count: int = Field(..., description="تعداد کلیک")
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "card_id": 1,
+                "view_count": 150,
+                "click_count": 42
             }
         }
     )

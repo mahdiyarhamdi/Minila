@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from '@/hooks/useTranslation'
 
 // Base interface - allows extra properties
 export interface AutocompleteOption {
@@ -30,7 +31,7 @@ interface AutocompleteProps {
  */
 export default function Autocomplete({
   label,
-  placeholder = 'جستجو...',
+  placeholder,
   value,
   onChange,
   onSearch,
@@ -39,6 +40,7 @@ export default function Autocomplete({
   helperText,
   required = false,
 }: AutocompleteProps) {
+  const { t } = useTranslation()
   const [inputValue, setInputValue] = useState(value?.label || '')
   const [options, setOptions] = useState<AutocompleteOption[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -179,7 +181,7 @@ export default function Autocomplete({
               setIsOpen(true)
             }
           }}
-          placeholder={placeholder}
+          placeholder={placeholder || t('common.search')}
           disabled={disabled}
           className={`
             w-full px-4 py-2.5 bg-white border rounded-lg
@@ -241,7 +243,7 @@ export default function Autocomplete({
             ))
           ) : hasSearched ? (
             <div className="px-4 py-3 text-sm text-neutral-500 text-center">
-              نتیجه‌ای یافت نشد
+              {t('common.noResults')}
             </div>
           ) : null}
         </div>
