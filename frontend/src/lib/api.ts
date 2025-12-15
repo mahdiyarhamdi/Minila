@@ -260,7 +260,7 @@ class APIService {
    */
   async recordCardView(cardId: number): Promise<void> {
     try {
-      await this.client.post(`/api/v1/cards/${cardId}/view`)
+      await this.client.post(`/api/v1/cards/${cardId}/view/`)
     } catch (error) {
       // Silently fail - analytics should not break the UI
       console.debug('Failed to record card view:', error)
@@ -272,7 +272,7 @@ class APIService {
    */
   async recordCardClick(cardId: number): Promise<void> {
     try {
-      await this.client.post(`/api/v1/cards/${cardId}/click`)
+      await this.client.post(`/api/v1/cards/${cardId}/click/`)
     } catch (error) {
       // Silently fail - analytics should not break the UI
       console.debug('Failed to record card click:', error)

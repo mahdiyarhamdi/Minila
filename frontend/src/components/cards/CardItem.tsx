@@ -9,10 +9,14 @@ import Badge from '../Badge'
 import type { Card as CardType } from '@/types/card'
 import { getCurrencyByCode } from '@/utils/currency'
 
+interface CardItemProps extends CardType {
+  showAnalytics?: boolean // Only show view/click counts for owner
+}
+
 /**
  * CardItem - Card display in list
  */
-export default function CardItem(card: CardType) {
+export default function CardItem({ showAnalytics = false, ...cardProps }: CardItemProps) {
   const { t, formatDate, formatNumber, language } = useTranslation()
   const cardRef = useRef<HTMLDivElement>(null)
   const hasTrackedView = useRef(false)
@@ -23,7 +27,6 @@ export default function CardItem(card: CardType) {
     destination_city,
     ticket_date_time,
     start_time_frame,
-    end_time_frame,
     weight,
     price_per_kg,
     price_aed,
@@ -37,7 +40,7 @@ export default function CardItem(card: CardType) {
     owner,
     view_count,
     click_count,
-  } = card
+  } = cardProps
 
   // Calculate travel date
   const travelDate = ticket_date_time || start_time_frame
@@ -180,26 +183,22 @@ export default function CardItem(card: CardType) {
             )}
           </div>
           
-          {/* Analytics - only shown for owner's cards */}
-          {(view_count !== undefined || click_count !== undefined) && (
+          {/* Analytics - only shown when showAnalytics is true */}
+          {showAnalytics && (view_count !== undefined || click_count !== undefined) && (
             <div className="flex items-center gap-3 text-xs text-neutral-500">
-              {view_count !== undefined && (
-                <div className="flex items-center gap-1" title={t('cards.analytics.views')}>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span>{formatNumber(view_count)}</span>
-                </div>
-              )}
-              {click_count !== undefined && (
-                <div className="flex items-center gap-1" title={t('cards.analytics.clicks')}>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                  </svg>
-                  <span>{formatNumber(click_count)}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1" title={t('cards.analytics.views')}>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>{formatNumber(view_count ?? 0)}</span>
+              </div>
+              <div className="flex items-center gap-1" title={t('cards.analytics.clicks')}>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+                <span>{formatNumber(click_count ?? 0)}</span>
+              </div>
             </div>
           )}
         </div>

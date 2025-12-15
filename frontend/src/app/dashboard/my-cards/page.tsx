@@ -153,10 +153,10 @@ export default function MyCardsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCards.map((card) => (
               <div key={card.id} className="relative group">
-                <CardItem {...card} />
+                <CardItem {...card} showAnalytics />
                 
-                {/* Action Buttons - Always visible on mobile, hover on desktop */}
-                <div className="absolute bottom-4 ltr:right-4 rtl:left-4 sm:top-4 sm:bottom-auto opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex gap-2 z-10">
+                {/* Action Buttons - Always visible on mobile at bottom, hover on desktop at top-left */}
+                <div className="absolute bottom-4 ltr:right-4 rtl:left-4 sm:bottom-auto sm:top-4 sm:ltr:left-4 sm:ltr:right-auto sm:rtl:right-4 sm:rtl:left-auto opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex gap-2 z-10">
                   <Link href={`/cards/${card.id}/edit`}>
                     <button className="p-2.5 sm:p-2 bg-white rounded-xl sm:rounded-lg shadow-medium hover:bg-neutral-50 border border-neutral-100">
                       <svg className="w-5 h-5 sm:w-4 sm:h-4 text-neutral-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">

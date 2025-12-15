@@ -70,13 +70,13 @@ function NumberInput({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <label className="block text-xs text-neutral-600 mb-1">{label}</label>
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={handleDecrement}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
         >
           <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -90,7 +90,7 @@ function NumberInput({
           onChange={handleInputChange}
           onBlur={handleBlur}
           className={cn(
-            'flex-1 px-2 py-2.5 border rounded-xl transition-all',
+            'flex-1 min-w-0 px-2 py-2.5 border rounded-xl transition-all',
             'text-neutral-900 text-center',
             'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
             {
@@ -102,7 +102,7 @@ function NumberInput({
         <button
           type="button"
           onClick={handleIncrement}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
         >
           <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -158,13 +158,13 @@ function YearInput({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <label className="block text-xs text-neutral-600 mb-1">{label}</label>
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={handleDecrement}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
         >
           <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -178,7 +178,7 @@ function YearInput({
           onChange={handleInputChange}
           onBlur={handleBlur}
           className={cn(
-            'flex-1 px-2 py-2.5 border rounded-xl transition-all',
+            'flex-1 min-w-0 px-2 py-2.5 border rounded-xl transition-all',
             'text-neutral-900 text-center',
             'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
             {
@@ -190,7 +190,7 @@ function YearInput({
         <button
           type="button"
           onClick={handleIncrement}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
         >
           <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
