@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import Button from '@/components/Button'
-import Logo from '@/components/Logo'
 import { useTranslation } from '@/hooks/useTranslation'
 
 /**
@@ -58,19 +57,18 @@ export default function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="text-center mb-8 sm:mb-10">
-          <Logo variant="full" size="xl" className="mx-auto mb-3" href="/" />
-        </div>
-
         {/* Main Question */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-neutral-900 text-center mb-4">
           {t('landing.hero.mainQuestion')}
         </h1>
         
-        {/* SEO Subtitle */}
-        <p className="text-base sm:text-lg text-neutral-600 font-light text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          {t('landing.hero.seoSubtitle')}
+        {/* SEO Subtitle - Keywords on single line */}
+        <p className="text-base sm:text-lg text-neutral-600 font-medium text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          <span className="text-primary-600">Safe</span>
+          <span className="mx-2">•</span>
+          <span className="text-sand-600">Simple</span>
+          <span className="mx-2">•</span>
+          <span className="text-green-600">Free</span>
         </p>
 
         {/* Persona Cards */}
@@ -93,21 +91,10 @@ export default function HeroSection() {
                 </svg>
               </div>
 
-              {/* Title & Subtitle */}
-              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">
+              {/* Title */}
+              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-4">
                 {t('landing.hero.traveler.title')}
               </h2>
-              <p className="text-base sm:text-lg text-neutral-600 font-medium mb-4">
-                {t('landing.hero.traveler.subtitle')}
-              </p>
-
-              {/* Pain Point */}
-              <div className="flex items-start gap-2 mb-3 text-sm text-neutral-500">
-                <svg className="w-5 h-5 text-neutral-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{t('landing.hero.traveler.pain')}</span>
-              </div>
 
               {/* Solution */}
               <div className="flex items-start gap-2 mb-6 text-sm text-primary-700 bg-primary-50 rounded-xl p-3">
@@ -142,21 +129,10 @@ export default function HeroSection() {
                 </svg>
               </div>
 
-              {/* Title & Subtitle */}
-              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">
+              {/* Title */}
+              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-4">
                 {t('landing.hero.sender.title')}
               </h2>
-              <p className="text-base sm:text-lg text-neutral-600 font-medium mb-4">
-                {t('landing.hero.sender.subtitle')}
-              </p>
-
-              {/* Pain Point */}
-              <div className="flex items-start gap-2 mb-3 text-sm text-neutral-500">
-                <svg className="w-5 h-5 text-neutral-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{t('landing.hero.sender.pain')}</span>
-              </div>
 
               {/* Solution */}
               <div className="flex items-start gap-2 mb-6 text-sm text-sand-700 bg-sand-50 rounded-xl p-3">

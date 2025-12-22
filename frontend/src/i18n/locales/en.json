@@ -323,7 +323,8 @@
         "originCity": "Origin city is required",
         "destinationCountry": "Destination country is required",
         "destinationCity": "Destination city is required",
-        "fillRequired": "Please fill in all required fields"
+        "fillRequired": "Please fill in all required fields",
+        "useEnglishNumbers": "Please use English numbers (0-9)"
       },
       "success": "Card created successfully"
     },
@@ -730,7 +731,7 @@
       "cta": "Get Started Free",
       "secondaryCta": "Browse Cards",
       "trustedBy": "Trusted by thousands of users",
-      "mainQuestion": "So, which one sounds like you?",
+      "mainQuestion": "Which one sounds like you?",
       "traveler": {
         "title": "I'm Traveling",
         "subtitle": "Got some extra room in my luggage",
@@ -781,14 +782,14 @@
         "hint": "Post your own card or browse existing ones to find the perfect match for your needs."
       },
       "connect": {
-        "title": "Connect Safely",
-        "description": "You can only message someone when you share a community. This means there's always someone accountable if things go sideways.",
-        "hint": "No shared community = no trust foundation = no messaging. Simple and safe."
+        "title": "Connect with Confidence",
+        "description": "When you share a community with someone, you both know a common person. This built-in accountability makes every connection trustworthy.",
+        "hint": "Shared community = trusted connection = safe messaging. That's the Minila way."
       }
     },
     "cards": {
       "title": "Recent Cards",
-      "subtitle": "Discover the latest travel and cargo opportunities",
+      "subtitle": "Discover the latest opportunities",
       "viewAll": "View All Cards",
       "noCards": "No cards available yet"
     },
@@ -813,7 +814,7 @@
       "button": "Get Started Free"
     },
     "footer": {
-      "description": "Smart platform for coordination between travelers and cargo senders.",
+      "description": "Smart platform for coordination between travelers and senders.",
       "quickLinks": "Quick Links",
       "legal": "Legal",
       "terms": "Terms & Conditions",

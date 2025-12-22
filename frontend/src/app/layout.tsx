@@ -6,8 +6,8 @@ import MobileBottomNav from '@/components/MobileBottomNav'
 import ContentWrapper from '@/components/ContentWrapper'
 
 export const metadata: Metadata = {
-  title: 'Minila - Traveler & Cargo Coordination Platform',
-  description: 'Smart platform for coordination between travelers and cargo senders',
+  title: 'Minila - Connect Travelers & Senders',
+  description: 'Smart platform for coordination between travelers and senders through trusted communities',
 }
 
 export default function RootLayout({
