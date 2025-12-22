@@ -211,7 +211,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     }
 
     return result
-  }, [appliedFilters, t])
+  }, [appliedFilters, t, language])
 
   // Convert FilterState to CardFilter
   const convertToCardFilter = useCallback((state: FilterState): CardFilter => {
@@ -339,7 +339,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
       currency: tempFilters.currency,
       is_packed: tempFilters.is_packed,
     }
-    setAppliedFilters(newFilters)
+    setAppliedFilters(() => newFilters)
     onFilterChange(convertToCardFilter(newFilters))
     setIsBottomSheetOpen(false)
   }, [tempFilters, onFilterChange, convertToCardFilter])
