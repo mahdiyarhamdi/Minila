@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
-import { cn } from '@/lib/utils'
+import { cn, convertToEnglishNumbers } from '@/lib/utils'
 import { apiService } from '@/lib/api'
-import Input from '../Input'
 import Select from '../Select'
 import Button from '../Button'
 import BottomSheet from '../BottomSheet'
@@ -14,6 +13,55 @@ import DateTimePicker from '../DateTimePicker'
 import type { CardFilter } from '@/types/card'
 import type { Country, City } from '@/types/location'
 import { getCommonCurrencyOptions, type SupportedLanguage } from '@/utils/currency'
+
+// Filter number input - uses local state and only syncs on blur to avoid keyboard closing
+function FilterNumberInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+}) {
+  const [localValue, setLocalValue] = useState(value)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Sync from parent when value changes externally (e.g., reset)
+  useEffect(() => {
+    setLocalValue(value)
+  }, [value])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const converted = convertToEnglishNumbers(e.target.value)
+    setLocalValue(converted)
+  }
+
+  const handleBlur = () => {
+    // Only update parent on blur
+    if (localValue !== value) {
+      onChange(localValue)
+    }
+  }
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
+      inputMode="decimal"
+      placeholder={placeholder}
+      value={localValue}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      className={cn(
+        'w-full px-4 py-2.5 rounded-xl border transition-all',
+        'text-neutral-900 placeholder:text-neutral-400',
+        'focus:outline-none focus:ring-2 focus:ring-offset-0',
+        'border-neutral-200 focus:border-primary-500 focus:ring-primary-100'
+      )}
+    />
+  )
+}
 
 interface FilterPanelProps {
   onFilterChange: (filters: CardFilter) => void
@@ -276,8 +324,21 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
 
   // Apply filters
   const handleApplyFilters = useCallback(() => {
-    // Create a new object to ensure React detects the change
-    const newFilters = { ...tempFilters }
+    // Create a deep copy to ensure React detects the change
+    const newFilters: FilterState = {
+      originCountry: tempFilters.originCountry ? { ...tempFilters.originCountry } : null,
+      originCity: tempFilters.originCity ? { ...tempFilters.originCity } : null,
+      destinationCountry: tempFilters.destinationCountry ? { ...tempFilters.destinationCountry } : null,
+      destinationCity: tempFilters.destinationCity ? { ...tempFilters.destinationCity } : null,
+      date_from: tempFilters.date_from,
+      date_to: tempFilters.date_to,
+      min_weight: tempFilters.min_weight,
+      max_weight: tempFilters.max_weight,
+      min_price: tempFilters.min_price,
+      max_price: tempFilters.max_price,
+      currency: tempFilters.currency,
+      is_packed: tempFilters.is_packed,
+    }
     setAppliedFilters(newFilters)
     onFilterChange(convertToCardFilter(newFilters))
     setIsBottomSheetOpen(false)
@@ -387,19 +448,15 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
           {t('cards.filters.weightRange')}
         </label>
         <div className="grid grid-cols-2 gap-3">
-            <Input
-            type="text"
-            inputMode="decimal"
-            placeholder={t('cards.filters.minWeight')}
-            value={currentFilters.min_weight}
-            onChange={(e) => onChange('min_weight', e.target.value)}
+            <FilterNumberInput
+              placeholder={t('cards.filters.minWeight')}
+              value={currentFilters.min_weight}
+              onChange={(value) => onChange('min_weight', value)}
             />
-            <Input
-            type="text"
-            inputMode="decimal"
-            placeholder={t('cards.filters.maxWeight')}
-            value={currentFilters.max_weight}
-            onChange={(e) => onChange('max_weight', e.target.value)}
+            <FilterNumberInput
+              placeholder={t('cards.filters.maxWeight')}
+              value={currentFilters.max_weight}
+              onChange={(value) => onChange('max_weight', value)}
             />
           </div>
         </div>
@@ -412,20 +469,16 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         
         {/* Price Inputs */}
         <div className="grid grid-cols-2 gap-3">
-            <Input
-              type="text"
-              inputMode="decimal"
-            placeholder={t('cards.filters.minPrice')}
-            value={currentFilters.min_price}
-            onChange={(e) => onChange('min_price', e.target.value)}
+            <FilterNumberInput
+              placeholder={t('cards.filters.minPrice')}
+              value={currentFilters.min_price}
+              onChange={(value) => onChange('min_price', value)}
             />
-            <Input
-              type="text"
-              inputMode="decimal"
-            placeholder={t('cards.filters.maxPrice')}
-            value={currentFilters.max_price}
-            onChange={(e) => onChange('max_price', e.target.value)}
-          />
+            <FilterNumberInput
+              placeholder={t('cards.filters.maxPrice')}
+              value={currentFilters.max_price}
+              onChange={(value) => onChange('max_price', value)}
+            />
         </div>
 
         {/* Currency Select */}

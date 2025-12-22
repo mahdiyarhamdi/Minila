@@ -10,6 +10,7 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Badge from '@/components/Badge'
 import Tabs from '@/components/Tabs'
+import Modal from '@/components/Modal'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
@@ -28,11 +29,12 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
   const { data: membersData } = useCommunityMembers(communityId)
   const joinMutation = useJoinCommunity()
   const [activeTab, setActiveTab] = useState('about')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const handleJoin = async () => {
     try {
       await joinMutation.mutateAsync(communityId)
-      showToast('success', t('communities.detail.joinRequestSent'))
+      setShowSuccessModal(true)
     } catch (error: any) {
       showToast('error', extractErrorMessage(error))
     }
@@ -272,6 +274,28 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
           )}
         </Tabs>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title={t('cards.joinCommunity.requestSentTitle')}
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-neutral-700 mb-6">
+            {t('cards.joinCommunity.requestSentMessage')}
+          </p>
+          <Button onClick={() => setShowSuccessModal(false)} className="w-full">
+            {t('common.ok')}
+          </Button>
+        </div>
+      </Modal>
     </div>
   )
 }
