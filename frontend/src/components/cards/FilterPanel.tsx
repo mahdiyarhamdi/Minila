@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { cn, convertToEnglishNumbers } from '@/lib/utils'
 import { apiService } from '@/lib/api'
@@ -107,10 +107,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
   const { t, language } = useTranslation()
   
   // Currency options based on current language
-  const currencyOptions = useMemo(() => 
-    getCommonCurrencyOptions(language as SupportedLanguage), 
-    [language]
-  )
+  const currencyOptions = getCommonCurrencyOptions(language as SupportedLanguage)
   // فیلترهای اعمال شده (نهایی)
   const [appliedFilters, setAppliedFilters] = useState<FilterState>(initialState)
   // فیلترهای در حال ویرایش (موقت)
@@ -136,12 +133,10 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     }
   }, [initialFilters])
 
-  // Count active filters
-  const activeFilterCount = useMemo(() => {
+  // Count active filters - calculated on every render for reliability
+  const getActiveFilterCount = () => {
     let count = 0
-    // مبدأ: شهر یا کشور
     if (appliedFilters.originCity || appliedFilters.originCountry) count++
-    // مقصد: شهر یا کشور
     if (appliedFilters.destinationCity || appliedFilters.destinationCountry) count++
     if (appliedFilters.date_from) count++
     if (appliedFilters.date_to) count++
@@ -150,25 +145,27 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     if (appliedFilters.min_price || appliedFilters.max_price) count++
     if (appliedFilters.is_packed) count++
     return count
-  }, [appliedFilters])
+  }
+  const activeFilterCount = getActiveFilterCount()
 
-  // Get active filters as array for chips
-  const activeFiltersArray = useMemo(() => {
+  // Get active filters as array for chips - calculated on every render for reliability
+  const getActiveFiltersArray = (): Array<{ key: string; label: string; value: string }> => {
     const result: Array<{ key: string; label: string; value: string }> = []
 
     // مبدأ: اگر شهر انتخاب شده، شهر را نشان بده؛ اگر نه، کشور را نشان بده
-    if (appliedFilters.originCity) {
+    if (appliedFilters.originCity && appliedFilters.originCity.label) {
       result.push({ key: 'origin', label: t('cards.filters.origin'), value: appliedFilters.originCity.label })
-    } else if (appliedFilters.originCountry) {
+    } else if (appliedFilters.originCountry && appliedFilters.originCountry.label) {
       result.push({ key: 'origin', label: t('cards.filters.origin'), value: appliedFilters.originCountry.label })
     }
     
     // مقصد: اگر شهر انتخاب شده، شهر را نشان بده؛ اگر نه، کشور را نشان بده
-    if (appliedFilters.destinationCity) {
+    if (appliedFilters.destinationCity && appliedFilters.destinationCity.label) {
       result.push({ key: 'destination', label: t('cards.filters.destination'), value: appliedFilters.destinationCity.label })
-    } else if (appliedFilters.destinationCountry) {
+    } else if (appliedFilters.destinationCountry && appliedFilters.destinationCountry.label) {
       result.push({ key: 'destination', label: t('cards.filters.destination'), value: appliedFilters.destinationCountry.label })
     }
+    
     if (appliedFilters.date_from) {
       const date = new Date(appliedFilters.date_from)
       result.push({ key: 'date_from', label: t('cards.filters.fromDate'), value: date.toLocaleDateString(language === 'fa' ? 'fa-IR' : language === 'ar' ? 'ar-SA' : 'en-US') })
@@ -211,7 +208,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     }
 
     return result
-  }, [appliedFilters, t, language])
+  }
+  const activeFiltersArray = getActiveFiltersArray()
 
   // Convert FilterState to CardFilter
   const convertToCardFilter = useCallback((state: FilterState): CardFilter => {
@@ -322,8 +320,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     setIsBottomSheetOpen(false)
   }, [onFilterChange])
 
-  // Apply filters
-  const handleApplyFilters = useCallback(() => {
+  // Apply filters - use latest tempFilters directly to avoid stale closure
+  const handleApplyFilters = () => {
     // Create a deep copy to ensure React detects the change
     const newFilters: FilterState = {
       originCountry: tempFilters.originCountry ? { ...tempFilters.originCountry } : null,
@@ -339,10 +337,13 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
       currency: tempFilters.currency,
       is_packed: tempFilters.is_packed,
     }
-    setAppliedFilters(() => newFilters)
+    // Set applied filters first
+    setAppliedFilters(newFilters)
+    // Then notify parent
     onFilterChange(convertToCardFilter(newFilters))
+    // Finally close the sheet
     setIsBottomSheetOpen(false)
-  }, [tempFilters, onFilterChange, convertToCardFilter])
+  }
 
   // Cancel - clear all filters and show all results
   const handleCancel = useCallback(() => {
@@ -359,14 +360,11 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
   }, [appliedFilters])
 
   // Packaging options
-  const packagingOptions = useMemo(
-    () => [
-      { value: '', label: t('cards.filters.packaging.all') },
-      { value: 'true', label: t('cards.filters.packaging.packed') },
-      { value: 'false', label: t('cards.filters.packaging.unpacked') },
-    ],
-    [t]
-  )
+  const packagingOptions = [
+    { value: '', label: t('cards.filters.packaging.all') },
+    { value: 'true', label: t('cards.filters.packaging.packed') },
+    { value: 'false', label: t('cards.filters.packaging.unpacked') },
+  ]
 
   // Filter form content (shared between desktop and mobile)
   const FilterFormContent = ({
@@ -519,8 +517,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     </div>
   )
 
-  // Active Filter Chips Component (shared)
-  const ActiveFilterChips = () => {
+  // Render active filter chips inline for reliability
+  const renderActiveFilterChips = () => {
     if (activeFiltersArray.length === 0) return null
     
     return (
@@ -573,7 +571,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
           {/* Desktop Filter Chips */}
           {activeFiltersArray.length > 0 && (
             <div className="mb-5 pb-5 border-b border-neutral-200">
-              <ActiveFilterChips />
+              {renderActiveFilterChips()}
             </div>
           )}
 
@@ -627,7 +625,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         {/* Mobile Active Filter Chips */}
         {activeFiltersArray.length > 0 && (
           <div className="mt-3">
-            <ActiveFilterChips />
+            {renderActiveFilterChips()}
           </div>
         )}
       </div>
