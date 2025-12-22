@@ -1,17 +1,27 @@
-import { InputHTMLAttributes, forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { InputHTMLAttributes, forwardRef, useCallback } from 'react'
+import { cn, convertToEnglishNumbers } from '@/lib/utils'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
   helperText?: string
+  convertNumbers?: boolean // Auto-convert Persian/Arabic numbers to English
 }
 
 /**
  * Input با طراحی Notion-like
  */
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, type = 'text', ...props }, ref) => {
+  ({ className, label, error, helperText, type = 'text', onChange, convertNumbers = true, ...props }, ref) => {
+    // Handle number conversion for numeric inputs
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      if (convertNumbers && (type === 'number' || type === 'tel' || props.inputMode === 'numeric' || props.inputMode === 'decimal')) {
+        const converted = convertToEnglishNumbers(e.target.value)
+        e.target.value = converted
+      }
+      onChange?.(e)
+    }, [onChange, convertNumbers, type, props.inputMode])
+
     return (
       <div className="w-full">
         {label && (
@@ -23,6 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           type={type}
+          onChange={handleChange}
           className={cn(
             'w-full px-4 py-2.5 rounded-xl border transition-all',
             'text-neutral-900 placeholder:text-neutral-400',

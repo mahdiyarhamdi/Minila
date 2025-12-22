@@ -411,7 +411,15 @@
         "urgency": "Urgency",
         "weight": "Weight",
         "category": "Category"
-      }
+      },
+      "adjustedFor": "Price adjusted for:",
+      "highDemand": "high demand",
+      "lowDemand": "low demand",
+      "rareRoute": "rare route",
+      "popularRoute": "popular route",
+      "peakSeason": "peak season",
+      "offPeakSeason": "off-peak season",
+      "urgentDelivery": "urgent delivery"
     },
     "analytics": {
       "views": "Views",
@@ -428,7 +436,7 @@
       "youAreMember": "You are a member",
       "requestPending": "Request pending",
       "requestMembership": "Request membership",
-      "requestSent": "Your membership request has been sent. You can send messages after approval.",
+      "requestSent": "Your membership request has been sent. We'll email you when it's approved!",
       "infoTitle": "Why do we need a shared community?",
       "infoDescription": "For security and to prevent unwanted messages, messaging is only available between members of shared communities. Join one of the communities above to connect with this user.",
       "backToCard": "Back to card",

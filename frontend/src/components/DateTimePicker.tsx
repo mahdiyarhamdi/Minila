@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, convertToEnglishNumbers } from '@/lib/utils'
 import { useTranslation } from '@/hooks/useTranslation'
 
 interface DateTimePickerProps {
@@ -49,7 +49,8 @@ function NumberInput({
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
+    // Convert Persian/Arabic numbers to English
+    const newValue = convertToEnglishNumbers(e.target.value)
     setInputValue(newValue)
     
     // Allow empty string for editing
@@ -141,7 +142,8 @@ function YearInput({
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
+    // Convert Persian/Arabic numbers to English
+    const newValue = convertToEnglishNumbers(e.target.value)
     setInputValue(newValue)
     
     if (newValue === '') return
@@ -222,10 +224,12 @@ function MonthSelect({
   value,
   onChange,
   hasError,
+  label,
 }: {
   value: number
   onChange: (month: number) => void
   hasError: boolean
+  label: string
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -245,7 +249,7 @@ function MonthSelect({
 
   return (
     <div ref={ref} className="relative">
-      <label className="block text-xs text-neutral-600 mb-1">Month</label>
+      <label className="block text-xs text-neutral-600 mb-1">{label}</label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -460,6 +464,7 @@ export default function DateTimePicker({
             value={month}
             onChange={handleMonthChange}
             hasError={!!error || !!validationError}
+            label={t('common.dateTime.month')}
           />
 
           {/* Day */}

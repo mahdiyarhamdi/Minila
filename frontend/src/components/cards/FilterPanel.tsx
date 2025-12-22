@@ -386,18 +386,20 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         </label>
         <div className="grid grid-cols-2 gap-3">
             <Input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder={t('cards.filters.minWeight')}
             value={currentFilters.min_weight}
-            onChange={(e) => onChange('min_weight', e.target.value)}
-            min="0"
+            onChange={(e) => onChange('min_weight', e.target.value.replace(/[^0-9]/g, ''))}
             />
             <Input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder={t('cards.filters.maxWeight')}
             value={currentFilters.max_weight}
-            onChange={(e) => onChange('max_weight', e.target.value)}
-            min="0"
+            onChange={(e) => onChange('max_weight', e.target.value.replace(/[^0-9]/g, ''))}
             />
           </div>
         </div>
@@ -411,18 +413,20 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         {/* Price Inputs */}
         <div className="grid grid-cols-2 gap-3">
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
             placeholder={t('cards.filters.minPrice')}
             value={currentFilters.min_price}
-            onChange={(e) => onChange('min_price', e.target.value)}
-            min="0"
+            onChange={(e) => onChange('min_price', e.target.value.replace(/[^0-9]/g, ''))}
             />
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
             placeholder={t('cards.filters.maxPrice')}
             value={currentFilters.max_price}
-            onChange={(e) => onChange('max_price', e.target.value)}
-            min="0"
+            onChange={(e) => onChange('max_price', e.target.value.replace(/[^0-9]/g, ''))}
           />
         </div>
 
@@ -435,13 +439,32 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         />
       </div>
 
-        {/* Packaging Status */}
-        <Select
-          label={t('cards.filters.packagingStatus')}
-        value={currentFilters.is_packed}
-        onChange={(e) => onChange('is_packed', e.target.value)}
-        options={packagingOptions}
-      />
+        {/* Packaging Status - Checkboxes */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-700">
+            {t('cards.filters.packagingStatus')}
+          </label>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={currentFilters.is_packed === 'true'}
+                onChange={(e) => onChange('is_packed', e.target.checked ? 'true' : '')}
+                className="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="text-sm text-neutral-700">{t('cards.filters.packaging.packed')}</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={currentFilters.is_packed === 'false'}
+                onChange={(e) => onChange('is_packed', e.target.checked ? 'false' : '')}
+                className="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="text-sm text-neutral-700">{t('cards.filters.packaging.unpacked')}</span>
+            </label>
+          </div>
+        </div>
     </div>
   )
 

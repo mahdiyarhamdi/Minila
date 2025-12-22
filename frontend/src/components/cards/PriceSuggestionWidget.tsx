@@ -132,6 +132,27 @@ export function PriceSuggestionWidget({
     return labelMap[label] || label
   }
 
+  // Translate backend message
+  const translateMessage = (message: string): string => {
+    // Map common terms
+    const termMap: Record<string, string> = {
+      'Price adjusted for:': t('cards.price.adjustedFor'),
+      'high demand': t('cards.price.highDemand'),
+      'low demand': t('cards.price.lowDemand'),
+      'rare route': t('cards.price.rareRoute'),
+      'popular route': t('cards.price.popularRoute'),
+      'peak season': t('cards.price.peakSeason'),
+      'off-peak season': t('cards.price.offPeakSeason'),
+      'urgent delivery': t('cards.price.urgentDelivery'),
+    }
+    
+    let translated = message
+    Object.entries(termMap).forEach(([key, value]) => {
+      translated = translated.replace(new RegExp(key, 'gi'), value)
+    })
+    return translated
+  }
+
   return (
     <div className={cn("bg-gradient-to-r from-primary-50 to-sand-50 rounded-xl p-4 border border-primary-100", className)}>
       {/* Header */}
@@ -165,7 +186,7 @@ export function PriceSuggestionWidget({
 
       {/* Message */}
       {suggestion.message && (
-        <p className="text-xs text-neutral-600 mb-3">{suggestion.message}</p>
+        <p className="text-xs text-neutral-600 mb-3">{translateMessage(suggestion.message)}</p>
       )}
 
       {/* Breakdown Toggle */}
