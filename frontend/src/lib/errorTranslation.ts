@@ -26,6 +26,7 @@ const ERROR_MAPPINGS: Record<string, string> = {
   'کامیونیتی یافت نشد': 'errors.api.communityNotFound',
   'شما قبلاً عضو این کامیونیتی هستید': 'errors.api.alreadyMember',
   'شما قبلاً درخواست عضویت داده‌اید': 'errors.api.alreadyRequested',
+  'شما قبلاً درخواست عضویت ارسال کرده‌اید': 'errors.api.alreadyRequested',
   
   // Card errors
   'کارت یافت نشد': 'errors.api.cardNotFound',

@@ -15,6 +15,7 @@ import EmptyState from '@/components/EmptyState'
 import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
+import { translateError } from '@/lib/errorTranslation'
 
 /**
  * Join community page for sending messages
@@ -68,7 +69,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
       // Refresh communities list
       refetch()
     } catch (error: any) {
-      showToast('error', extractErrorMessage(error))
+      showToast('error', translateError(extractErrorMessage(error), t))
     }
   }
 

@@ -15,6 +15,7 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
+import { translateError } from '@/lib/errorTranslation'
 
 /**
  * Community detail page
@@ -36,7 +37,7 @@ export default function CommunityDetailPage({ params }: { params: { id: string }
       await joinMutation.mutateAsync(communityId)
       setShowSuccessModal(true)
     } catch (error: any) {
-      showToast('error', extractErrorMessage(error))
+      showToast('error', translateError(extractErrorMessage(error), t))
     }
   }
 
