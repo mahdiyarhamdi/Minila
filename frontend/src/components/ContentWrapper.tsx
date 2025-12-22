@@ -16,7 +16,7 @@ export default function ContentWrapper({ children }: { children: React.ReactNode
   const shouldAddPadding = isAuthenticated && !isAuthPage
   
   return (
-    <div className={shouldAddPadding ? 'pb-20 md:pb-0' : ''} style={shouldAddPadding ? { paddingBottom: 'max(5rem, calc(4rem + env(safe-area-inset-bottom, 0px)))' } : undefined}>
+    <div style={shouldAddPadding ? { paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 20px) + 10px)' } : undefined}>
       {children}
     </div>
   )

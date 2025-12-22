@@ -14,7 +14,7 @@ interface DateTimePickerProps {
   validatePast?: boolean // اگر true، تاریخ‌های گذشته invalid هستند
 }
 
-// Number input with increment/decrement buttons for mobile
+// Number picker using native select (avoids keyboard issues on mobile)
 function NumberInput({
   value,
   onChange,
@@ -32,90 +32,46 @@ function NumberInput({
   hasError: boolean
   padZero?: boolean
 }) {
-  const [inputValue, setInputValue] = useState(padZero ? value.toString().padStart(2, '0') : value.toString())
-  
-  useEffect(() => {
-    setInputValue(padZero ? value.toString().padStart(2, '0') : value.toString())
-  }, [value, padZero])
-
-  const handleIncrement = () => {
-    const newValue = value >= max ? min : value + 1
-    onChange(newValue)
-  }
-
-  const handleDecrement = () => {
-    const newValue = value <= min ? max : value - 1
-    onChange(newValue)
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Convert Persian/Arabic numbers to English
-    const newValue = convertToEnglishNumbers(e.target.value)
-    setInputValue(newValue)
-    
-    // Allow empty string for editing
-    if (newValue === '') return
-    
-    const parsed = parseInt(newValue, 10)
-    if (!isNaN(parsed)) {
-      // Clamp value to valid range
-      const clamped = Math.max(min, Math.min(max, parsed))
-      onChange(clamped)
-    }
-  }
-
-  const handleBlur = () => {
-    // On blur, reset to current value if empty
-    if (inputValue === '' || isNaN(parseInt(inputValue, 10))) {
-      setInputValue(padZero ? value.toString().padStart(2, '0') : value.toString())
-    }
+  // Generate options from min to max
+  const options = []
+  for (let i = min; i <= max; i++) {
+    options.push(i)
   }
 
   return (
     <div className="min-w-0">
       <label className="block text-xs text-neutral-600 mb-1">{label}</label>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={handleDecrement}
-          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
-        >
-          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-          </svg>
-        </button>
-        <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          className={cn(
-            'flex-1 min-w-0 px-2 py-2.5 border rounded-xl transition-all',
-            'text-neutral-900 text-center',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
-            {
-              'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
-              'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
-            }
-          )}
-        />
-        <button
-          type="button"
-          onClick={handleIncrement}
-          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
-        >
-          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
-      </div>
+      <select
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        className={cn(
+          'w-full px-3 py-2.5 border rounded-xl transition-all appearance-none',
+          'text-neutral-900 text-center bg-white',
+          'focus:outline-none focus:ring-2 focus:ring-offset-0',
+          {
+            'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
+            'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
+          }
+        )}
+        style={{ 
+          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+          backgroundPosition: 'right 0.5rem center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '1.5em 1.5em',
+          paddingRight: '2.5rem'
+        }}
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {padZero ? opt.toString().padStart(2, '0') : opt}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }
 
-// Year input - special case with wider range
+// Year picker using native select
 function YearInput({
   value,
   onChange,
@@ -127,79 +83,42 @@ function YearInput({
   label: string
   hasError: boolean
 }) {
-  const [inputValue, setInputValue] = useState(value.toString())
-  
-  useEffect(() => {
-    setInputValue(value.toString())
-  }, [value])
-
-  const handleIncrement = () => {
-    onChange(value + 1)
-  }
-
-  const handleDecrement = () => {
-    onChange(Math.max(2020, value - 1))
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Convert Persian/Arabic numbers to English
-    const newValue = convertToEnglishNumbers(e.target.value)
-    setInputValue(newValue)
-    
-    if (newValue === '') return
-    
-    const parsed = parseInt(newValue, 10)
-    if (!isNaN(parsed) && parsed >= 2020 && parsed <= 2100) {
-      onChange(parsed)
-    }
-  }
-
-  const handleBlur = () => {
-    if (inputValue === '' || isNaN(parseInt(inputValue, 10))) {
-      setInputValue(value.toString())
-    }
+  const currentYear = new Date().getFullYear()
+  const years = []
+  // From current year to 5 years in the future
+  for (let i = currentYear; i <= currentYear + 5; i++) {
+    years.push(i)
   }
 
   return (
     <div className="min-w-0">
       <label className="block text-xs text-neutral-600 mb-1">{label}</label>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={handleDecrement}
-          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
-        >
-          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-          </svg>
-        </button>
-        <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          className={cn(
-            'flex-1 min-w-0 px-2 py-2.5 border rounded-xl transition-all',
-            'text-neutral-900 text-center',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
-            {
-              'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
-              'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
-            }
-          )}
-        />
-        <button
-          type="button"
-          onClick={handleIncrement}
-          className="flex-shrink-0 w-8 h-10 flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
-        >
-          <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
-      </div>
+      <select
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        className={cn(
+          'w-full px-3 py-2.5 border rounded-xl transition-all appearance-none',
+          'text-neutral-900 text-center bg-white',
+          'focus:outline-none focus:ring-2 focus:ring-offset-0',
+          {
+            'border-neutral-200 focus:border-primary-500 focus:ring-primary-100': !hasError,
+            'border-red-300 focus:border-red-500 focus:ring-red-100': hasError,
+          }
+        )}
+        style={{ 
+          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+          backgroundPosition: 'right 0.5rem center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '1.5em 1.5em',
+          paddingRight: '2.5rem'
+        }}
+      >
+        {years.map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

@@ -276,8 +276,10 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
 
   // Apply filters
   const handleApplyFilters = useCallback(() => {
-    setAppliedFilters(tempFilters)
-    onFilterChange(convertToCardFilter(tempFilters))
+    // Create a new object to ensure React detects the change
+    const newFilters = { ...tempFilters }
+    setAppliedFilters(newFilters)
+    onFilterChange(convertToCardFilter(newFilters))
     setIsBottomSheetOpen(false)
   }, [tempFilters, onFilterChange, convertToCardFilter])
 
