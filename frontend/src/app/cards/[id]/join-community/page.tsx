@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCard } from '@/hooks/useCards'
@@ -12,6 +12,7 @@ import Button from '@/components/Button'
 import Badge from '@/components/Badge'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import EmptyState from '@/components/EmptyState'
+import Modal from '@/components/Modal'
 import { useToast } from '@/components/Toast'
 import { extractErrorMessage } from '@/utils/errors'
 
@@ -44,6 +45,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
   )
   
   const joinMutation = useJoinCommunity()
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // If not logged in, redirect to login
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
   const handleJoin = async (communityId: number) => {
     try {
       await joinMutation.mutateAsync(communityId)
-      showToast('success', t('cards.joinCommunity.requestSent'))
+      setShowSuccessModal(true)
       // Refresh communities list
       refetch()
     } catch (error: any) {
@@ -285,6 +287,28 @@ export default function JoinCommunityPage({ params }: { params: { id: string } }
           </div>
         </Card>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title={t('cards.joinCommunity.requestSentTitle')}
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-neutral-700 mb-6">
+            {t('cards.joinCommunity.requestSentMessage')}
+          </p>
+          <Button onClick={() => setShowSuccessModal(false)} className="w-full">
+            {t('common.ok')}
+          </Button>
+        </div>
+      </Modal>
     </div>
   )
 }

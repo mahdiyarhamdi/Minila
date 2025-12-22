@@ -458,12 +458,11 @@ export default function NewCardPage() {
               {/* Weight */}
               <Input
                 label={t('cards.new.weight')}
-                type="number"
-                step="0.1"
+                type="text"
+                inputMode="decimal"
                 placeholder={t('cards.new.weightPlaceholder')}
                 value={formData.weight || ''}
                 onChange={(e) => handleChange('weight', e.target.value)}
-                helperText={t('common.optional')}
               />
               
               {/* Price Suggestion Widget */}
@@ -490,13 +489,12 @@ export default function NewCardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="sm:col-span-2">
                     <Input
-                      label={`${t('cards.new.price')} (${t('cards.price.perKg')})`}
-                      type="number"
-                      step="0.01"
+                      label={t('cards.new.pricePerKg')}
+                      type="text"
+                      inputMode="decimal"
                       placeholder={t('cards.new.pricePlaceholder')}
                       value={formData.price_per_kg || ''}
                       onChange={(e) => handleChange('price_per_kg', e.target.value)}
-                      helperText={t('common.optional')}
                     />
                   </div>
                   <Select

@@ -387,19 +387,17 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         <div className="grid grid-cols-2 gap-3">
             <Input
             type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
+            inputMode="decimal"
             placeholder={t('cards.filters.minWeight')}
             value={currentFilters.min_weight}
-            onChange={(e) => onChange('min_weight', e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={(e) => onChange('min_weight', e.target.value)}
             />
             <Input
             type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
+            inputMode="decimal"
             placeholder={t('cards.filters.maxWeight')}
             value={currentFilters.max_weight}
-            onChange={(e) => onChange('max_weight', e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={(e) => onChange('max_weight', e.target.value)}
             />
           </div>
         </div>
@@ -414,19 +412,17 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
         <div className="grid grid-cols-2 gap-3">
             <Input
               type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
+              inputMode="decimal"
             placeholder={t('cards.filters.minPrice')}
             value={currentFilters.min_price}
-            onChange={(e) => onChange('min_price', e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={(e) => onChange('min_price', e.target.value)}
             />
             <Input
               type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
+              inputMode="decimal"
             placeholder={t('cards.filters.maxPrice')}
             value={currentFilters.max_price}
-            onChange={(e) => onChange('max_price', e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={(e) => onChange('max_price', e.target.value)}
           />
         </div>
 

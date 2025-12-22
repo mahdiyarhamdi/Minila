@@ -17,6 +17,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       if (convertNumbers && (type === 'number' || type === 'tel' || props.inputMode === 'numeric' || props.inputMode === 'decimal')) {
         const converted = convertToEnglishNumbers(e.target.value)
+        // Update the input value to the converted value
         e.target.value = converted
       }
       onChange?.(e)
