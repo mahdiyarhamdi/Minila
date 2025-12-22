@@ -30,6 +30,17 @@ const ERROR_MAPPINGS: Record<string, string> = {
   // Card errors
   'کارت یافت نشد': 'errors.api.cardNotFound',
   'شما مالک این کارت نیستید': 'errors.api.notCardOwner',
+  
+  // Card validation errors (English from backend)
+  'Traveler card requires travel date or time frame': 'errors.api.travelerRequiresDate',
+  'Sender card requires a time frame': 'errors.api.senderRequiresTimeFrame',
+  'End date must be after start date': 'errors.api.endDateAfterStart',
+  
+  // Password errors
+  'Current password is incorrect': 'errors.api.wrongCurrentPassword',
+  
+  // API errors
+  'Method Not Allowed': 'errors.api.methodNotAllowed',
 }
 
 /**

@@ -27,6 +27,13 @@
     "showLess": "عرض أقل",
     "moreOptions": "خيارات أخرى",
     "noResults": "لم يتم العثور على نتائج",
+    "dateTime": {
+      "year": "السنة",
+      "month": "الشهر",
+      "day": "اليوم",
+      "hour": "الساعة",
+      "minute": "الدقيقة"
+    },
     "tryAgain": "حاول مرة أخرى",
     "goBack": "العودة",
     "viewAll": "عرض الكل",
@@ -420,11 +427,11 @@
     },
     "new": {
       "title": "إنشاء مجتمع جديد",
-      "subtitle": "أنشئ مجتمعاً جديداً وادعُ الأعضاء",
+      "subtitle": "أنشئ مجتمعاً من الأشخاص الموثوقين",
       "name": "اسم المجتمع",
-      "namePlaceholder": "مثال: مسافرو دبي",
+      "namePlaceholder": "مثال: مجتمع دبي",
       "slug": "معرّف المجتمع",
-      "slugPlaceholder": "مثال: dubai-travelers",
+      "slugPlaceholder": "مثال: dubai_community",
       "slugHelper": "معرّف فريد لرابط مجتمعك",
       "bio": "الوصف",
       "bioPlaceholder": "وصف قصير للمجتمع...",
@@ -447,7 +454,7 @@
       "title": "إدارة {{name}}",
       "members": "الأعضاء",
       "requests": "طلبات الانضمام",
-      "settings": "الإعدادات",
+      "settingsTab": "الإعدادات",
       "noMembers": "لا يوجد أعضاء بعد",
       "noRequests": "لا توجد طلبات معلقة",
       "roles": {
@@ -559,7 +566,11 @@
       "alreadyMember": "أنت بالفعل عضو في هذا المجتمع",
       "alreadyRequested": "لقد قدمت طلب انضمام بالفعل",
       "cardNotFound": "لم يتم العثور على البطاقة",
-      "notCardOwner": "لست مالك هذه البطاقة"
+      "notCardOwner": "لست مالك هذه البطاقة",
+      "travelerRequiresDate": "بطاقة المسافر تتطلب تاريخ السفر أو إطار زمني",
+      "senderRequiresTimeFrame": "بطاقة المرسل تتطلب إطار زمني",
+      "endDateAfterStart": "تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية",
+      "methodNotAllowed": "هذه العملية غير مسموحة"
     }
   },
   "toast": {

@@ -27,6 +27,13 @@
     "showLess": "Show less",
     "moreOptions": "More options",
     "noResults": "No results found",
+    "dateTime": {
+      "year": "Year",
+      "month": "Month",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Minute"
+    },
     "tryAgain": "Try again",
     "goBack": "Go back",
     "viewAll": "View all",
@@ -454,12 +461,12 @@
     },
     "new": {
       "title": "Create New Community",
-      "subtitle": "Create a community for your group",
+      "subtitle": "Create a community of trusted people",
       "name": "Community name",
-      "namePlaceholder": "e.g., Tehran Travelers",
+      "namePlaceholder": "e.g., Dubai Expats",
       "nameHelper": "Choose a clear and descriptive name",
       "slug": "Community ID",
-      "slugPlaceholder": "e.g., tehran_travelers",
+      "slugPlaceholder": "e.g., dubai_expats",
       "slugHelper": "Unique ID for search and sharing (lowercase letters, numbers, and underscores only)",
       "bio": "Description",
       "bioPlaceholder": "Write about this community...",
@@ -517,7 +524,7 @@
       "subtitle": "Manage requests and members",
       "members": "Members",
       "requests": "Join Requests",
-      "settings": "Settings",
+      "settingsTab": "Settings",
       "noMembers": "No members found",
       "noRequests": "No requests found",
       "noRequestsDescription": "No new join requests",
@@ -699,7 +706,11 @@
       "alreadyMember": "You are already a member of this community",
       "alreadyRequested": "You have already requested to join",
       "cardNotFound": "Card not found",
-      "notCardOwner": "You are not the owner of this card"
+      "notCardOwner": "You are not the owner of this card",
+      "travelerRequiresDate": "Traveler card requires travel date or time frame",
+      "senderRequiresTimeFrame": "Sender card requires a time frame",
+      "endDateAfterStart": "End date must be after start date",
+      "methodNotAllowed": "Method not allowed"
     }
   },
   "toast": {
@@ -746,7 +757,7 @@
         "solution": "Find travelers from communities you trust. Free to connect, safe to send.",
         "cta": "Find a traveler →"
       },
-      "seoSubtitle": "Connect with trusted travelers and senders through community-based coordination. Safe, simple, free."
+      "seoSubtitle": "Connect with trusted Travelers and Senders through community-based coordination. Safe, Simple, Free."
     },
     "features": {
       "title": "Why Choose Minila?",

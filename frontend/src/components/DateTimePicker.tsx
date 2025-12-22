@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface DateTimePickerProps {
   label?: string
@@ -311,6 +312,7 @@ export default function DateTimePicker({
   helperText,
   validatePast = false,
 }: DateTimePickerProps) {
+  const { t } = useTranslation()
   const now = new Date()
   
   // Parse value or use current date/time as defaults
@@ -442,12 +444,12 @@ export default function DateTimePicker({
         </label>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-3" dir="ltr">
         {/* Year - Always full width on separate row */}
         <YearInput
           value={year}
           onChange={handleYearChange}
-          label="Year"
+          label={t('common.dateTime.year')}
           hasError={!!error || !!validationError}
         />
 
@@ -466,7 +468,7 @@ export default function DateTimePicker({
             onChange={handleDayChange}
             min={1}
             max={31}
-            label="Day"
+            label={t('common.dateTime.day')}
             hasError={!!error || !!validationError}
           />
         </div>
@@ -480,7 +482,7 @@ export default function DateTimePicker({
               onChange={handleHourChange}
               min={0}
               max={23}
-              label="Hour"
+              label={t('common.dateTime.hour')}
               hasError={!!error || !!validationError}
               padZero
             />
@@ -491,7 +493,7 @@ export default function DateTimePicker({
               onChange={handleMinuteChange}
               min={0}
               max={59}
-              label="Minute"
+              label={t('common.dateTime.minute')}
               hasError={!!error || !!validationError}
               padZero
             />

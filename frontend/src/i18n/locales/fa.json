@@ -27,6 +27,13 @@
     "showLess": "نمایش کمتر",
     "moreOptions": "گزینه‌های بیشتر",
     "noResults": "نتیجه‌ای یافت نشد",
+    "dateTime": {
+      "year": "سال",
+      "month": "ماه",
+      "day": "روز",
+      "hour": "ساعت",
+      "minute": "دقیقه"
+    },
     "tryAgain": "دوباره تلاش کنید",
     "goBack": "بازگشت",
     "viewAll": "مشاهده همه",
@@ -454,12 +461,12 @@
     },
     "new": {
       "title": "ایجاد کامیونیتی جدید",
-      "subtitle": "یک کامیونیتی برای گروه خود بسازید",
+      "subtitle": "یک کامیونیتی از افراد مورد اعتماد بسازید",
       "name": "نام کامیونیتی",
-      "namePlaceholder": "مثلاً: مسافران تهران-مشهد",
+      "namePlaceholder": "مثلاً: دوستان دبی",
       "nameHelper": "نامی واضح و توصیفی انتخاب کنید",
       "slug": "آیدی کامیونیتی",
-      "slugPlaceholder": "مثلاً: tehran_travelers",
+      "slugPlaceholder": "مثلاً: dubai_friends",
       "slugHelper": "آیدی یکتا برای جستجو و اشتراک‌گذاری (فقط حروف انگلیسی کوچک، اعداد و آندرلاین)",
       "bio": "توضیحات",
       "bioPlaceholder": "درباره این کامیونیتی بنویسید...",
@@ -517,7 +524,7 @@
       "subtitle": "مدیریت درخواست‌ها و اعضای کامیونیتی",
       "members": "اعضا",
       "requests": "درخواست‌های عضویت",
-      "settings": "تنظیمات",
+      "settingsTab": "تنظیمات",
       "noMembers": "عضوی یافت نشد",
       "noRequests": "درخواستی یافت نشد",
       "noRequestsDescription": "درخواست عضویت جدیدی وجود ندارد",
@@ -699,7 +706,11 @@
       "alreadyMember": "شما قبلاً عضو این کامیونیتی هستید",
       "alreadyRequested": "شما قبلاً درخواست عضویت داده‌اید",
       "cardNotFound": "کارت یافت نشد",
-      "notCardOwner": "شما مالک این کارت نیستید"
+      "notCardOwner": "شما مالک این کارت نیستید",
+      "travelerRequiresDate": "برای کارت مسافر باید تاریخ سفر یا بازه زمانی مشخص شود",
+      "senderRequiresTimeFrame": "برای کارت فرستنده باید بازه زمانی مشخص شود",
+      "endDateAfterStart": "تاریخ پایان باید بعد از تاریخ شروع باشد",
+      "methodNotAllowed": "این عملیات مجاز نیست"
     }
   },
   "toast": {

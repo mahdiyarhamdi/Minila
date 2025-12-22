@@ -255,7 +255,7 @@ export default function ManageCommunityPage({ params }: { params: { id: string }
           tabs={[
             { id: 'requests', label: t('communities.manage.requests'), count: pendingRequests.length },
             { id: 'members', label: t('communities.manage.members'), count: members?.total },
-            { id: 'settings', label: t('communities.manage.settings') },
+            { id: 'settings', label: t('communities.manage.settingsTab') },
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}

@@ -123,11 +123,11 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     }
     if (appliedFilters.date_from) {
       const date = new Date(appliedFilters.date_from)
-      result.push({ key: 'date_from', label: t('cards.filters.fromDate'), value: date.toLocaleDateString('fa-IR') })
+      result.push({ key: 'date_from', label: t('cards.filters.fromDate'), value: date.toLocaleDateString(language === 'fa' ? 'fa-IR' : language === 'ar' ? 'ar-SA' : 'en-US') })
     }
     if (appliedFilters.date_to) {
       const date = new Date(appliedFilters.date_to)
-      result.push({ key: 'date_to', label: t('cards.filters.toDate'), value: date.toLocaleDateString('fa-IR') })
+      result.push({ key: 'date_to', label: t('cards.filters.toDate'), value: date.toLocaleDateString(language === 'fa' ? 'fa-IR' : language === 'ar' ? 'ar-SA' : 'en-US') })
     }
     if (appliedFilters.min_weight) {
       result.push({

@@ -118,6 +118,20 @@ export function PriceSuggestionWidget({
     return 'text-neutral-600'
   }
 
+  // Map backend labels to translation keys
+  const getFactorLabel = (label: string): string => {
+    const labelMap: Record<string, string> = {
+      'Base Price': t('cards.price.factors.base'),
+      'Route Factor': t('cards.price.factors.route'),
+      'Season Factor': t('cards.price.factors.season'),
+      'Demand Factor': t('cards.price.factors.demand'),
+      'Urgency Factor': t('cards.price.factors.urgency'),
+      'Weight Factor': t('cards.price.factors.weight'),
+      'Category Factor': t('cards.price.factors.category'),
+    }
+    return labelMap[label] || label
+  }
+
   return (
     <div className={cn("bg-gradient-to-r from-primary-50 to-sand-50 rounded-xl p-4 border border-primary-100", className)}>
       {/* Header */}
@@ -176,7 +190,7 @@ export function PriceSuggestionWidget({
         <div className="bg-white/50 rounded-lg p-3 mb-3 space-y-2">
           {suggestion.breakdown.map((item, index) => (
             <div key={index} className="flex justify-between items-center text-sm">
-              <span className="text-neutral-700">{item.label}</span>
+              <span className="text-neutral-700">{getFactorLabel(item.label)}</span>
               <span className={cn("font-medium", getFactorColor(item.factor))}>
                 ×{item.factor.toFixed(2)}
               </span>

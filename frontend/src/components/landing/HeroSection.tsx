@@ -13,7 +13,7 @@ export default function HeroSection() {
   const [hoveredCard, setHoveredCard] = useState<'traveler' | 'sender' | null>(null)
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[50px] pb-16">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-sand-50">
         {/* Pattern overlay */}
@@ -62,13 +62,9 @@ export default function HeroSection() {
           {t('landing.hero.mainQuestion')}
         </h1>
         
-        {/* SEO Subtitle - Keywords on single line */}
+        {/* SEO Subtitle */}
         <p className="text-base sm:text-lg text-neutral-600 font-medium text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <span className="text-primary-600">Safe</span>
-          <span className="mx-2">•</span>
-          <span className="text-sand-600">Simple</span>
-          <span className="mx-2">•</span>
-          <span className="text-green-600">Free</span>
+          {t('landing.hero.seoSubtitle')}
         </p>
 
         {/* Persona Cards */}

@@ -353,7 +353,7 @@ class APIService {
    * ویرایش کامیونیتی
    */
   async updateCommunity(id: number, data: CommunityUpdate): Promise<Community> {
-    const response = await this.client.put<Community>(`/api/v1/communities/${id}`, data)
+    const response = await this.client.patch<Community>(`/api/v1/communities/${id}`, data)
     return response.data
   }
 
