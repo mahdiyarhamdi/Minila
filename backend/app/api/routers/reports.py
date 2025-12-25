@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=ReportOut,
     status_code=status.HTTP_201_CREATED,
     summary="ارسال گزارش",
