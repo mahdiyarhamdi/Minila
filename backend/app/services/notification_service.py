@@ -98,6 +98,7 @@ async def send_smart_notification(
     receiver_email: str,
     receiver_id: int,
     receiver_language: str,
+    receiver_first_name: str,
     sender_id: int,
     sender_name: str,
     app_url: str = "https://minila.app"
@@ -111,6 +112,7 @@ async def send_smart_notification(
         receiver_email: ایمیل گیرنده
         receiver_id: شناسه گیرنده
         receiver_language: زبان ترجیحی گیرنده
+        receiver_first_name: نام گیرنده
         sender_id: شناسه فرستنده
         sender_name: نام فرستنده
         app_url: آدرس اپلیکیشن
@@ -131,6 +133,7 @@ async def send_smart_notification(
     success = send_message_notification(
         email=receiver_email,
         sender_name=sender_name,
+        first_name=receiver_first_name,
         language=receiver_language,
         app_url=app_url
     )

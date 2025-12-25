@@ -90,6 +90,7 @@ async def send_message(
             receiver_email=receiver.email,
             receiver_id=receiver_id,
             receiver_language=receiver.preferred_language,
+            receiver_first_name=receiver.first_name or "",
             sender_id=sender_id,
             sender_name=sender_name
         )

@@ -8,7 +8,7 @@ TEMPLATES: Dict[str, Dict[str, Dict[str, str]]] = {
     "otp": {
         "fa": {
             "subject": "کد ورود شما - Minila",
-            "body": """سلام،
+            "body": """سلام {first_name}،
 
 کد ورود شما به سیستم:
 
@@ -23,7 +23,7 @@ TEMPLATES: Dict[str, Dict[str, Dict[str, str]]] = {
         },
         "en": {
             "subject": "Your Login Code - Minila",
-            "body": """Hello,
+            "body": """Hello {first_name},
 
 Your login code is:
 
@@ -38,7 +38,7 @@ Minila Team"""
         },
         "ar": {
             "subject": "رمز الدخول الخاص بك - Minila",
-            "body": """مرحباً،
+            "body": """مرحباً {first_name}،
 
 رمز الدخول الخاص بك:
 
@@ -109,7 +109,7 @@ Minila Team"""
     "new_message": {
         "fa": {
             "subject": "شما پیام جدید دارید - Minila",
-            "body": """سلام،
+            "body": """سلام {first_name}،
 
 شما یک پیام جدید از {sender_name} دریافت کردید.
 
@@ -123,7 +123,7 @@ Minila Team"""
         },
         "en": {
             "subject": "You have a new message - Minila",
-            "body": """Hello,
+            "body": """Hello {first_name},
 
 You have received a new message from {sender_name}.
 
@@ -137,7 +137,7 @@ To disable email notifications, change your account settings."""
         },
         "ar": {
             "subject": "لديك رسالة جديدة - Minila",
-            "body": """مرحباً،
+            "body": """مرحباً {first_name}،
 
 لقد تلقيت رسالة جديدة من {sender_name}.
 
@@ -155,7 +155,7 @@ To disable email notifications, change your account settings."""
     "unread_summary": {
         "fa": {
             "subject": "شما {count} پیام خوانده نشده دارید - Minila",
-            "body": """سلام،
+            "body": """سلام {first_name}،
 
 شما {count} پیام خوانده نشده دارید.
 
@@ -167,7 +167,7 @@ To disable email notifications, change your account settings."""
         },
         "en": {
             "subject": "You have {count} unread messages - Minila",
-            "body": """Hello,
+            "body": """Hello {first_name},
 
 You have {count} unread messages.
 
@@ -179,7 +179,7 @@ Minila Team"""
         },
         "ar": {
             "subject": "لديك {count} رسائل غير مقروءة - Minila",
-            "body": """مرحباً،
+            "body": """مرحباً {first_name}،
 
 لديك {count} رسائل غير مقروءة.
 
@@ -232,7 +232,7 @@ Minila Team"""
     "membership_approved": {
         "fa": {
             "subject": "عضویت شما در {community_name} تایید شد",
-            "body": """سلام،
+            "body": """سلام {first_name}،
 
 خبر خوب! درخواست عضویت شما در کامیونیتی {community_name} تایید شد.
 
@@ -243,7 +243,7 @@ Minila Team"""
         },
         "en": {
             "subject": "Your membership in {community_name} has been approved",
-            "body": """Hello,
+            "body": """Hello {first_name},
 
 Great news! Your membership request for {community_name} has been approved.
 
@@ -254,7 +254,7 @@ Minila Team"""
         },
         "ar": {
             "subject": "تمت الموافقة على عضويتك في {community_name}",
-            "body": """مرحباً،
+            "body": """مرحباً {first_name}،
 
 خبر سار! تمت الموافقة على طلب عضويتك في {community_name}.
 
@@ -269,7 +269,7 @@ Minila Team"""
     "membership_rejected": {
         "fa": {
             "subject": "درخواست عضویت در {community_name}",
-            "body": """سلام،
+            "body": """سلام {first_name}،
 
 متأسفانه درخواست عضویت شما در کامیونیتی {community_name} رد شد.
 
@@ -280,7 +280,7 @@ Minila Team"""
         },
         "en": {
             "subject": "Membership request for {community_name}",
-            "body": """Hello,
+            "body": """Hello {first_name},
 
 Unfortunately, your membership request for {community_name} was declined.
 
@@ -291,7 +291,7 @@ Minila Team"""
         },
         "ar": {
             "subject": "طلب العضوية في {community_name}",
-            "body": """مرحباً،
+            "body": """مرحباً {first_name}،
 
 للأسف، تم رفض طلب عضويتك في {community_name}.
 
@@ -306,7 +306,7 @@ Minila Team"""
     "role_change": {
         "fa": {
             "subject": "تغییر نقش شما در {community_name}",
-            "body": """سلام،
+            "body": """سلام {first_name}،
 
 نقش شما در کامیونیتی {community_name} به «{new_role}» تغییر یافت.
 
@@ -315,7 +315,7 @@ Minila Team"""
         },
         "en": {
             "subject": "Your role in {community_name} has changed",
-            "body": """Hello,
+            "body": """Hello {first_name},
 
 Your role in {community_name} has been changed to "{new_role}".
 
@@ -324,7 +324,7 @@ Minila Team"""
         },
         "ar": {
             "subject": "تم تغيير دورك في {community_name}",
-            "body": """مرحباً،
+            "body": """مرحباً {first_name}،
 
 تم تغيير دورك في {community_name} إلى "{new_role}".
 

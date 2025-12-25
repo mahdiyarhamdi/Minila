@@ -427,6 +427,7 @@ async def handle_request(
                 email=user.email,
                 community_name=community.name,
                 approved=approve,
+                first_name=user.first_name or "",
                 language=getattr(user, "preferred_language", "en")
             )
     except Exception as e:
@@ -621,6 +622,7 @@ async def change_member_role(
                 email=user.email,
                 community_name=community.name,
                 new_role=new_role,
+                first_name=user.first_name or "",
                 language=getattr(user, "preferred_language", "en")
             )
     except Exception as e:

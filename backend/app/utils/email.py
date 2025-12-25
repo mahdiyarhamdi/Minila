@@ -81,9 +81,9 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
 
 # ==================== Email Functions ====================
 
-def send_otp_email(email: str, otp_code: str, language: str = "en") -> bool:
+def send_otp_email(email: str, otp_code: str, first_name: str = "", language: str = "en") -> bool:
     """ارسال کد OTP به ایمیل کاربر."""
-    subject, body = get_template("otp", language, otp_code=otp_code)
+    subject, body = get_template("otp", language, otp_code=otp_code, first_name=first_name or "")
     return send_email(email, subject, body)
 
 
@@ -96,6 +96,7 @@ def send_welcome_email(email: str, first_name: str, language: str = "en") -> boo
 def send_message_notification(
     email: str,
     sender_name: str,
+    first_name: str = "",
     language: str = "en",
     app_url: str = "https://minila.app"
 ) -> bool:
@@ -104,6 +105,7 @@ def send_message_notification(
         "new_message", 
         language, 
         sender_name=sender_name,
+        first_name=first_name or "",
         app_url=app_url
     )
     return send_email(email, subject, body)
@@ -112,6 +114,7 @@ def send_message_notification(
 def send_unread_summary(
     email: str,
     count: int,
+    first_name: str = "",
     language: str = "en",
     app_url: str = "https://minila.app"
 ) -> bool:
@@ -120,6 +123,7 @@ def send_unread_summary(
         "unread_summary",
         language,
         count=count,
+        first_name=first_name or "",
         app_url=app_url
     )
     return send_email(email, subject, body)
@@ -145,6 +149,7 @@ def send_membership_result(
     email: str,
     community_name: str,
     approved: bool,
+    first_name: str = "",
     language: str = "en"
 ) -> bool:
     """اطلاع‌رسانی نتیجه درخواست عضویت."""
@@ -152,7 +157,8 @@ def send_membership_result(
     subject, body = get_template(
         template_name,
         language,
-        community_name=community_name
+        community_name=community_name,
+        first_name=first_name or ""
     )
     return send_email(email, subject, body)
 
@@ -161,6 +167,7 @@ def send_role_change_notification(
     email: str,
     community_name: str,
     new_role: str,
+    first_name: str = "",
     language: str = "en"
 ) -> bool:
     """اطلاع‌رسانی تغییر نقش کاربر."""
@@ -168,6 +175,7 @@ def send_role_change_notification(
         "role_change",
         language,
         community_name=community_name,
-        new_role=new_role
+        new_role=new_role,
+        first_name=first_name or ""
     )
     return send_email(email, subject, body)

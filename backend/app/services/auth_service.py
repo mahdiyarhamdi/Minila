@@ -95,7 +95,7 @@ async def signup(
     
     # ارسال OTP برای تایید ایمیل با زبان انتخابی
     try:
-        send_otp_email(email, otp_code, language=language)
+        send_otp_email(email, otp_code, first_name=first_name, language=language)
     except Exception as e:
         logger.warning(f"Failed to send verification OTP: {e}")
     
@@ -219,7 +219,7 @@ async def request_otp(
     
     # ارسال ایمیل - اولویت با زبان ارسالی، سپس preferred_language کاربر
     email_language = language or user.preferred_language
-    send_otp_email(email, otp_code, language=email_language)
+    send_otp_email(email, otp_code, first_name=user.first_name or "", language=email_language)
     
     logger.info(f"OTP requested for: {email}")
     return True

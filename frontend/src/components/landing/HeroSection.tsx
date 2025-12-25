@@ -13,7 +13,7 @@ export default function HeroSection() {
   const [hoveredCard, setHoveredCard] = useState<'traveler' | 'sender' | null>(null)
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[50px] pb-16">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[100px] sm:pt-[50px] pb-16">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-sand-50">
         {/* Pattern overlay */}
