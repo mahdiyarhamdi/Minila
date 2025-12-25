@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 
 interface Dataset {
@@ -35,7 +35,7 @@ interface AdvancedBarChartProps {
 const formatNumber = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-  return num.toLocaleString('fa-IR')
+  return Math.round(num).toLocaleString('fa-IR')
 }
 
 const formatDate = (dateStr: string): string => {
@@ -60,56 +60,80 @@ export default function AdvancedBarChart({
 }: AdvancedBarChartProps) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null)
   const [hoveredBar, setHoveredBar] = useState<{ labelIndex: number; datasetIndex: number } | null>(null)
+  const [chartWidth, setChartWidth] = useState(600)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const defaultColors = ['#00A8E8', '#E5C189', '#10B981', '#F59E0B', '#8B5CF6']
 
-  const padding = { top: 20, right: 20, bottom: 50, left: 50 }
+  // Observe container width
+  useEffect(() => {
+    if (!containerRef.current) return
+    
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setChartWidth(entry.contentRect.width - 60)
+      }
+    })
+    
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  const padding = { top: 20, right: 20, bottom: 40, left: 10 }
   const chartHeight = height - padding.top - padding.bottom
 
   // Calculate max value
   const maxValue = useMemo(() => {
     if (!datasets.length || !datasets[0]?.data?.length) return 1
     if (stacked) {
-      return Math.max(
+      const max = Math.max(
         ...labels.map((_, i) => 
           datasets.reduce((sum, d) => sum + (d.data[i] || 0), 0)
         ),
         1
       )
+      return Math.ceil(max * 1.1)
     }
-    return Math.max(...datasets.flatMap(d => d.data), 1)
+    const max = Math.max(...datasets.flatMap(d => d.data), 1)
+    return Math.ceil(max * 1.1)
   }, [datasets, labels, stacked])
 
-  // Generate Y-axis ticks
+  // Generate Y-axis ticks (only integers)
   const yTicks = useMemo(() => {
     const tickCount = 5
-    const step = maxValue / (tickCount - 1)
-    return Array.from({ length: tickCount }, (_, i) => step * i).reverse()
+    const rawStep = maxValue / (tickCount - 1)
+    const step = Math.ceil(rawStep) || 1
+    const ticks = []
+    for (let i = 0; i < tickCount; i++) {
+      ticks.push(step * i)
+    }
+    return ticks.reverse()
   }, [maxValue])
 
   const barWidth = useMemo(() => {
+    const groupCount = labels.length
+    const usableWidth = chartWidth - padding.left - padding.right
+    const groupWidth = usableWidth / groupCount
     const totalBars = stacked ? 1 : datasets.length
-    const availableWidth = 80 / labels.length
-    return Math.min(availableWidth * 0.7 / totalBars, 8)
-  }, [stacked, datasets.length, labels.length])
+    return Math.min(groupWidth * 0.6 / totalBars, 24)
+  }, [chartWidth, labels.length, stacked, datasets.length])
 
   const handleBarHover = useCallback((
-    e: React.MouseEvent,
+    e: React.MouseEvent<SVGRectElement>,
     labelIndex: number,
     datasetIndex: number,
     value: number,
+    barX: number,
+    barY: number,
   ) => {
     if (!showTooltip) return
-    
-    const rect = e.currentTarget.getBoundingClientRect()
-    const parentRect = (e.currentTarget.closest('svg') as SVGElement)?.getBoundingClientRect()
     
     const dataset = datasets[datasetIndex]
     const prevValue = labelIndex > 0 ? dataset.data[labelIndex - 1] : undefined
     
     setTooltip({
-      x: rect.left - (parentRect?.left || 0) + rect.width / 2,
-      y: rect.top - (parentRect?.top || 0),
+      x: barX,
+      y: barY,
       label: labels[labelIndex],
       value,
       prevValue,
@@ -163,7 +187,7 @@ export default function AdvancedBarChart({
       )}
 
       {/* Chart Container */}
-      <div className="relative" style={{ height }}>
+      <div ref={containerRef} className="relative" style={{ height }}>
         {/* Y-axis label */}
         <div className="absolute -left-1 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-neutral-400 whitespace-nowrap">
           {yAxisLabel}
@@ -177,9 +201,9 @@ export default function AdvancedBarChart({
         </div>
 
         <svg
-          viewBox={`0 0 100 ${height}`}
-          preserveAspectRatio="none"
-          className="w-full h-full ml-10"
+          width={chartWidth}
+          height={height}
+          className="mr-auto ml-14"
           onMouseLeave={handleMouseLeave}
         >
           <defs>
@@ -207,12 +231,12 @@ export default function AdvancedBarChart({
             return (
               <line
                 key={i}
-                x1="5"
+                x1={padding.left}
                 y1={y}
-                x2="95"
+                x2={chartWidth - padding.right}
                 y2={y}
                 stroke="#F3F4F6"
-                strokeWidth="0.5"
+                strokeWidth="1"
                 strokeDasharray="4 4"
               />
             )
@@ -220,11 +244,12 @@ export default function AdvancedBarChart({
 
           {/* Bars */}
           {labels.map((label, labelIndex) => {
-            const groupWidth = 85 / labels.length
-            const groupX = 7.5 + labelIndex * groupWidth + groupWidth / 2
+            const usableWidth = chartWidth - padding.left - padding.right
+            const groupWidth = usableWidth / labels.length
+            const groupCenterX = padding.left + labelIndex * groupWidth + groupWidth / 2
 
             if (stacked) {
-              let currentY = height - padding.bottom
+              let currentY = padding.top + chartHeight
               return (
                 <g key={labelIndex}>
                   {datasets.map((dataset, datasetIndex) => {
@@ -232,26 +257,23 @@ export default function AdvancedBarChart({
                     const barHeight = (value / maxValue) * chartHeight
                     const color = dataset.color || defaultColors[datasetIndex % defaultColors.length]
                     const isHovered = hoveredBar?.labelIndex === labelIndex && hoveredBar?.datasetIndex === datasetIndex
+                    const barX = groupCenterX - barWidth / 2
+                    const barY = currentY - barHeight
 
                     const rect = (
                       <rect
                         key={datasetIndex}
-                        x={groupX - barWidth / 2}
-                        y={currentY - barHeight}
+                        x={barX}
+                        y={barY}
                         width={barWidth}
                         height={Math.max(barHeight, 0)}
                         fill={`url(#bar-gradient-${datasetIndex})`}
-                        rx="1.5"
+                        rx="4"
                         className={cn(
                           "cursor-pointer transition-all duration-200",
-                          isHovered && "filter brightness-110",
-                          animate && "animate-grow-up"
+                          isHovered && "filter brightness-110"
                         )}
-                        style={{
-                          transformOrigin: 'bottom',
-                          animationDelay: animate ? `${labelIndex * 30}ms` : undefined,
-                        }}
-                        onMouseEnter={(e) => handleBarHover(e, labelIndex, datasetIndex, value)}
+                        onMouseEnter={(e) => handleBarHover(e, labelIndex, datasetIndex, value, barX + barWidth / 2, barY)}
                       />
                     )
                     currentY -= barHeight
@@ -260,8 +282,8 @@ export default function AdvancedBarChart({
                 </g>
               )
             } else {
-              const totalWidth = datasets.length * barWidth + (datasets.length - 1) * 1
-              const startX = groupX - totalWidth / 2
+              const totalWidth = datasets.length * barWidth + (datasets.length - 1) * 4
+              const startX = groupCenterX - totalWidth / 2
 
               return (
                 <g key={labelIndex}>
@@ -269,27 +291,23 @@ export default function AdvancedBarChart({
                     const value = dataset.data[labelIndex] || 0
                     const barHeight = (value / maxValue) * chartHeight
                     const isHovered = hoveredBar?.labelIndex === labelIndex && hoveredBar?.datasetIndex === datasetIndex
-                    const barX = startX + datasetIndex * (barWidth + 1)
+                    const barX = startX + datasetIndex * (barWidth + 4)
+                    const barY = padding.top + chartHeight - barHeight
 
                     return (
                       <rect
                         key={datasetIndex}
                         x={barX}
-                        y={height - padding.bottom - barHeight}
+                        y={barY}
                         width={barWidth}
                         height={Math.max(barHeight, 0)}
                         fill={`url(#bar-gradient-${datasetIndex})`}
-                        rx="1.5"
+                        rx="4"
                         className={cn(
                           "cursor-pointer transition-all duration-200",
-                          isHovered && "filter brightness-110",
-                          animate && "animate-grow-up"
+                          isHovered && "filter brightness-110"
                         )}
-                        style={{
-                          transformOrigin: 'bottom',
-                          animationDelay: animate ? `${labelIndex * 30}ms` : undefined,
-                        }}
-                        onMouseEnter={(e) => handleBarHover(e, labelIndex, datasetIndex, value)}
+                        onMouseEnter={(e) => handleBarHover(e, labelIndex, datasetIndex, value, barX + barWidth / 2, barY)}
                       />
                     )
                   })}
@@ -302,10 +320,10 @@ export default function AdvancedBarChart({
         {/* Tooltip */}
         {tooltip && (
           <div 
-            className="absolute z-10 pointer-events-none"
+            className="absolute z-10 pointer-events-none transform -translate-x-1/2"
             style={{ 
-              left: tooltip.x, 
-              top: tooltip.y - 10,
+              left: tooltip.x + 56, 
+              top: Math.max(tooltip.y - 10, 10),
               transform: 'translate(-50%, -100%)'
             }}
           >
@@ -340,7 +358,7 @@ export default function AdvancedBarChart({
 
       {/* X-axis labels */}
       {labels.length <= 14 && (
-        <div className="flex justify-between mt-3 text-xs text-neutral-400 px-10">
+        <div className="flex justify-between mt-3 text-xs text-neutral-400 px-14">
           {labels.filter((_, i) => i % Math.ceil(labels.length / 7) === 0).map((label, index) => (
             <span key={index}>{formatDate(label)}</span>
           ))}
@@ -351,21 +369,6 @@ export default function AdvancedBarChart({
       <div className="text-center mt-2 text-xs font-medium text-neutral-400">
         {xAxisLabel}
       </div>
-
-      <style jsx>{`
-        @keyframes grow-up {
-          from {
-            transform: scaleY(0);
-          }
-          to {
-            transform: scaleY(1);
-          }
-        }
-        .animate-grow-up {
-          animation: grow-up 0.5s ease-out forwards;
-        }
-      `}</style>
     </div>
   )
 }
-

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 
 interface Dataset {
@@ -36,7 +36,7 @@ interface AdvancedLineChartProps {
 const formatNumber = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-  return num.toLocaleString('fa-IR')
+  return Math.round(num).toLocaleString('fa-IR')
 }
 
 const formatDate = (dateStr: string): string => {
@@ -62,42 +62,66 @@ export default function AdvancedLineChart({
 }: AdvancedLineChartProps) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null)
   const [hoveredDataset, setHoveredDataset] = useState<number | null>(null)
+  const [chartWidth, setChartWidth] = useState(600)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const defaultColors = ['#00A8E8', '#E5C189', '#10B981', '#F59E0B', '#8B5CF6']
 
+  // Observe container width
+  useEffect(() => {
+    if (!containerRef.current) return
+    
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setChartWidth(entry.contentRect.width - 60) // subtract padding for y-axis
+      }
+    })
+    
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   // Calculate chart dimensions
-  const padding = { top: 20, right: 60, bottom: 50, left: 50 }
-  const chartWidth = 100
+  const padding = { top: 20, right: 20, bottom: 40, left: 10 }
   const chartHeight = height - padding.top - padding.bottom
 
   // Calculate value range
-  const { maxValue, minValue, range } = useMemo(() => {
+  const { maxValue, minValue } = useMemo(() => {
     if (!datasets.length || !datasets[0]?.data?.length) {
-      return { maxValue: 1, minValue: 0, range: 1 }
+      return { maxValue: 1, minValue: 0 }
     }
     const allValues = datasets.flatMap(d => d.data)
     const max = Math.max(...allValues, 1)
     const min = Math.min(...allValues, 0)
-    return { maxValue: max, minValue: min, range: max - min || 1 }
+    // Round up max to nice number
+    const niceMax = Math.ceil(max * 1.1)
+    return { maxValue: niceMax, minValue: Math.min(min, 0) }
   }, [datasets])
 
-  // Generate Y-axis ticks
+  const range = maxValue - minValue || 1
+
+  // Generate Y-axis ticks (only integers)
   const yTicks = useMemo(() => {
     const tickCount = 5
-    const step = range / (tickCount - 1)
-    return Array.from({ length: tickCount }, (_, i) => minValue + step * i).reverse()
+    const rawStep = range / (tickCount - 1)
+    const step = Math.ceil(rawStep) || 1
+    const ticks = []
+    for (let i = 0; i < tickCount; i++) {
+      ticks.push(minValue + step * i)
+    }
+    return ticks.reverse()
   }, [range, minValue])
 
-  // Generate points for each dataset
+  // Generate points for each dataset (pixel coordinates)
   const getPoints = useCallback((data: number[]) => {
-    if (data.length === 0) return []
-    const usableWidth = chartWidth - 10
+    if (data.length === 0 || chartWidth <= 0) return []
+    const usableWidth = chartWidth - padding.left - padding.right
     return data.map((value, index) => {
-      const x = data.length === 1 ? chartWidth / 2 : (index / (data.length - 1)) * usableWidth + 5
+      const x = padding.left + (data.length === 1 ? usableWidth / 2 : (index / (data.length - 1)) * usableWidth)
       const y = padding.top + ((maxValue - value) / range) * chartHeight
       return { x, y, value }
     })
-  }, [chartHeight, maxValue, range])
+  }, [chartWidth, chartHeight, maxValue, range])
 
   // Create smooth path using bezier curves
   const createSmoothPath = useCallback((points: { x: number; y: number }[]) => {
@@ -129,40 +153,38 @@ export default function AdvancedLineChart({
     return `${linePath} L ${points[points.length - 1].x} ${bottomY} L ${points[0].x} ${bottomY} Z`
   }, [createSmoothPath, chartHeight])
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>, datasetIndex: number, points: { x: number; y: number; value: number }[]) => {
-    if (!showTooltip) return
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (!showTooltip || !datasets.length) return
     
     const svg = e.currentTarget
     const rect = svg.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * chartWidth
+    const mouseX = e.clientX - rect.left
     
-    // Find closest point
-    let closestIndex = 0
+    // Find closest point across all datasets
+    let closestPoint: TooltipData | null = null
     let closestDist = Infinity
     
-    points.forEach((point, index) => {
-      const dist = Math.abs(point.x - x)
-      if (dist < closestDist) {
-        closestDist = dist
-        closestIndex = index
-      }
+    datasets.forEach((dataset, datasetIndex) => {
+      const points = getPoints(dataset.data)
+      points.forEach((point, pointIndex) => {
+        const dist = Math.abs(point.x - mouseX)
+        if (dist < closestDist && dist < 30) {
+          closestDist = dist
+          closestPoint = {
+            x: point.x,
+            y: point.y,
+            label: labels[pointIndex],
+            value: point.value,
+            datasetLabel: dataset.label,
+            color: dataset.color || defaultColors[datasetIndex % defaultColors.length],
+            index: pointIndex,
+          }
+        }
+      })
     })
     
-    if (closestDist < 10) {
-      const point = points[closestIndex]
-      const dataset = datasets[datasetIndex]
-      setTooltip({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        label: labels[closestIndex],
-        value: point.value,
-        datasetLabel: dataset.label,
-        color: dataset.color || defaultColors[datasetIndex % defaultColors.length],
-        index: closestIndex,
-      })
-      setHoveredDataset(datasetIndex)
-    }
-  }, [showTooltip, chartWidth, datasets, labels, defaultColors])
+    setTooltip(closestPoint)
+  }, [showTooltip, datasets, labels, getPoints, defaultColors])
 
   const handleMouseLeave = useCallback(() => {
     setTooltip(null)
@@ -210,7 +232,7 @@ export default function AdvancedLineChart({
       )}
 
       {/* Chart Container */}
-      <div className="relative" style={{ height }}>
+      <div ref={containerRef} className="relative" style={{ height }}>
         {/* Y-axis label */}
         <div className="absolute -left-1 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-neutral-400 whitespace-nowrap">
           {yAxisLabel}
@@ -224,9 +246,10 @@ export default function AdvancedLineChart({
         </div>
 
         <svg
-          viewBox={`0 0 ${chartWidth} ${height}`}
-          preserveAspectRatio="none"
-          className="w-full h-full ml-10"
+          width={chartWidth}
+          height={height}
+          className="mr-auto ml-14"
+          onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
           <defs>
@@ -235,13 +258,13 @@ export default function AdvancedLineChart({
               return (
                 <linearGradient 
                   key={`gradient-${index}`} 
-                  id={`gradient-${index}`} 
+                  id={`line-gradient-${index}`} 
                   x1="0%" 
                   y1="0%" 
                   x2="0%" 
                   y2="100%"
                 >
-                  <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+                  <stop offset="0%" stopColor={color} stopOpacity="0.25" />
                   <stop offset="100%" stopColor={color} stopOpacity="0.02" />
                 </linearGradient>
               )
@@ -254,12 +277,12 @@ export default function AdvancedLineChart({
             return (
               <line
                 key={i}
-                x1="5"
+                x1={padding.left}
                 y1={y}
-                x2="95"
+                x2={chartWidth - padding.right}
                 y2={y}
                 stroke="#F3F4F6"
-                strokeWidth="0.5"
+                strokeWidth="1"
                 strokeDasharray="4 4"
               />
             )
@@ -280,14 +303,12 @@ export default function AdvancedLineChart({
                   "transition-opacity duration-200",
                   !isHovered && "opacity-30"
                 )}
-                onMouseMove={(e) => handleMouseMove(e, datasetIndex, points)}
               >
                 {/* Gradient area */}
                 {showGradient && (
                   <path
                     d={areaPath}
-                    fill={`url(#gradient-${datasetIndex})`}
-                    className={animate ? "animate-fade-in" : ""}
+                    fill={`url(#line-gradient-${datasetIndex})`}
                   />
                 )}
 
@@ -299,8 +320,6 @@ export default function AdvancedLineChart({
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  vectorEffect="non-scaling-stroke"
-                  className={animate ? "animate-draw" : ""}
                 />
 
                 {/* Points */}
@@ -311,21 +330,19 @@ export default function AdvancedLineChart({
                       <circle
                         cx={point.x}
                         cy={point.y}
-                        r="6"
+                        r="8"
                         fill={color}
                         fillOpacity="0.2"
-                        className="animate-pulse"
                       />
                     )}
                     {/* Main point */}
                     <circle
                       cx={point.x}
                       cy={point.y}
-                      r={tooltip?.index === pointIndex && tooltip?.datasetLabel === dataset.label ? "4" : "3"}
+                      r={tooltip?.index === pointIndex && tooltip?.datasetLabel === dataset.label ? 5 : 4}
                       fill="white"
                       stroke={color}
                       strokeWidth="2"
-                      className="transition-all duration-150"
                     />
                   </g>
                 ))}
@@ -334,19 +351,20 @@ export default function AdvancedLineChart({
                 {showLastValue && points.length > 0 && (
                   <g>
                     <rect
-                      x={points[points.length - 1].x + 2}
+                      x={points[points.length - 1].x + 8}
                       y={points[points.length - 1].y - 10}
-                      width="15"
-                      height="12"
-                      rx="3"
+                      width="32"
+                      height="20"
+                      rx="4"
                       fill={color}
                       fillOpacity="0.15"
                     />
                     <text
-                      x={points[points.length - 1].x + 9.5}
-                      y={points[points.length - 1].y - 1}
+                      x={points[points.length - 1].x + 24}
+                      y={points[points.length - 1].y + 4}
                       textAnchor="middle"
-                      className="text-[6px] font-medium"
+                      fontSize="11"
+                      fontWeight="600"
                       fill={color}
                     >
                       {formatNumber(points[points.length - 1].value)}
@@ -356,19 +374,31 @@ export default function AdvancedLineChart({
               </g>
             )
           })}
+
+          {/* Vertical hover line */}
+          {tooltip && (
+            <line
+              x1={tooltip.x}
+              y1={padding.top}
+              x2={tooltip.x}
+              y2={padding.top + chartHeight}
+              stroke="#E5E7EB"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+            />
+          )}
         </svg>
 
         {/* Tooltip */}
         {tooltip && (
           <div 
-            className="absolute z-10 pointer-events-none"
+            className="absolute z-10 pointer-events-none transform -translate-x-1/2"
             style={{ 
-              left: tooltip.x + 10, 
-              top: tooltip.y - 60,
-              transform: tooltip.x > 200 ? 'translateX(-120%)' : undefined
+              left: tooltip.x + 56, 
+              top: tooltip.y - 50,
             }}
           >
-            <div className="bg-neutral-900 text-white px-3 py-2 rounded-lg shadow-lg text-sm">
+            <div className="bg-neutral-900 text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap">
               <div className="text-neutral-400 text-xs mb-1">{formatDate(tooltip.label)}</div>
               <div className="flex items-center gap-2">
                 <div 
@@ -384,7 +414,7 @@ export default function AdvancedLineChart({
 
       {/* X-axis labels */}
       {showLabels && labels.length > 0 && (
-        <div className="flex justify-between mt-3 text-xs text-neutral-400 px-10">
+        <div className="flex justify-between mt-3 text-xs text-neutral-400 px-14">
           {labels.filter((_, i) => i % Math.ceil(labels.length / 7) === 0).map((label, index) => (
             <span key={index}>{formatDate(label)}</span>
           ))}
@@ -395,33 +425,6 @@ export default function AdvancedLineChart({
       <div className="text-center mt-2 text-xs font-medium text-neutral-400">
         {xAxisLabel}
       </div>
-
-      <style jsx>{`
-        @keyframes draw {
-          from {
-            stroke-dashoffset: 1000;
-          }
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        .animate-draw {
-          stroke-dasharray: 1000;
-          animation: draw 1.5s ease-out forwards;
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-      `}</style>
     </div>
   )
 }
-
