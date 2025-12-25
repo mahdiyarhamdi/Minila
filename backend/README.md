@@ -305,11 +305,27 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `GET` | `/logs` | لیست لاگ‌های سیستم | ✅ Admin |
 | `GET` | `/settings` | تنظیمات سیستم | ✅ Admin |
 | `PUT` | `/settings` | بروزرسانی تنظیمات (محدودیت پیام روزانه) | ✅ Admin |
+| `GET` | `/backups` | لیست بکاپ‌ها | ✅ Admin |
+| `GET` | `/backups/{filename}/download` | دانلود بکاپ | ✅ Admin |
+| `DELETE` | `/backups/{filename}` | حذف بکاپ | ✅ Admin |
+| `POST` | `/backups/create` | ایجاد بکاپ دستی | ✅ Admin |
+| `GET` | `/alerts` | لیست هشدارها با فیلتر | ✅ Admin |
+| `GET` | `/alerts/stats` | آمار هشدارها | ✅ Admin |
+| `GET` | `/alerts/unread-count` | تعداد هشدارهای خوانده نشده | ✅ Admin |
+| `PUT` | `/alerts/{id}/read` | علامت‌گذاری هشدار به عنوان خوانده شده | ✅ Admin |
+| `PUT` | `/alerts/read-all` | علامت‌گذاری همه هشدارها به عنوان خوانده شده | ✅ Admin |
 
 **نکات مهم**:
 - تمام endpointهای Admin فقط برای کاربرانی که `is_admin=true` هستند قابل دسترسی است
 - پنل فرانت‌اند در مسیر `/admin` قرار دارد
 - لاگ‌های تمام اقدامات ادمین ثبت می‌شود
+
+**سیستم هشدار (Alerts)**:
+- هشدارها برای رخدادهای مهم ایجاد می‌شوند
+- انواع هشدار: `error` (خطای سیستمی), `security` (امنیتی), `report` (گزارش کاربر), `user`, `card`, `membership`
+- اولویت‌ها: `high` (فوری - ایمیل فوری) و `normal` (عادی - خلاصه روزانه)
+- رخدادهای با اولویت بالا فوراً به ایمیل همه ادمین‌ها ارسال می‌شوند
+- خلاصه روزانه ساعت 9 صبح ارسال می‌شود
 
 ---
 
