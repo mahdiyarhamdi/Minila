@@ -9,6 +9,7 @@ from ...schemas.admin import (
     DashboardStats,
     ChartData,
     RecentActivity,
+    GrowthMetrics,
     UserBanIn,
     UserAdminToggleIn,
     ReportResolveIn,
@@ -86,6 +87,20 @@ async def get_recent_activities(
 ) -> list[RecentActivity]:
     """دریافت رویدادهای اخیر."""
     return await admin_service.get_recent_activities(db, limit)
+
+
+@router.get(
+    "/stats/growth-metrics",
+    response_model=GrowthMetrics,
+    summary="متریک‌های رشد",
+    description="متریک‌های تحلیلی شامل نرخ رشد، نرخ تبدیل و مقایسه دوره‌ای"
+)
+async def get_growth_metrics(
+    db: DBSession,
+    admin: AdminUser,
+) -> GrowthMetrics:
+    """دریافت متریک‌های رشد و تحلیل."""
+    return await admin_service.get_growth_metrics(db)
 
 
 # ==================== Users Management ====================

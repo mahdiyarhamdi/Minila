@@ -59,6 +59,38 @@ class RecentActivity(BaseModel):
     created_at: datetime
 
 
+class GrowthMetrics(BaseModel):
+    """متریک‌های رشد و تحلیل."""
+    
+    # نرخ‌های تبدیل
+    email_verification_rate: float = Field(..., description="نرخ تایید ایمیل (درصد)")
+    user_activity_rate: float = Field(..., description="نرخ فعالیت کاربران (درصد)")
+    
+    # نرخ رشد هفتگی
+    users_growth_weekly: float = Field(..., description="رشد کاربران هفتگی (درصد)")
+    cards_growth_weekly: float = Field(..., description="رشد کارت‌ها هفتگی (درصد)")
+    
+    # نرخ رشد ماهانه
+    users_growth_monthly: float = Field(..., description="رشد کاربران ماهانه (درصد)")
+    cards_growth_monthly: float = Field(..., description="رشد کارت‌ها ماهانه (درصد)")
+    
+    # میانگین‌های روزانه
+    avg_daily_users: float = Field(..., description="میانگین ثبت‌نام روزانه")
+    avg_daily_cards: float = Field(..., description="میانگین کارت روزانه")
+    avg_daily_messages: float = Field(..., description="میانگین پیام روزانه")
+    
+    # داده‌های Sparkline (7 روز اخیر)
+    users_sparkline: list[int] = Field(..., description="داده‌های کاربران 7 روز")
+    cards_sparkline: list[int] = Field(..., description="داده‌های کارت‌ها 7 روز")
+    messages_sparkline: list[int] = Field(..., description="داده‌های پیام‌ها 7 روز")
+    
+    # مقایسه این هفته با هفته قبل
+    this_week_users: int = Field(..., description="کاربران این هفته")
+    last_week_users: int = Field(..., description="کاربران هفته قبل")
+    this_week_cards: int = Field(..., description="کارت‌های این هفته")
+    last_week_cards: int = Field(..., description="کارت‌های هفته قبل")
+
+
 # ==================== User Admin ====================
 
 class UserAdminOut(BaseModel):

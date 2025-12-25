@@ -646,6 +646,14 @@ class APIService {
   }
 
   /**
+   * دریافت متریک‌های رشد
+   */
+  async getAdminGrowthMetrics(): Promise<AdminGrowthMetrics> {
+    const response = await this.client.get<AdminGrowthMetrics>('/api/v1/admin/stats/growth-metrics')
+    return response.data
+  }
+
+  /**
    * دریافت لیست کاربران (ادمین)
    */
   async getAdminUsers(params: AdminUsersParams = {}): Promise<AdminPaginatedResponse<AdminUser>> {
@@ -832,6 +840,25 @@ export interface AdminRecentActivity {
   actor_email?: string
   target_email?: string
   created_at: string
+}
+
+export interface AdminGrowthMetrics {
+  email_verification_rate: number
+  user_activity_rate: number
+  users_growth_weekly: number
+  cards_growth_weekly: number
+  users_growth_monthly: number
+  cards_growth_monthly: number
+  avg_daily_users: number
+  avg_daily_cards: number
+  avg_daily_messages: number
+  users_sparkline: number[]
+  cards_sparkline: number[]
+  messages_sparkline: number[]
+  this_week_users: number
+  last_week_users: number
+  this_week_cards: number
+  last_week_cards: number
 }
 
 export interface AdminUser {

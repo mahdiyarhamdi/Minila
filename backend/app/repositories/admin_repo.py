@@ -248,6 +248,138 @@ def _get_log_description(log: Log) -> str:
     return event_descriptions.get(log.event_type, log.event_type)
 
 
+async def get_growth_metrics(db: AsyncSession) -> dict:
+    """محاسبه متریک‌های رشد و تحلیل."""
+    now = datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # محاسبه بازه‌های زمانی
+    this_week_start = today_start - timedelta(days=7)
+    last_week_start = today_start - timedelta(days=14)
+    this_month_start = today_start - timedelta(days=30)
+    last_month_start = today_start - timedelta(days=60)
+    
+    # آمار کلی کاربران
+    total_users = await db.scalar(select(func.count(User.id))) or 0
+    verified_users = await db.scalar(
+        select(func.count(User.id)).where(User.email_verified == True)
+    ) or 0
+    active_users = await db.scalar(
+        select(func.count(User.id)).where(User.is_active == True)
+    ) or 0
+    
+    # نرخ تبدیل
+    email_verification_rate = (verified_users / total_users * 100) if total_users > 0 else 0
+    user_activity_rate = (active_users / total_users * 100) if total_users > 0 else 0
+    
+    # کاربران این هفته و هفته قبل
+    this_week_users = await db.scalar(
+        select(func.count(User.id)).where(User.created_at >= this_week_start)
+    ) or 0
+    last_week_users = await db.scalar(
+        select(func.count(User.id)).where(
+            and_(User.created_at >= last_week_start, User.created_at < this_week_start)
+        )
+    ) or 0
+    
+    # کاربران این ماه و ماه قبل
+    this_month_users = await db.scalar(
+        select(func.count(User.id)).where(User.created_at >= this_month_start)
+    ) or 0
+    last_month_users = await db.scalar(
+        select(func.count(User.id)).where(
+            and_(User.created_at >= last_month_start, User.created_at < this_month_start)
+        )
+    ) or 0
+    
+    # نرخ رشد کاربران
+    users_growth_weekly = ((this_week_users - last_week_users) / last_week_users * 100) if last_week_users > 0 else (100 if this_week_users > 0 else 0)
+    users_growth_monthly = ((this_month_users - last_month_users) / last_month_users * 100) if last_month_users > 0 else (100 if this_month_users > 0 else 0)
+    
+    # کارت‌ها این هفته و هفته قبل
+    this_week_cards = await db.scalar(
+        select(func.count(Card.id)).where(Card.created_at >= this_week_start)
+    ) or 0
+    last_week_cards = await db.scalar(
+        select(func.count(Card.id)).where(
+            and_(Card.created_at >= last_week_start, Card.created_at < this_week_start)
+        )
+    ) or 0
+    
+    # کارت‌ها این ماه و ماه قبل
+    this_month_cards = await db.scalar(
+        select(func.count(Card.id)).where(Card.created_at >= this_month_start)
+    ) or 0
+    last_month_cards = await db.scalar(
+        select(func.count(Card.id)).where(
+            and_(Card.created_at >= last_month_start, Card.created_at < this_month_start)
+        )
+    ) or 0
+    
+    # نرخ رشد کارت‌ها
+    cards_growth_weekly = ((this_week_cards - last_week_cards) / last_week_cards * 100) if last_week_cards > 0 else (100 if this_week_cards > 0 else 0)
+    cards_growth_monthly = ((this_month_cards - last_month_cards) / last_month_cards * 100) if last_month_cards > 0 else (100 if this_month_cards > 0 else 0)
+    
+    # میانگین‌های روزانه (بر اساس 30 روز اخیر)
+    avg_daily_users = this_month_users / 30
+    avg_daily_cards = this_month_cards / 30
+    
+    # میانگین پیام‌های روزانه
+    this_month_messages = await db.scalar(
+        select(func.count(Message.id)).where(Message.created_at >= this_month_start)
+    ) or 0
+    avg_daily_messages = this_month_messages / 30
+    
+    # داده‌های Sparkline (7 روز اخیر)
+    users_sparkline = []
+    cards_sparkline = []
+    messages_sparkline = []
+    
+    for i in range(7):
+        day_start = today_start - timedelta(days=6-i)
+        day_end = day_start + timedelta(days=1)
+        
+        users_count = await db.scalar(
+            select(func.count(User.id)).where(
+                and_(User.created_at >= day_start, User.created_at < day_end)
+            )
+        ) or 0
+        users_sparkline.append(users_count)
+        
+        cards_count = await db.scalar(
+            select(func.count(Card.id)).where(
+                and_(Card.created_at >= day_start, Card.created_at < day_end)
+            )
+        ) or 0
+        cards_sparkline.append(cards_count)
+        
+        messages_count = await db.scalar(
+            select(func.count(Message.id)).where(
+                and_(Message.created_at >= day_start, Message.created_at < day_end)
+            )
+        ) or 0
+        messages_sparkline.append(messages_count)
+    
+    return {
+        "email_verification_rate": round(email_verification_rate, 1),
+        "user_activity_rate": round(user_activity_rate, 1),
+        "users_growth_weekly": round(users_growth_weekly, 1),
+        "cards_growth_weekly": round(cards_growth_weekly, 1),
+        "users_growth_monthly": round(users_growth_monthly, 1),
+        "cards_growth_monthly": round(cards_growth_monthly, 1),
+        "avg_daily_users": round(avg_daily_users, 1),
+        "avg_daily_cards": round(avg_daily_cards, 1),
+        "avg_daily_messages": round(avg_daily_messages, 1),
+        "users_sparkline": users_sparkline,
+        "cards_sparkline": cards_sparkline,
+        "messages_sparkline": messages_sparkline,
+        "this_week_users": this_week_users,
+        "last_week_users": last_week_users,
+        "this_week_cards": this_week_cards,
+        "last_week_cards": last_week_cards,
+    }
+
+
 # ==================== User Management ====================
 
 async def get_users_paginated(

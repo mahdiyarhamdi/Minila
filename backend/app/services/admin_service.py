@@ -12,6 +12,7 @@ from ..schemas.admin import (
     ChartData,
     ChartDataset,
     RecentActivity,
+    GrowthMetrics,
     UserAdminOut,
     CommunityAdminOut,
     CardAdminOut,
@@ -85,6 +86,13 @@ async def get_recent_activities(db: AsyncSession, limit: int = 10) -> list[Recen
     logger.info(f"Getting {limit} recent activities")
     activities = await admin_repo.get_recent_activities(db, limit)
     return [RecentActivity(**activity) for activity in activities]
+
+
+async def get_growth_metrics(db: AsyncSession) -> GrowthMetrics:
+    """گرفتن متریک‌های رشد و تحلیل."""
+    logger.info("Getting growth metrics")
+    metrics = await admin_repo.get_growth_metrics(db)
+    return GrowthMetrics(**metrics)
 
 
 # ==================== User Management ====================
