@@ -278,6 +278,7 @@ CORS_ORIGINS=["http://localhost:3000","http://localhost:3001"]
 | `GET` | `/stats/users-chart?days=30` | داده‌های نمودار ثبت‌نام کاربران | ✅ Admin |
 | `GET` | `/stats/cards-chart?days=30` | داده‌های نمودار کارت‌های جدید | ✅ Admin |
 | `GET` | `/stats/recent-activities?limit=10` | رویدادهای اخیر | ✅ Admin |
+| `GET` | `/stats/growth-metrics` | متریک‌های رشد و تحلیل | ✅ Admin |
 | `GET` | `/users` | لیست کاربران با فیلتر و صفحه‌بندی | ✅ Admin |
 | `GET` | `/users/{id}` | جزئیات کاربر | ✅ Admin |
 | `PUT` | `/users/{id}/ban` | بن/آن‌بن کاربر | ✅ Admin |
