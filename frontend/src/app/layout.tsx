@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description: 'Smart platform for coordination between travelers and senders through trusted communities',
   manifest: '/manifest.json',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/icon-192.png',
+    apple: '/icon-192.png',
   },
   appleWebApp: {
     capable: true,
@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" className="lang-en" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />

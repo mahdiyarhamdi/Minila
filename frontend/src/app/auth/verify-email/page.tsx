@@ -119,13 +119,17 @@ export default function VerifyEmailPage() {
             label={t('auth.otp.codeLabel')}
             type="text"
             inputMode="numeric"
-            placeholder={t('auth.otp.codePlaceholder')}
+            placeholder=""
             maxLength={6}
             error={errors.otp_code?.message}
             dir="ltr"
-            autoComplete="new-password"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             data-form-type="other"
             data-lpignore="true"
+            data-1p-ignore="true"
             className="text-center text-2xl tracking-widest"
           />
 
