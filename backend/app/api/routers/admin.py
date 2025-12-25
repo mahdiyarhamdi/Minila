@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 
 from ..deps import DBSession, AdminUser
 from ...services import admin_service
+from ...services import alert_service
 from ...schemas.admin import (
     DashboardStats,
     ChartData,
@@ -26,6 +27,7 @@ from ...schemas.admin import (
     BackupCreateResponse,
 )
 from ...schemas.common import MessageResponse
+from ...schemas.alert import AlertList, AlertStats, AlertOut
 
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
@@ -530,4 +532,96 @@ async def create_backup(
 ) -> BackupCreateResponse:
     """ایجاد بکاپ جدید."""
     return await admin_service.create_backup(admin["user_id"])
+
+
+# ==================== Alerts ====================
+
+@router.get(
+    "/alerts",
+    response_model=AlertList,
+    summary="لیست هشدارها",
+    description="دریافت لیست هشدارها با فیلتر و pagination"
+)
+async def get_alerts(
+    db: DBSession,
+    admin: AdminUser,
+    page: int = Query(1, ge=1, description="شماره صفحه"),
+    page_size: int = Query(20, ge=10, le=100, description="تعداد در صفحه"),
+    type: Optional[str] = Query(None, description="فیلتر نوع هشدار"),
+    priority: Optional[str] = Query(None, description="فیلتر اولویت"),
+    is_read: Optional[bool] = Query(None, description="فیلتر وضعیت خواندن"),
+) -> AlertList:
+    """دریافت لیست هشدارها."""
+    return await alert_service.get_alerts(
+        db=db,
+        page=page,
+        page_size=page_size,
+        alert_type=type,
+        priority=priority,
+        is_read=is_read,
+    )
+
+
+@router.get(
+    "/alerts/stats",
+    response_model=AlertStats,
+    summary="آمار هشدارها",
+    description="دریافت آمار کلی هشدارها"
+)
+async def get_alert_stats(
+    db: DBSession,
+    admin: AdminUser,
+) -> AlertStats:
+    """دریافت آمار هشدارها."""
+    return await alert_service.get_alert_stats(db)
+
+
+@router.get(
+    "/alerts/unread-count",
+    summary="تعداد خوانده نشده",
+    description="دریافت تعداد هشدارهای خوانده نشده"
+)
+async def get_unread_alerts_count(
+    db: DBSession,
+    admin: AdminUser,
+) -> dict:
+    """دریافت تعداد هشدارهای خوانده نشده."""
+    count = await alert_service.get_unread_count(db)
+    return {"unread_count": count}
+
+
+@router.put(
+    "/alerts/{alert_id}/read",
+    response_model=MessageResponse,
+    summary="علامت خوانده شده",
+    description="علامت‌گذاری یک هشدار به عنوان خوانده شده"
+)
+async def mark_alert_as_read(
+    alert_id: int,
+    db: DBSession,
+    admin: AdminUser,
+) -> MessageResponse:
+    """علامت‌گذاری هشدار به عنوان خوانده شده."""
+    success = await alert_service.mark_as_read(db, alert_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="هشدار یافت نشد"
+        )
+    return MessageResponse(message="هشدار به عنوان خوانده شده علامت‌گذاری شد")
+
+
+@router.put(
+    "/alerts/read-all",
+    response_model=MessageResponse,
+    summary="علامت همه خوانده شده",
+    description="علامت‌گذاری تمام هشدارها به عنوان خوانده شده"
+)
+async def mark_all_alerts_as_read(
+    db: DBSession,
+    admin: AdminUser,
+) -> MessageResponse:
+    """علامت‌گذاری تمام هشدارها به عنوان خوانده شده."""
+    count = await alert_service.mark_all_as_read(db)
+    return MessageResponse(message=f"{count} هشدار به عنوان خوانده شده علامت‌گذاری شد")
 

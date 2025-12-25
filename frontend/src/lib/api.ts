@@ -855,6 +855,52 @@ class APIService {
       card_id: cardId
     })
   }
+
+  // ==================== Alerts (Admin) ====================
+
+  /**
+   * دریافت لیست هشدارها (ادمین)
+   */
+  async getAdminAlerts(params?: {
+    page?: number
+    page_size?: number
+    type?: string
+    priority?: string
+    is_read?: boolean
+  }): Promise<AdminAlertList> {
+    const response = await this.client.get<AdminAlertList>('/api/v1/admin/alerts', { params })
+    return response.data
+  }
+
+  /**
+   * دریافت آمار هشدارها (ادمین)
+   */
+  async getAdminAlertStats(): Promise<AdminAlertStats> {
+    const response = await this.client.get<AdminAlertStats>('/api/v1/admin/alerts/stats')
+    return response.data
+  }
+
+  /**
+   * دریافت تعداد هشدارهای خوانده نشده (ادمین)
+   */
+  async getAdminUnreadAlertsCount(): Promise<{ unread_count: number }> {
+    const response = await this.client.get<{ unread_count: number }>('/api/v1/admin/alerts/unread-count')
+    return response.data
+  }
+
+  /**
+   * علامت‌گذاری هشدار به عنوان خوانده شده (ادمین)
+   */
+  async markAlertAsRead(alertId: number): Promise<void> {
+    await this.client.put(`/api/v1/admin/alerts/${alertId}/read`)
+  }
+
+  /**
+   * علامت‌گذاری همه هشدارها به عنوان خوانده شده (ادمین)
+   */
+  async markAllAlertsAsRead(): Promise<void> {
+    await this.client.put('/api/v1/admin/alerts/read-all')
+  }
 }
 
 // Admin Types
@@ -1087,6 +1133,34 @@ export interface AdminBackupCreateResponse {
   success: boolean
   filename?: string
   message: string
+}
+
+// Alert Types
+export interface AdminAlert {
+  id: number
+  type: string
+  priority: string
+  title: string
+  message: string
+  metadata?: Record<string, unknown>
+  is_read: boolean
+  email_sent: boolean
+  created_at: string
+}
+
+export interface AdminAlertList {
+  items: AdminAlert[]
+  total: number
+  page: number
+  page_size: number
+  unread_count: number
+}
+
+export interface AdminAlertStats {
+  total: number
+  unread: number
+  high_priority_unread: number
+  by_type: Record<string, number>
 }
 
 export const apiService = new APIService()

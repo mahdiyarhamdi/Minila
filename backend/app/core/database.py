@@ -1,5 +1,6 @@
 """Database connection and session management."""
 from typing import AsyncGenerator
+from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncEngine,
@@ -69,4 +70,26 @@ async def init_db() -> None:
 async def close_db() -> None:
     """بستن اتصالات دیتابیس."""
     await engine.dispose()
+
+
+@asynccontextmanager
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+    """Context manager برای دریافت database session در اسکریپت‌ها.
+    
+    Usage:
+        async with get_db_session() as db:
+            await some_service.do_something(db)
+            
+    Yields:
+        AsyncSession: نشست دیتابیس
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 

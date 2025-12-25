@@ -35,6 +35,9 @@ from .user_block import UserBlock
 from .report import Report
 from .log import Log
 
+# Alert model
+from .alert import Alert
+
 
 __all__ = [
     # Base
@@ -70,4 +73,6 @@ __all__ = [
     "UserBlock",
     "Report",
     "Log",
+    # Alert
+    "Alert",
 ]

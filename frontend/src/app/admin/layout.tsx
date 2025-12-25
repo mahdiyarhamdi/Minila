@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
+import { apiService } from '@/lib/api'
 
 // آیکون‌ها
 const DashboardIcon = () => (
@@ -56,6 +57,12 @@ const BackupIcon = () => (
   </svg>
 )
 
+const AlertsIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+)
+
 const BackIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -76,6 +83,7 @@ const CloseIcon = () => (
 
 const menuItems = [
   { href: '/admin', label: 'داشبورد', icon: DashboardIcon, exact: true },
+  { href: '/admin/alerts', label: 'هشدارها', icon: AlertsIcon, badge: true },
   { href: '/admin/users', label: 'کاربران', icon: UsersIcon },
   { href: '/admin/communities', label: 'کامیونیتی‌ها', icon: CommunitiesIcon },
   { href: '/admin/cards', label: 'کارت‌ها', icon: CardsIcon },
@@ -94,6 +102,17 @@ export default function AdminLayout({
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [unreadAlerts, setUnreadAlerts] = useState(0)
+
+  // بارگذاری تعداد هشدارهای خوانده نشده
+  const loadUnreadAlerts = useCallback(async () => {
+    try {
+      const data = await apiService.getAdminUnreadAlertsCount()
+      setUnreadAlerts(data.unread_count)
+    } catch (err) {
+      console.error('Failed to load unread alerts count:', err)
+    }
+  }, [])
 
   // بررسی دسترسی ادمین
   useEffect(() => {
@@ -101,6 +120,16 @@ export default function AdminLayout({
       router.push('/dashboard')
     }
   }, [user, isLoading, router])
+
+  // بارگذاری هشدارها
+  useEffect(() => {
+    if (user?.is_admin) {
+      loadUnreadAlerts()
+      // بروزرسانی هر 60 ثانیه
+      const interval = setInterval(loadUnreadAlerts, 60000)
+      return () => clearInterval(interval)
+    }
+  }, [user, loadUnreadAlerts])
 
   // نمایش لودینگ - برای SSR و هنگام بارگذاری
   if (isLoading || !user) {
@@ -166,13 +195,14 @@ export default function AdminLayout({
           {menuItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href, item.exact)
+            const showBadge = item.badge && unreadAlerts > 0
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative",
                   active
                     ? "bg-primary-600 text-white"
                     : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
@@ -180,6 +210,11 @@ export default function AdminLayout({
               >
                 <Icon />
                 <span className="font-medium">{item.label}</span>
+                {showBadge && (
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {unreadAlerts > 99 ? '99+' : unreadAlerts}
+                  </span>
+                )}
               </Link>
             )
           })}

@@ -4,6 +4,7 @@ from fastapi import APIRouter, status
 from ..deps import DBSession, CurrentUser
 from ...schemas.report import ReportCreate, ReportOut
 from ...models.report import Report
+from ...services import alert_service
 from ...utils.logger import logger
 
 
@@ -47,6 +48,30 @@ async def create_report(
     await db.refresh(report, ["reporter", "reported"])
     
     logger.info(f"Report {report.id} created by user {user['user_id']}")
+    
+    # ایجاد هشدار برای ادمین‌ها (اولویت بالا)
+    reporter_name = f"{report.reporter.first_name} {report.reporter.last_name}" if report.reporter else "کاربر"
+    reported_name = f"{report.reported.first_name} {report.reported.last_name}" if report.reported else None
+    
+    alert_title = "گزارش جدید کاربر"
+    if reported_name:
+        alert_message = f"{reporter_name} کاربر {reported_name} را گزارش کرده است:\n\n{data.body[:200]}..."
+    elif data.card_id:
+        alert_message = f"{reporter_name} کارت #{data.card_id} را گزارش کرده است:\n\n{data.body[:200]}..."
+    else:
+        alert_message = f"{reporter_name} یک بازخورد ارسال کرده است:\n\n{data.body[:200]}..."
+    
+    await alert_service.alert_report(
+        db=db,
+        title=alert_title,
+        message=alert_message,
+        metadata={
+            "report_id": report.id,
+            "reporter_id": user["user_id"],
+            "reported_id": data.reported_id,
+            "card_id": data.card_id,
+        }
+    )
     
     return report
 
