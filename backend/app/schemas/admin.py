@@ -398,5 +398,30 @@ class PaginatedLogAdmin(BaseModel):
     page_size: int
 
 
+# ==================== Backup ====================
+
+class BackupInfo(BaseModel):
+    """اطلاعات یک فایل بکاپ."""
+    
+    filename: str = Field(..., description="نام فایل بکاپ")
+    size_mb: float = Field(..., description="حجم فایل به مگابایت")
+    created_at: datetime = Field(..., description="زمان ایجاد بکاپ")
+
+
+class BackupList(BaseModel):
+    """لیست بکاپ‌ها."""
+    
+    backups: list[BackupInfo] = Field(..., description="لیست بکاپ‌ها")
+    total_size_mb: float = Field(..., description="حجم کل بکاپ‌ها")
+
+
+class BackupCreateResponse(BaseModel):
+    """پاسخ ایجاد بکاپ."""
+    
+    success: bool = Field(..., description="آیا بکاپ موفق بود")
+    filename: Optional[str] = Field(None, description="نام فایل بکاپ")
+    message: str = Field(..., description="پیام")
+
+
 
 

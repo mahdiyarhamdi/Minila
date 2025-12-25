@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, status
+from fastapi.responses import FileResponse
 
 from ..deps import DBSession, AdminUser
 from ...services import admin_service
@@ -21,6 +22,8 @@ from ...schemas.admin import (
     PaginatedReportAdmin,
     PaginatedRequestAdmin,
     PaginatedLogAdmin,
+    BackupList,
+    BackupCreateResponse,
 )
 from ...schemas.common import MessageResponse
 
@@ -454,4 +457,77 @@ async def update_settings(
 ) -> SystemSettings:
     """بروزرسانی تنظیمات سیستم."""
     return await admin_service.update_system_settings(data, admin["user_id"])
+
+
+# ==================== Backup Management ====================
+
+@router.get(
+    "/backups",
+    response_model=BackupList,
+    summary="لیست بکاپ‌ها",
+    description="لیست تمام فایل‌های بکاپ موجود"
+)
+async def get_backups(
+    admin: AdminUser,
+) -> BackupList:
+    """دریافت لیست بکاپ‌ها."""
+    return admin_service.list_backups()
+
+
+@router.get(
+    "/backups/{filename}/download",
+    summary="دانلود بکاپ",
+    description="دانلود یک فایل بکاپ"
+)
+async def download_backup(
+    filename: str,
+    admin: AdminUser,
+):
+    """دانلود فایل بکاپ."""
+    file_path = admin_service.get_backup_path(filename)
+    if not file_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="فایل بکاپ یافت نشد"
+        )
+    
+    return FileResponse(
+        path=str(file_path),
+        filename=filename,
+        media_type="application/gzip"
+    )
+
+
+@router.delete(
+    "/backups/{filename}",
+    response_model=MessageResponse,
+    summary="حذف بکاپ",
+    description="حذف یک فایل بکاپ"
+)
+async def delete_backup(
+    filename: str,
+    admin: AdminUser,
+) -> MessageResponse:
+    """حذف فایل بکاپ."""
+    result = admin_service.delete_backup(filename)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="فایل بکاپ یافت نشد"
+        )
+    
+    return MessageResponse(message="بکاپ با موفقیت حذف شد")
+
+
+@router.post(
+    "/backups/create",
+    response_model=BackupCreateResponse,
+    summary="ایجاد بکاپ",
+    description="ایجاد بکاپ دستی از دیتابیس"
+)
+async def create_backup(
+    admin: AdminUser,
+) -> BackupCreateResponse:
+    """ایجاد بکاپ جدید."""
+    return await admin_service.create_backup(admin["user_id"])
 

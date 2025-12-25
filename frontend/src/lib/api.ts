@@ -798,6 +798,50 @@ class APIService {
     const response = await this.client.put<AdminSettings>('/api/v1/admin/settings', data)
     return response.data
   }
+
+  // ==================== Backup Management ====================
+
+  /**
+   * دریافت لیست بکاپ‌ها (ادمین)
+   */
+  async getAdminBackups(): Promise<AdminBackupList> {
+    const response = await this.client.get<AdminBackupList>('/api/v1/admin/backups')
+    return response.data
+  }
+
+  /**
+   * دانلود بکاپ (ادمین)
+   */
+  async downloadAdminBackup(filename: string): Promise<void> {
+    const response = await this.client.get(`/api/v1/admin/backups/${filename}/download`, {
+      responseType: 'blob'
+    })
+    
+    // ایجاد لینک دانلود
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  }
+
+  /**
+   * حذف بکاپ (ادمین)
+   */
+  async deleteAdminBackup(filename: string): Promise<void> {
+    await this.client.delete(`/api/v1/admin/backups/${filename}`)
+  }
+
+  /**
+   * ایجاد بکاپ دستی (ادمین)
+   */
+  async createAdminBackup(): Promise<AdminBackupCreateResponse> {
+    const response = await this.client.post<AdminBackupCreateResponse>('/api/v1/admin/backups/create')
+    return response.data
+  }
 }
 
 // Admin Types
@@ -1013,6 +1057,23 @@ export interface AdminLogsParams {
   actor_user_id?: number
   date_from?: string
   date_to?: string
+}
+
+export interface AdminBackupInfo {
+  filename: string
+  size_mb: number
+  created_at: string
+}
+
+export interface AdminBackupList {
+  backups: AdminBackupInfo[]
+  total_size_mb: number
+}
+
+export interface AdminBackupCreateResponse {
+  success: boolean
+  filename?: string
+  message: string
 }
 
 export const apiService = new APIService()

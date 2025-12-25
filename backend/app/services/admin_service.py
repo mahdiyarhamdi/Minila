@@ -1,6 +1,8 @@
 """Admin service for business logic."""
 import json
 import os
+import subprocess
+import gzip
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -21,6 +23,9 @@ from ..schemas.admin import (
     LogAdminOut,
     SystemSettings,
     SystemSettingsUpdate,
+    BackupInfo,
+    BackupList,
+    BackupCreateResponse,
 )
 from ..core.config import get_settings
 from ..utils.logger import logger
@@ -405,6 +410,136 @@ async def update_system_settings(
     
     # برگرداندن تنظیمات جدید
     return await get_system_settings()
+
+
+# ==================== Backup Management ====================
+
+# مسیر پوشه بکاپ‌ها
+BACKUP_DIR = Path("/opt/minila/backups")
+
+
+def list_backups() -> BackupList:
+    """لیست کردن تمام فایل‌های بکاپ."""
+    logger.info("Listing backups")
+    
+    backups = []
+    total_size = 0.0
+    
+    if not BACKUP_DIR.exists():
+        logger.warning(f"Backup directory does not exist: {BACKUP_DIR}")
+        return BackupList(backups=[], total_size_mb=0.0)
+    
+    for file in BACKUP_DIR.glob("minila_backup_*.sql.gz"):
+        try:
+            stat = file.stat()
+            size_mb = stat.st_size / (1024 * 1024)
+            created_at = datetime.fromtimestamp(stat.st_mtime)
+            
+            backups.append(BackupInfo(
+                filename=file.name,
+                size_mb=round(size_mb, 2),
+                created_at=created_at
+            ))
+            total_size += size_mb
+        except Exception as e:
+            logger.error(f"Error reading backup file {file}: {e}")
+    
+    # مرتب‌سازی بر اساس تاریخ (جدیدترین اول)
+    backups.sort(key=lambda x: x.created_at, reverse=True)
+    
+    logger.info(f"Found {len(backups)} backups, total size: {total_size:.2f} MB")
+    return BackupList(backups=backups, total_size_mb=round(total_size, 2))
+
+
+def get_backup_path(filename: str) -> Optional[Path]:
+    """گرفتن مسیر فایل بکاپ."""
+    if not filename.startswith("minila_backup_") or not filename.endswith(".sql.gz"):
+        return None
+    
+    file_path = BACKUP_DIR / filename
+    if not file_path.exists() or not file_path.is_file():
+        return None
+    
+    return file_path
+
+
+def delete_backup(filename: str) -> bool:
+    """حذف یک فایل بکاپ."""
+    logger.info(f"Deleting backup: {filename}")
+    
+    file_path = get_backup_path(filename)
+    if not file_path:
+        logger.warning(f"Backup file not found: {filename}")
+        return False
+    
+    try:
+        file_path.unlink()
+        logger.info(f"Backup deleted: {filename}")
+        return True
+    except Exception as e:
+        logger.error(f"Error deleting backup {filename}: {e}")
+        return False
+
+
+async def create_backup(admin_user_id: int) -> BackupCreateResponse:
+    """ایجاد بکاپ دستی از دیتابیس."""
+    logger.info(f"Admin {admin_user_id} creating manual backup")
+    
+    try:
+        # ایجاد پوشه بکاپ اگر وجود نداشت
+        BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"minila_backup_{timestamp}.sql.gz"
+        backup_path = BACKUP_DIR / filename
+        
+        # اجرای pg_dump از طریق docker
+        db_name = getattr(settings, "POSTGRES_DB", "minila")
+        db_user = getattr(settings, "POSTGRES_USER", "minila")
+        
+        # استفاده از pg_dump داخل کانتینر
+        cmd = f"docker exec minila_db pg_dump -U {db_user} {db_name}"
+        
+        logger.info(f"Running backup command: {cmd}")
+        
+        # اجرای دستور و gzip کردن خروجی
+        process = subprocess.Popen(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        stdout, stderr = process.communicate()
+        
+        if process.returncode != 0:
+            error_msg = stderr.decode() if stderr else "Unknown error"
+            logger.error(f"Backup failed: {error_msg}")
+            return BackupCreateResponse(
+                success=False,
+                filename=None,
+                message=f"خطا در ایجاد بکاپ: {error_msg}"
+            )
+        
+        # فشرده‌سازی و ذخیره
+        with gzip.open(backup_path, "wb") as f:
+            f.write(stdout)
+        
+        size_mb = backup_path.stat().st_size / (1024 * 1024)
+        logger.info(f"Backup created: {filename} ({size_mb:.2f} MB)")
+        
+        return BackupCreateResponse(
+            success=True,
+            filename=filename,
+            message=f"بکاپ با موفقیت ایجاد شد ({size_mb:.2f} MB)"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error creating backup: {e}")
+        return BackupCreateResponse(
+            success=False,
+            filename=None,
+            message=f"خطا در ایجاد بکاپ: {str(e)}"
+        )
 
 
 
