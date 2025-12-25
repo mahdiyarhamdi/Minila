@@ -782,6 +782,14 @@ class APIService {
     const response = await this.client.get<AdminSettings>('/api/v1/admin/settings')
     return response.data
   }
+
+  /**
+   * بروزرسانی تنظیمات سیستم (ادمین)
+   */
+  async updateAdminSettings(data: AdminSettingsUpdate): Promise<AdminSettings> {
+    const response = await this.client.put<AdminSettings>('/api/v1/admin/settings', data)
+    return response.data
+  }
 }
 
 // Admin Types
@@ -928,6 +936,10 @@ export interface AdminSettings {
   messages_per_day_limit: number
   app_version: string
   environment: string
+}
+
+export interface AdminSettingsUpdate {
+  messages_per_day_limit?: number
 }
 
 export interface AdminPaginatedResponse<T> {

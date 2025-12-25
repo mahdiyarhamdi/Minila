@@ -6,11 +6,12 @@ import { cn } from '@/lib/utils'
 
 const eventTypeLabels: Record<string, string> = {
   signup: 'ثبت‌نام',
-  login: 'ورود',
+  login_success: 'ورود موفق',
+  login_attempt: 'تلاش ورود',
   email_verified: 'تایید ایمیل',
   join_request: 'درخواست عضویت',
-  join_approved: 'تایید عضویت',
-  join_rejected: 'رد عضویت',
+  join_approve: 'تایید عضویت',
+  join_reject: 'رد عضویت',
   card_create: 'ساخت کارت',
   card_delete: 'حذف کارت',
   message_send: 'ارسال پیام',
@@ -24,11 +25,12 @@ const eventTypeLabels: Record<string, string> = {
 
 const eventTypeColors: Record<string, string> = {
   signup: 'bg-green-100 text-green-700',
-  login: 'bg-blue-100 text-blue-700',
+  login_success: 'bg-blue-100 text-blue-700',
+  login_attempt: 'bg-blue-100 text-blue-700',
   email_verified: 'bg-blue-100 text-blue-700',
   join_request: 'bg-yellow-100 text-yellow-700',
-  join_approved: 'bg-green-100 text-green-700',
-  join_rejected: 'bg-red-100 text-red-700',
+  join_approve: 'bg-green-100 text-green-700',
+  join_reject: 'bg-red-100 text-red-700',
   card_create: 'bg-primary-100 text-primary-700',
   card_delete: 'bg-red-100 text-red-700',
   message_send: 'bg-purple-100 text-purple-700',
@@ -41,8 +43,8 @@ const eventTypeColors: Record<string, string> = {
 }
 
 const eventTypes = [
-  'signup', 'login', 'email_verified', 'join_request', 'join_approved', 
-  'join_rejected', 'card_create', 'card_delete', 'message_send', 
+  'signup', 'login_success', 'login_attempt', 'email_verified', 'join_request', 'join_approve', 
+  'join_reject', 'card_create', 'card_delete', 'message_send', 
   'ban', 'unban', 'grant_admin', 'revoke_admin', 'community_delete', 'report_resolve'
 ]
 

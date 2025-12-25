@@ -299,6 +299,17 @@ class SystemSettings(BaseModel):
     environment: str = Field(..., description="محیط اجرا")
 
 
+class SystemSettingsUpdate(BaseModel):
+    """ورودی برای بروزرسانی تنظیمات سیستم."""
+    
+    messages_per_day_limit: Optional[int] = Field(
+        None, 
+        ge=1, 
+        le=1000, 
+        description="محدودیت پیام روزانه (1-1000)"
+    )
+
+
 # ==================== Paginated Responses ====================
 
 class PaginatedUserAdmin(BaseModel):

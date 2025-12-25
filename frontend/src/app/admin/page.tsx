@@ -43,15 +43,21 @@ const ReportsIcon = () => (
 
 const eventTypeLabels: Record<string, string> = {
   signup: 'ثبت‌نام',
-  login: 'ورود',
+  login_success: 'ورود موفق',
+  login_attempt: 'تلاش ورود',
   email_verified: 'تایید ایمیل',
   join_request: 'درخواست عضویت',
-  join_approved: 'تایید عضویت',
-  join_rejected: 'رد عضویت',
+  join_approve: 'تایید عضویت',
+  join_reject: 'رد عضویت',
   card_create: 'ساخت کارت',
+  card_delete: 'حذف کارت',
   message_send: 'ارسال پیام',
   ban: 'مسدود کردن',
   unban: 'رفع مسدودیت',
+  grant_admin: 'اعطای ادمین',
+  revoke_admin: 'لغو ادمین',
+  community_delete: 'حذف کامیونیتی',
+  report_resolve: 'بررسی گزارش',
 }
 
 export default function AdminDashboardPage() {

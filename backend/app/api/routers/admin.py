@@ -13,6 +13,7 @@ from ...schemas.admin import (
     UserAdminToggleIn,
     ReportResolveIn,
     SystemSettings,
+    SystemSettingsUpdate,
     PaginatedUserAdmin,
     PaginatedCommunityAdmin,
     PaginatedCardAdmin,
@@ -424,4 +425,18 @@ async def get_settings(
 ) -> SystemSettings:
     """دریافت تنظیمات سیستم."""
     return await admin_service.get_system_settings()
+
+
+@router.put(
+    "/settings",
+    response_model=SystemSettings,
+    summary="بروزرسانی تنظیمات سیستم",
+    description="بروزرسانی تنظیمات قابل ویرایش سیستم"
+)
+async def update_settings(
+    data: SystemSettingsUpdate,
+    admin: AdminUser,
+) -> SystemSettings:
+    """بروزرسانی تنظیمات سیستم."""
+    return await admin_service.update_system_settings(data, admin["user_id"])
 

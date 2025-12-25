@@ -1,5 +1,8 @@
 """Admin service for business logic."""
+import json
+import os
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,12 +19,36 @@ from ..schemas.admin import (
     RequestAdminOut,
     LogAdminOut,
     SystemSettings,
+    SystemSettingsUpdate,
 )
 from ..core.config import get_settings
 from ..utils.logger import logger
 
 
 settings = get_settings()
+
+# مسیر فایل تنظیمات قابل ویرایش
+SETTINGS_OVERRIDE_FILE = Path(__file__).parent.parent.parent / "settings_override.json"
+
+
+def _load_settings_override() -> dict:
+    """بارگذاری تنظیمات override از فایل."""
+    try:
+        if SETTINGS_OVERRIDE_FILE.exists():
+            with open(SETTINGS_OVERRIDE_FILE, "r") as f:
+                return json.load(f)
+    except Exception as e:
+        logger.warning(f"Failed to load settings override: {e}")
+    return {}
+
+
+def _save_settings_override(data: dict) -> None:
+    """ذخیره تنظیمات override در فایل."""
+    try:
+        with open(SETTINGS_OVERRIDE_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        logger.error(f"Failed to save settings override: {e}")
 
 
 # ==================== Dashboard ====================
@@ -114,12 +141,12 @@ async def ban_user(
     
     # لاگ کردن
     from . import log_service
-    await log_service.create_log(
+    await log_service.log_event(
         db=db,
         event_type=action,
         actor_user_id=admin_user_id,
         target_user_id=user_id,
-        payload=reason,
+        payload={"reason": reason} if reason else None,
     )
     
     return await get_user_detail(db, user_id)
@@ -141,7 +168,7 @@ async def toggle_admin(
     
     # لاگ کردن
     from . import log_service
-    await log_service.create_log(
+    await log_service.log_event(
         db=db,
         event_type=action,
         actor_user_id=admin_user_id,
@@ -179,7 +206,7 @@ async def delete_community(
     if result:
         # لاگ کردن
         from . import log_service
-        await log_service.create_log(
+        await log_service.log_event(
             db=db,
             event_type="community_delete",
             actor_user_id=admin_user_id,
@@ -219,7 +246,7 @@ async def delete_card(
     if result:
         # لاگ کردن
         from . import log_service
-        await log_service.create_log(
+        await log_service.log_event(
             db=db,
             event_type="card_delete",
             actor_user_id=admin_user_id,
@@ -267,11 +294,11 @@ async def resolve_report(
     if result:
         # لاگ کردن
         from . import log_service
-        await log_service.create_log(
+        await log_service.log_event(
             db=db,
             event_type="report_resolve",
             actor_user_id=admin_user_id,
-            payload=f"action={action}, note={note}",
+            payload={"action": action, "note": note},
         )
     
     return result
@@ -315,6 +342,12 @@ async def get_logs(
 
 # ==================== Settings ====================
 
+def get_messages_per_day_limit() -> int:
+    """دریافت محدودیت پیام روزانه (با در نظر گرفتن override)."""
+    overrides = _load_settings_override()
+    return overrides.get("messages_per_day_limit", getattr(settings, "MESSAGES_PER_DAY", 50))
+
+
 async def get_system_settings() -> SystemSettings:
     """گرفتن تنظیمات سیستم."""
     logger.info("Getting system settings")
@@ -326,14 +359,44 @@ async def get_system_settings() -> SystemSettings:
     
     redis_configured = bool(getattr(settings, "REDIS_URL", None))
     
+    # بارگذاری تنظیمات override
+    overrides = _load_settings_override()
+    messages_per_day = overrides.get(
+        "messages_per_day_limit", 
+        getattr(settings, "MESSAGES_PER_DAY", 50)
+    )
+    
     return SystemSettings(
         smtp_configured=smtp_configured,
         smtp_host=getattr(settings, "SMTP_HOST", None) if smtp_configured else None,
         redis_configured=redis_configured,
-        messages_per_day_limit=getattr(settings, "MESSAGES_PER_DAY", 50),
+        messages_per_day_limit=messages_per_day,
         app_version="1.0.0",
         environment=getattr(settings, "ENV", "development"),
     )
+
+
+async def update_system_settings(
+    data: SystemSettingsUpdate,
+    admin_user_id: int,
+) -> SystemSettings:
+    """بروزرسانی تنظیمات سیستم."""
+    logger.info(f"Admin {admin_user_id} updating system settings")
+    
+    # بارگذاری تنظیمات فعلی
+    overrides = _load_settings_override()
+    
+    # بروزرسانی فقط فیلدهای ارسال شده
+    if data.messages_per_day_limit is not None:
+        overrides["messages_per_day_limit"] = data.messages_per_day_limit
+    
+    # ذخیره
+    _save_settings_override(overrides)
+    
+    logger.info(f"Settings updated: {overrides}")
+    
+    # برگرداندن تنظیمات جدید
+    return await get_system_settings()
 
 
 

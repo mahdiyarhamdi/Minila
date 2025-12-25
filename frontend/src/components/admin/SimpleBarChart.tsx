@@ -14,6 +14,8 @@ interface SimpleBarChartProps {
   height?: number
   title?: string
   stacked?: boolean
+  xAxisLabel?: string
+  yAxisLabel?: string
 }
 
 export default function SimpleBarChart({
@@ -22,6 +24,8 @@ export default function SimpleBarChart({
   height = 200,
   title,
   stacked = false,
+  xAxisLabel = 'تاریخ',
+  yAxisLabel = 'تعداد',
 }: SimpleBarChartProps) {
   if (!datasets.length || !datasets[0].data.length) {
     return (
@@ -73,10 +77,15 @@ export default function SimpleBarChart({
 
       {/* Chart */}
       <div className="relative" style={{ height }}>
+        {/* Y-axis title */}
+        <div className="absolute -left-2 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-neutral-600 whitespace-nowrap">
+          {yAxisLabel}
+        </div>
+        
         <svg
           viewBox={`0 0 ${labels.length * 14} ${height}`}
           preserveAspectRatio="none"
-          className="w-full h-full"
+          className="w-full h-full mr-4"
         >
           {/* Grid lines */}
           {[0, 25, 50, 75, 100].map((percent) => (
@@ -163,6 +172,11 @@ export default function SimpleBarChart({
           ))}
         </div>
       )}
+      
+      {/* X-axis title */}
+      <div className="text-center mt-1 text-xs font-medium text-neutral-600">
+        {xAxisLabel}
+      </div>
     </div>
   )
 }

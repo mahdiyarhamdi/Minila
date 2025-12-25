@@ -8,6 +8,12 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<AdminSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // فرم ویرایش
+  const [editingLimit, setEditingLimit] = useState(false)
+  const [newLimit, setNewLimit] = useState<number>(50)
+  const [saving, setSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   useEffect(() => {
     loadSettings()
@@ -20,11 +26,42 @@ export default function AdminSettingsPage() {
 
       const data = await apiService.getAdminSettings()
       setSettings(data)
+      setNewLimit(data.messages_per_day_limit)
     } catch (err) {
       console.error('Failed to load settings:', err)
       setError('خطا در بارگذاری تنظیمات')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSaveLimit = async () => {
+    if (!settings || newLimit === settings.messages_per_day_limit) {
+      setEditingLimit(false)
+      return
+    }
+    
+    try {
+      setSaving(true)
+      const updated = await apiService.updateAdminSettings({
+        messages_per_day_limit: newLimit
+      })
+      setSettings(updated)
+      setEditingLimit(false)
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch (err) {
+      console.error('Failed to save settings:', err)
+      alert('خطا در ذخیره تنظیمات')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingLimit(false)
+    if (settings) {
+      setNewLimit(settings.messages_per_day_limit)
     }
   }
 
@@ -57,8 +94,18 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-neutral-900">تنظیمات سیستم</h1>
-        <p className="text-neutral-600 mt-1">مشاهده تنظیمات و وضعیت سرویس‌ها</p>
+        <p className="text-neutral-600 mt-1">مشاهده و ویرایش تنظیمات سیستم</p>
       </div>
+
+      {/* Success Message */}
+      {saveSuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="text-green-700">تنظیمات با موفقیت ذخیره شد</span>
+        </div>
+      )}
 
       {/* System Info */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
@@ -148,18 +195,63 @@ export default function AdminSettingsPage() {
         )}
       </div>
 
-      {/* Rate Limits */}
+      {/* Rate Limits - Editable */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-        <h2 className="text-lg font-semibold text-neutral-900 mb-4">محدودیت‌ها</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-neutral-900">محدودیت‌ها</h2>
+          {!editingLimit && (
+            <button
+              onClick={() => setEditingLimit(true)}
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+            >
+              ویرایش
+            </button>
+          )}
+        </div>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
-            <div>
-              <p className="font-medium text-neutral-900">محدودیت پیام روزانه</p>
-              <p className="text-sm text-neutral-500">حداکثر تعداد پیام در روز برای هر کاربر</p>
+          <div className="p-4 bg-neutral-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-neutral-900">محدودیت پیام روزانه</p>
+                <p className="text-sm text-neutral-500">حداکثر تعداد پیام در روز برای هر کاربر</p>
+              </div>
+              
+              {editingLimit ? (
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min={1}
+                    max={1000}
+                    value={newLimit}
+                    onChange={(e) => setNewLimit(Number(e.target.value))}
+                    className="w-24 px-3 py-2 text-lg font-bold text-center border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveLimit}
+                      disabled={saving}
+                      className={cn(
+                        "px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm",
+                        saving && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      {saving ? 'در حال ذخیره...' : 'ذخیره'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={saving}
+                      className="px-3 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition-colors text-sm"
+                    >
+                      انصراف
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <span className="text-2xl font-bold text-primary-600">
+                  {settings.messages_per_day_limit.toLocaleString('fa-IR')}
+                </span>
+              )}
             </div>
-            <span className="text-2xl font-bold text-primary-600">
-              {settings.messages_per_day_limit.toLocaleString('fa-IR')}
-            </span>
           </div>
         </div>
       </div>
@@ -172,14 +264,10 @@ export default function AdminSettingsPage() {
           </svg>
           <div className="text-sm text-blue-700">
             <p className="font-medium mb-1">توجه</p>
-            <p>برای تغییر تنظیمات، فایل‌های محیطی سرور (.env) را ویرایش کنید و سرویس را مجدداً راه‌اندازی نمایید.</p>
+            <p>محدودیت پیام روزانه از این صفحه قابل ویرایش است. سایر تنظیمات از طریق فایل‌های محیطی سرور (.env) قابل تغییر هستند.</p>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
-
-
-
