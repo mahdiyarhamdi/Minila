@@ -10,6 +10,7 @@ import { useUnreadCount } from '@/hooks/useMessages'
 import Button from './Button'
 import LanguageSelector from './LanguageSelector'
 import Logo from './Logo'
+import ReportModal from './ReportModal'
 
 /**
  * Navbar - نوار ناوبری اصلی
@@ -22,6 +23,7 @@ export default function Navbar() {
   const { data: unreadCount, refetch } = useUnreadCount(!!user)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [reportModalOpen, setReportModalOpen] = useState(false)
 
   // Close menus when user state changes (login/logout)
   useEffect(() => {
@@ -156,6 +158,15 @@ export default function Navbar() {
                       >
                         {t('profile.blockedUsers')}
                       </Link>
+                      <button
+                        onClick={() => {
+                          setProfileMenuOpen(false)
+                          setReportModalOpen(true)
+                        }}
+                        className="w-full ltr:text-left rtl:text-right px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                      >
+                        {t('report.title')}
+                      </button>
                       <div className="border-t border-neutral-200 my-2"></div>
                       <button
                         onClick={handleLogout}
@@ -238,6 +249,15 @@ export default function Navbar() {
                   >
                     {t('profile.blockedUsers')}
                   </Link>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      setReportModalOpen(true)
+                    }}
+                    className="ltr:text-left rtl:text-right px-4 py-3 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100 w-full"
+                  >
+                    {t('report.title')}
+                  </button>
                   <div className="border-t border-neutral-200 my-2"></div>
                   <button
                     onClick={handleLogout}
@@ -251,6 +271,12 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+      />
     </nav>
   )
 }

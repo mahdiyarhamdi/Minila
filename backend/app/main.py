@@ -185,7 +185,7 @@ def root() -> dict[str, str]:
 
 # ==================== Router Registration ====================
 
-from .api.routers import auth, users, communities, cards, messages, locations, admin
+from .api.routers import auth, users, communities, cards, messages, locations, admin, reports
 
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -194,6 +194,7 @@ app.include_router(cards.router)
 app.include_router(messages.router)
 app.include_router(locations.router)
 app.include_router(admin.router)
+app.include_router(reports.router)
 
 logger.info("All routers registered successfully")
 

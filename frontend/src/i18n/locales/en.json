@@ -731,6 +731,15 @@
     "warning": "Warning",
     "info": "Info"
   },
+  "report": {
+    "title": "Send Report",
+    "description": "Share a report, suggestion, or issue with us. Our team will review it.",
+    "placeholder": "Write your report or feedback...",
+    "submit": "Send Report",
+    "success": "Your report has been submitted successfully",
+    "minLength": "Report must be at least 10 characters",
+    "minChars": "Minimum 10 characters"
+  },
   "time": {
     "justNow": "Just now",
     "minutesAgo": "{{count}} minutes ago",

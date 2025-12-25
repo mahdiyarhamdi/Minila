@@ -842,6 +842,19 @@ class APIService {
     const response = await this.client.post<AdminBackupCreateResponse>('/api/v1/admin/backups/create')
     return response.data
   }
+
+  // ==================== Reports ====================
+
+  /**
+   * ارسال گزارش یا بازخورد
+   */
+  async createReport(body: string, reportedId?: number, cardId?: number): Promise<void> {
+    await this.client.post('/api/v1/reports', { 
+      body,
+      reported_id: reportedId,
+      card_id: cardId
+    })
+  }
 }
 
 // Admin Types
