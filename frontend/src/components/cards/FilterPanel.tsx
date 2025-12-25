@@ -113,9 +113,19 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
   // فیلترهای در حال ویرایش (موقت)
   const [tempFilters, setTempFilters] = useState<FilterState>(initialState)
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
+  
+  // Ref to track internal filter changes - prevents useEffect from wiping location labels
+  // when parent re-renders with CardFilter (which only has IDs, not labels)
+  const isInternalFilterChange = useRef(false)
 
-  // Initialize filters from props
+  // Initialize filters from props - only for external changes (e.g., initial mount)
   useEffect(() => {
+    // Skip if this is a change we initiated internally (preserves location labels)
+    if (isInternalFilterChange.current) {
+      isInternalFilterChange.current = false
+      return
+    }
+    
     if (initialFilters) {
       const newState: FilterState = {
         ...initialState,
@@ -307,6 +317,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
       
       setAppliedFilters(newFilters)
       setTempFilters(newFilters)
+      // Mark as internal change to prevent useEffect from resetting location labels
+      isInternalFilterChange.current = true
       onFilterChange(convertToCardFilter(newFilters))
     },
     [appliedFilters, onFilterChange, convertToCardFilter]
@@ -316,6 +328,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
   const handleReset = useCallback(() => {
     setAppliedFilters(initialState)
     setTempFilters(initialState)
+    // Mark as internal change to prevent useEffect from running
+    isInternalFilterChange.current = true
     onFilterChange({})
     setIsBottomSheetOpen(false)
   }, [onFilterChange])
@@ -339,6 +353,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
     }
     // Set applied filters first
     setAppliedFilters(newFilters)
+    // Mark as internal change to prevent useEffect from wiping location labels
+    isInternalFilterChange.current = true
     // Then notify parent
     onFilterChange(convertToCardFilter(newFilters))
     // Finally close the sheet
@@ -349,6 +365,8 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
   const handleCancel = useCallback(() => {
     setAppliedFilters(initialState)
     setTempFilters(initialState)
+    // Mark as internal change to prevent useEffect from running
+    isInternalFilterChange.current = true
     onFilterChange({})
     setIsBottomSheetOpen(false)
   }, [onFilterChange])
