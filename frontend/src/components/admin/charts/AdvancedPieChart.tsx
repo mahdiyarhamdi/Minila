@@ -14,7 +14,6 @@ interface AdvancedPieChartProps {
   size?: number
   title?: string
   showLegend?: boolean
-  showLabels?: boolean
   animate?: boolean
   donutWidth?: number
 }
@@ -23,12 +22,11 @@ const defaultColors = ['#00A8E8', '#E5C189', '#10B981', '#F59E0B', '#EF4444', '#
 
 export default function AdvancedPieChart({
   data,
-  size = 220,
+  size = 200,
   title,
   showLegend = true,
-  showLabels = true,
   animate = true,
-  donutWidth = 45,
+  donutWidth = 40,
 }: AdvancedPieChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
@@ -37,7 +35,7 @@ export default function AdvancedPieChart({
   const slices = useMemo(() => {
     if (total === 0) return []
     
-    let currentAngle = -90
+    let currentAngle = -90 // Start from top
     return data.map((item, index) => {
       const percentage = (item.value / total) * 100
       const angle = (item.value / total) * 360
@@ -47,10 +45,11 @@ export default function AdvancedPieChart({
 
       const startRad = (startAngle * Math.PI) / 180
       const endRad = (endAngle * Math.PI) / 180
+      const midAngle = ((startAngle + endAngle) / 2) * (Math.PI / 180)
 
       const cx = size / 2
       const cy = size / 2
-      const outerRadius = size / 2 - 10
+      const outerRadius = size / 2 - 5
       const innerRadius = outerRadius - donutWidth
 
       // Outer arc points
@@ -76,33 +75,15 @@ export default function AdvancedPieChart({
         'Z',
       ].join(' ')
 
-      // Label position (middle of the slice, outside)
-      const midAngle = ((startAngle + endAngle) / 2) * (Math.PI / 180)
-      const labelRadius = outerRadius + 25
-      const labelX = cx + labelRadius * Math.cos(midAngle)
-      const labelY = cy + labelRadius * Math.sin(midAngle)
-
-      // Connector line points
-      const lineStartRadius = outerRadius + 5
-      const lineMidRadius = outerRadius + 15
-      const lineStartX = cx + lineStartRadius * Math.cos(midAngle)
-      const lineStartY = cy + lineStartRadius * Math.sin(midAngle)
-      const lineMidX = cx + lineMidRadius * Math.cos(midAngle)
-      const lineMidY = cy + lineMidRadius * Math.sin(midAngle)
-
       return {
         ...item,
         pathData,
         percentage,
         color: item.color || defaultColors[index % defaultColors.length],
-        labelX,
-        labelY,
-        lineStartX,
-        lineStartY,
-        lineMidX,
-        lineMidY,
         midAngle,
         index,
+        cx,
+        cy,
       }
     })
   }, [data, total, size, donutWidth])
@@ -125,124 +106,9 @@ export default function AdvancedPieChart({
       )}
 
       <div className="flex flex-col md:flex-row items-center gap-8">
-        {/* Pie Chart */}
-        <div className="relative" style={{ width: size + 60, height: size + 60 }}>
-          <svg 
-            viewBox={`-30 -30 ${size + 60} ${size + 60}`} 
-            className="w-full h-full"
-          >
-            {/* Slices */}
-            {slices.map((slice, index) => {
-              const isHovered = hoveredIndex === index
-              const scale = isHovered ? 1.05 : 1
-              const translateX = isHovered ? Math.cos(slice.midAngle) * 5 : 0
-              const translateY = isHovered ? Math.sin(slice.midAngle) * 5 : 0
-
-              return (
-                <g key={index}>
-                  <path
-                    d={slice.pathData}
-                    fill={slice.color}
-                    className={cn(
-                      "cursor-pointer transition-all duration-200",
-                      isHovered && "filter drop-shadow-lg"
-                    )}
-                    style={{
-                      transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
-                      transformOrigin: `${size / 2}px ${size / 2}px`,
-                    }}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  />
-
-                  {/* Label connector line */}
-                  {showLabels && slice.percentage > 5 && (
-                    <>
-                      <line
-                        x1={slice.lineStartX}
-                        y1={slice.lineStartY}
-                        x2={slice.lineMidX}
-                        y2={slice.lineMidY}
-                        stroke={slice.color}
-                        strokeWidth="1"
-                        opacity="0.6"
-                      />
-                      <line
-                        x1={slice.lineMidX}
-                        y1={slice.lineMidY}
-                        x2={slice.labelX}
-                        y2={slice.lineMidY}
-                        stroke={slice.color}
-                        strokeWidth="1"
-                        opacity="0.6"
-                      />
-                    </>
-                  )}
-
-                  {/* Label */}
-                  {showLabels && slice.percentage > 5 && (
-                    <text
-                      x={slice.labelX}
-                      y={slice.lineMidY}
-                      textAnchor={slice.midAngle > -Math.PI / 2 && slice.midAngle < Math.PI / 2 ? "start" : "end"}
-                      className="text-[10px] font-medium fill-neutral-600"
-                      dy="3"
-                    >
-                      {slice.percentage.toFixed(1)}%
-                    </text>
-                  )}
-                </g>
-              )
-            })}
-
-            {/* Center text */}
-            <g>
-              <text
-                x={size / 2}
-                y={size / 2 - 8}
-                textAnchor="middle"
-                className="text-[22px] font-bold fill-neutral-900"
-              >
-                {total.toLocaleString('fa-IR')}
-              </text>
-              <text
-                x={size / 2}
-                y={size / 2 + 12}
-                textAnchor="middle"
-                className="text-[11px] fill-neutral-400"
-              >
-                مجموع
-              </text>
-            </g>
-          </svg>
-
-          {/* Animated circle on mount */}
-          {animate && (
-            <svg 
-              viewBox={`0 0 ${size} ${size}`}
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{ marginLeft: 30, marginTop: 30 }}
-            >
-              <circle
-                cx={size / 2}
-                cy={size / 2}
-                r={size / 2 - 10 - donutWidth / 2}
-                fill="none"
-                stroke="white"
-                strokeWidth={donutWidth + 5}
-                className="animate-reveal"
-                style={{
-                  strokeDasharray: `${Math.PI * (size - 20 - donutWidth)}`,
-                  strokeDashoffset: 0,
-                }}
-              />
-            </svg>
-          )}
-        </div>
-
-        {/* Legend */}
+        {/* Legend - RTL: Legend first */}
         {showLegend && (
-          <div className="flex flex-col gap-3 min-w-[160px]">
+          <div className="flex flex-col gap-3 min-w-[140px] order-2 md:order-1">
             {slices.map((slice, index) => {
               const isHovered = hoveredIndex === index
               return (
@@ -262,11 +128,9 @@ export default function AdvancedPieChart({
                       transform: isHovered ? 'scale(1.2)' : 'scale(1)'
                     }}
                   />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm text-neutral-700 block truncate">{slice.label}</span>
-                  </div>
+                  <span className="text-sm text-neutral-700 flex-1">{slice.label}</span>
                   <div className="text-left flex-shrink-0">
-                    <span className="text-sm font-semibold text-neutral-900 block">
+                    <span className="text-sm font-bold text-neutral-900 block">
                       {slice.value.toLocaleString('fa-IR')}
                     </span>
                     <span className="text-xs text-neutral-400">
@@ -278,22 +142,104 @@ export default function AdvancedPieChart({
             })}
           </div>
         )}
+
+        {/* Pie Chart */}
+        <div 
+          className="relative order-1 md:order-2 flex-shrink-0" 
+          style={{ width: size, height: size }}
+        >
+          <svg 
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            className="block"
+          >
+            {/* Slices */}
+            {slices.map((slice, index) => {
+              const isHovered = hoveredIndex === index
+              const scale = isHovered ? 1.03 : 1
+              const translateX = isHovered ? Math.cos(slice.midAngle) * 3 : 0
+              const translateY = isHovered ? Math.sin(slice.midAngle) * 3 : 0
+
+              return (
+                <path
+                  key={index}
+                  d={slice.pathData}
+                  fill={slice.color}
+                  className={cn(
+                    "cursor-pointer transition-all duration-200",
+                    isHovered && "filter drop-shadow-lg"
+                  )}
+                  style={{
+                    transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+                    transformOrigin: `${slice.cx}px ${slice.cy}px`,
+                  }}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                />
+              )
+            })}
+
+            {/* Center text */}
+            <text
+              x={size / 2}
+              y={size / 2 - 6}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-xl font-bold fill-neutral-900"
+              style={{ fontSize: 22 }}
+            >
+              {total.toLocaleString('fa-IR')}
+            </text>
+            <text
+              x={size / 2}
+              y={size / 2 + 16}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-xs fill-neutral-400"
+              style={{ fontSize: 11 }}
+            >
+              مجموع
+            </text>
+          </svg>
+
+          {/* Animated reveal circle */}
+          {animate && (
+            <svg 
+              width={size}
+              height={size}
+              viewBox={`0 0 ${size} ${size}`}
+              className="absolute inset-0 pointer-events-none"
+            >
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={(size / 2 - 5) - donutWidth / 2}
+                fill="none"
+                stroke="white"
+                strokeWidth={donutWidth + 4}
+                className="pie-reveal-animation"
+              />
+            </svg>
+          )}
+        </div>
       </div>
 
       <style jsx>{`
-        @keyframes reveal {
+        @keyframes pieReveal {
           from {
-            stroke-dashoffset: ${Math.PI * (size - 20 - donutWidth)};
+            stroke-dashoffset: ${Math.PI * 2 * ((size / 2 - 5) - donutWidth / 2)};
           }
           to {
             stroke-dashoffset: 0;
           }
         }
-        .animate-reveal {
-          animation: reveal 1s ease-out forwards;
+        .pie-reveal-animation {
+          stroke-dasharray: ${Math.PI * 2 * ((size / 2 - 5) - donutWidth / 2)};
+          stroke-dashoffset: 0;
+          animation: pieReveal 0.8s ease-out forwards;
         }
       `}</style>
     </div>
   )
 }
-
