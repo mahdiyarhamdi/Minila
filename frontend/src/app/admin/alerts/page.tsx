@@ -282,10 +282,10 @@ export default function AdminAlertsPage() {
                     <h3 className="font-medium text-neutral-900">{alert.title}</h3>
                     <p className="text-sm text-neutral-600 whitespace-pre-wrap">{alert.message}</p>
                     
-                    {/* Metadata */}
-                    {alert.metadata && Object.keys(alert.metadata).length > 0 && (
+                    {/* Extra Data */}
+                    {alert.extra_data && Object.keys(alert.extra_data).length > 0 && (
                       <div className="text-xs text-neutral-500 bg-neutral-50 rounded-lg p-2 font-mono">
-                        {Object.entries(alert.metadata).map(([key, value]) => (
+                        {Object.entries(alert.extra_data).map(([key, value]) => (
                           <div key={key}>
                             <span className="text-neutral-400">{key}:</span> {String(value)}
                           </div>

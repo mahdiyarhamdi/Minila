@@ -26,7 +26,7 @@ class Alert(BaseModel):
     message: Mapped[str] = mapped_column(Text, nullable=False)
     
     # اطلاعات اضافی (JSON)
-    metadata: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    extra_data: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     
     # وضعیت خوانده شدن
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

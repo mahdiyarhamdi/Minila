@@ -1142,7 +1142,7 @@ export interface AdminAlert {
   priority: string
   title: string
   message: string
-  metadata?: Record<string, unknown>
+  extra_data?: Record<string, unknown>
   is_read: boolean
   email_sent: boolean
   created_at: string

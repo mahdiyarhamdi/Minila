@@ -47,7 +47,7 @@ async def create_alert(
         priority=priority.value,
         title=title,
         message=message,
-        metadata=metadata,
+        extra_data=metadata,
         is_read=False,
         email_sent=False,
     )
@@ -371,10 +371,10 @@ def _build_alert_email_body(alert: Alert) -> str:
 {alert.message}
 """
     
-    if alert.metadata:
+    if alert.extra_data:
         body += f"""
 اطلاعات اضافی:
-{_format_metadata(alert.metadata)}
+{_format_metadata(alert.extra_data)}
 """
     
     body += f"""

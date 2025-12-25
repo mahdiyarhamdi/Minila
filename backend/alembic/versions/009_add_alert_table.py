@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column('priority', sa.String(20), nullable=False, server_default='normal'),
         sa.Column('title', sa.String(255), nullable=False),
         sa.Column('message', sa.Text(), nullable=False),
-        sa.Column('metadata', sa.JSON(), nullable=True),
+        sa.Column('extra_data', sa.JSON(), nullable=True),
         sa.Column('is_read', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('email_sent', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),

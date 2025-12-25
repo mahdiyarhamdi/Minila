@@ -27,7 +27,7 @@ class AlertCreate(BaseModel):
     priority: AlertPriority = AlertPriority.NORMAL
     title: str = Field(..., max_length=255)
     message: str
-    metadata: Optional[dict] = None
+    extra_data: Optional[dict] = None
 
 
 class AlertOut(BaseModel):
@@ -37,7 +37,7 @@ class AlertOut(BaseModel):
     priority: str
     title: str
     message: str
-    metadata: Optional[dict] = None
+    extra_data: Optional[dict] = None
     is_read: bool
     email_sent: bool
     created_at: datetime
