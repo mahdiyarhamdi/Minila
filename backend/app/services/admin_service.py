@@ -493,21 +493,28 @@ async def create_backup(admin_user_id: int) -> BackupCreateResponse:
         filename = f"minila_backup_{timestamp}.sql.gz"
         backup_path = BACKUP_DIR / filename
         
-        # اجرای pg_dump از طریق docker
+        # گرفتن اطلاعات دیتابیس از settings
+        db_host = getattr(settings, "POSTGRES_HOST", "minila_db")
+        db_port = getattr(settings, "POSTGRES_PORT", "5432")
         db_name = getattr(settings, "POSTGRES_DB", "minila")
-        db_user = getattr(settings, "POSTGRES_USER", "minila")
+        db_user = getattr(settings, "POSTGRES_USER", "postgres")
+        db_pass = getattr(settings, "POSTGRES_PASSWORD", "postgres")
         
-        # استفاده از pg_dump داخل کانتینر
-        cmd = f"docker exec minila_db pg_dump -U {db_user} {db_name}"
+        # استفاده از pg_dump با اتصال شبکه‌ای
+        # Set PGPASSWORD environment variable to avoid password prompt
+        env = os.environ.copy()
+        env["PGPASSWORD"] = db_pass
         
-        logger.info(f"Running backup command: {cmd}")
+        cmd = ["pg_dump", "-h", db_host, "-p", str(db_port), "-U", db_user, db_name]
         
-        # اجرای دستور و gzip کردن خروجی
+        logger.info(f"Running backup command: pg_dump -h {db_host} -p {db_port} -U {db_user} {db_name}")
+        
+        # اجرای دستور
         process = subprocess.Popen(
             cmd,
-            shell=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            env=env
         )
         stdout, stderr = process.communicate()
         

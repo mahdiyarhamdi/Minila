@@ -10,6 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
 # نصب dependencies سیستمی
 RUN apt-get update && apt-get install -y \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # تنظیم working directory

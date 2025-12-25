@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     # DB/Redis (در گام‌های بعدی استفاده می‌شوند)
     DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@db:5432/app"
     REDIS_URL: str = "redis://redis:6379/0"
+    
+    # PostgreSQL connection details (for pg_dump backup)
+    POSTGRES_HOST: str = "db"
+    POSTGRES_PORT: int = 5432
+    POSTGRES_DB: str = "minila"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
 
     # Email Settings
     EMAIL_PROVIDER: str = "smtp"  # smtp, sendgrid

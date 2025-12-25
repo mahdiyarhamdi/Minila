@@ -98,12 +98,18 @@ services:
       REDIS_URL: redis://redis:6379/0
       SMTP_HOST: mailhog
       SMTP_PORT: 1025
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: minila
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app/app
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
+      - /opt/minila/backups:/opt/minila/backups
     depends_on:
       db:
         condition: service_healthy

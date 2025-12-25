@@ -50,6 +50,12 @@ const SettingsIcon = () => (
   </svg>
 )
 
+const BackupIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+  </svg>
+)
+
 const BackIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -75,6 +81,7 @@ const menuItems = [
   { href: '/admin/cards', label: 'کارت‌ها', icon: CardsIcon },
   { href: '/admin/reports', label: 'گزارش‌ها', icon: ReportsIcon },
   { href: '/admin/logs', label: 'لاگ‌ها', icon: LogsIcon },
+  { href: '/admin/backups', label: 'پشتیبان‌گیری', icon: BackupIcon },
   { href: '/admin/settings', label: 'تنظیمات', icon: SettingsIcon },
 ]
 
