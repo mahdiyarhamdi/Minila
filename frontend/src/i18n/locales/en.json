@@ -49,8 +49,8 @@
   },
   "app": {
     "name": "Minila",
-    "tagline": "Traveler & Cargo Coordination Platform",
-    "description": "Smart platform for coordination between travelers and cargo senders"
+    "tagline": "Traveler & Package Coordination Platform",
+    "description": "Smart platform for coordination between travelers and senders"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -103,7 +103,7 @@
       "title": "Enter verification code",
       "subtitle": "Enter the 6-digit code sent to {{email}}",
       "codeLabel": "Verification code",
-      "codePlaceholder": "123456",
+      "codePlaceholder": "",
       "submitButton": "Verify and login",
       "resendButton": "Resend code",
       "resendSuccess": "New code sent"
@@ -132,7 +132,7 @@
       "title": "Quick Start",
       "createCard": {
         "title": "Create new card",
-        "description": "Create a new travel or cargo card"
+        "description": "Create a new travel or package card"
       },
       "joinCommunity": {
         "title": "Join a community",
@@ -151,7 +151,7 @@
         "step2": {
           "number": "2",
           "title": "Create a card",
-          "description": "Post your travel or cargo card"
+          "description": "Post your travel or package card"
         },
         "step3": {
           "number": "3",
@@ -248,7 +248,7 @@
     }
   },
   "cards": {
-    "title": "Travel & Cargo Cards",
+    "title": "Travel & Package Cards",
     "subtitle": "Search and view all available cards",
     "createButton": "Create new card",
     "noCards": "No cards found",
@@ -289,7 +289,7 @@
     },
     "new": {
       "title": "Create New Card",
-      "subtitle": "Enter your travel or cargo information",
+      "subtitle": "Enter your travel or package information",
       "originCountry": "Origin country",
       "originCity": "Origin city",
       "destinationCountry": "Destination country",
@@ -757,7 +757,7 @@
       "getStarted": "Get Started"
     },
     "hero": {
-      "title": "Connect Travelers with Cargo Senders",
+      "title": "Connect Travelers with Senders",
       "titleHighlight": "Effortlessly",
       "subtitle": "Minila is a smart platform that connects travelers with spare luggage space to people who need to send packages. Safe, fast, and free.",
       "cta": "Get Started Free",
@@ -782,10 +782,10 @@
     },
     "features": {
       "title": "Why Choose Minila?",
-      "subtitle": "Everything you need to coordinate cargo transportation",
+      "subtitle": "Everything you need to coordinate package delivery",
       "coordination": {
         "title": "Quick Coordination",
-        "description": "Connect travelers to cargo senders instantly. Find the perfect match for your travel or shipping needs."
+        "description": "Connect travelers to senders instantly. Find the perfect match for your travel or shipping needs."
       },
       "communities": {
         "title": "Trusted Communities",
@@ -864,11 +864,11 @@
       "sections": {
         "introduction": {
           "title": "1. Introduction and Acceptance of Terms",
-          "content": "Welcome to Minila. By accessing or using our platform, you agree to be bound by these Terms and Conditions. Minila is a platform for coordinating between travelers and cargo senders. If you do not agree to these terms, please do not use our services."
+          "content": "Welcome to Minila. By accessing or using our platform, you agree to be bound by these Terms and Conditions. Minila is a platform for coordinating between travelers and senders. If you do not agree to these terms, please do not use our services."
         },
         "serviceDefinition": {
           "title": "2. Service Definition",
-          "content": "Minila provides a platform where users can create travel cards (for travelers willing to carry cargo) or cargo cards (for those who need to send items). Users can join communities, communicate through the messaging system, and coordinate cargo transportation. Minila does not directly provide transportation services and acts solely as an intermediary platform."
+          "content": "Minila provides a platform where users can create travel cards (for travelers willing to carry packages) or package cards (for those who need to send items). Users can join communities, communicate through the messaging system, and coordinate package delivery. Minila does not directly provide transportation services and acts solely as an intermediary platform."
         },
         "accountTerms": {
           "title": "3. Account Registration Terms",

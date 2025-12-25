@@ -103,7 +103,7 @@
       "title": "أدخل رمز التحقق",
       "subtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى {{email}}",
       "codeLabel": "رمز التحقق",
-      "codePlaceholder": "123456",
+      "codePlaceholder": "",
       "submitButton": "تأكيد وتسجيل الدخول",
       "resendButton": "إعادة إرسال الرمز",
       "resendSuccess": "تم إرسال رمز جديد"
