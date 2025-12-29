@@ -4,6 +4,15 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { apiService, AdminBackupInfo, AdminBackupList } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
+// Progress steps for restore
+const RESTORE_STEPS = [
+  { id: 1, label: 'شروع فرآیند بازگردانی', description: 'در حال آماده‌سازی...' },
+  { id: 2, label: 'ایجاد بکاپ امنیتی', description: 'ذخیره وضعیت فعلی دیتابیس' },
+  { id: 3, label: 'خواندن فایل بکاپ', description: 'در حال خواندن محتوای فایل' },
+  { id: 4, label: 'بازگردانی جداول', description: 'در حال بازگردانی داده‌ها' },
+  { id: 5, label: 'اتمام بازگردانی', description: 'بررسی نهایی' },
+]
+
 export default function AdminBackupsPage() {
   const [backups, setBackups] = useState<AdminBackupInfo[]>([])
   const [totalSize, setTotalSize] = useState(0)
@@ -20,9 +29,14 @@ export default function AdminBackupsPage() {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
-  // Restore state
+  // Restore state with progress
   const [restoring, setRestoring] = useState<string | null>(null)
   const [confirmRestore, setConfirmRestore] = useState<string | null>(null)
+  const [restoreProgress, setRestoreProgress] = useState(0)
+  const [restoreStep, setRestoreStep] = useState(0)
+  const [restoreMessage, setRestoreMessage] = useState('')
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
+  const [restoreResult, setRestoreResult] = useState<{ success: boolean; message: string } | null>(null)
 
   const loadBackups = useCallback(async () => {
     try {
@@ -131,25 +145,88 @@ export default function AdminBackupsPage() {
     }
   }
 
+  const simulateProgress = async () => {
+    // Step 1: Starting
+    setRestoreStep(1)
+    setRestoreProgress(10)
+    setRestoreMessage('در حال شروع فرآیند بازگردانی...')
+    await new Promise(r => setTimeout(r, 500))
+
+    // Step 2: Creating safety backup
+    setRestoreStep(2)
+    setRestoreProgress(25)
+    setRestoreMessage('در حال ایجاد بکاپ امنیتی از وضعیت فعلی...')
+    await new Promise(r => setTimeout(r, 1000))
+
+    // Step 3: Reading backup file
+    setRestoreStep(3)
+    setRestoreProgress(40)
+    setRestoreMessage('در حال خواندن و استخراج فایل بکاپ...')
+    await new Promise(r => setTimeout(r, 800))
+
+    // Step 4: Restoring tables
+    setRestoreStep(4)
+    setRestoreProgress(60)
+    setRestoreMessage('در حال بازگردانی جداول دیتابیس...')
+    
+    // Simulate table restoration progress
+    for (let i = 60; i <= 90; i += 5) {
+      await new Promise(r => setTimeout(r, 300))
+      setRestoreProgress(i)
+      setRestoreMessage(`در حال بازگردانی جداول... (${Math.round((i-60)/30 * 100)}%)`)
+    }
+  }
+
   const handleRestore = async (filename: string) => {
     try {
       setRestoring(filename)
-      const result = await apiService.restoreAdminBackup(filename)
-      
+      setShowRestoreModal(true)
+      setRestoreResult(null)
+      setRestoreProgress(0)
+      setRestoreStep(0)
       setConfirmRestore(null)
       
+      // Start progress simulation
+      const progressPromise = simulateProgress()
+      
+      // Call the actual restore API
+      const result = await apiService.restoreAdminBackup(filename)
+      
+      // Wait for progress simulation to complete (if not already)
+      await progressPromise
+      
+      // Step 5: Complete
+      setRestoreStep(5)
+      setRestoreProgress(100)
+      
       if (result.success) {
-        alert(`✅ ${result.message}`)
-        await loadBackups()
+        setRestoreMessage('✅ بازگردانی با موفقیت انجام شد!')
+        setRestoreResult({ success: true, message: result.message })
       } else {
-        alert(`❌ ${result.message}`)
+        setRestoreMessage('❌ خطا در بازگردانی')
+        setRestoreResult({ success: false, message: result.message })
       }
+      
+      // Reload backups after a short delay
+      await new Promise(r => setTimeout(r, 1000))
+      await loadBackups()
+      
     } catch (err: any) {
       console.error('Failed to restore backup:', err)
-      alert(err.message || 'خطا در بازگردانی بکاپ')
+      setRestoreProgress(100)
+      setRestoreMessage('❌ خطا در بازگردانی')
+      setRestoreResult({ success: false, message: err.message || 'خطای غیرمنتظره در بازگردانی' })
     } finally {
       setRestoring(null)
     }
+  }
+
+  const closeRestoreModal = () => {
+    setShowRestoreModal(false)
+    setRestoreResult(null)
+    setRestoreProgress(0)
+    setRestoreStep(0)
+    setRestoreMessage('')
   }
 
   const formatDate = (dateStr: string) => {
@@ -187,6 +264,118 @@ export default function AdminBackupsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Restore Progress Modal */}
+      {showRestoreModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-6">
+            {/* Header */}
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+                {restoreResult ? (
+                  restoreResult.success ? (
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )
+                ) : (
+                  <svg className="w-8 h-8 text-orange-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )}
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900">
+                {restoreResult ? (restoreResult.success ? 'بازگردانی موفق' : 'خطا در بازگردانی') : 'در حال بازگردانی بکاپ'}
+              </h3>
+              <p className="text-neutral-600 mt-1 text-sm">{restoring}</p>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-neutral-600">پیشرفت</span>
+                <span className="font-bold text-primary-600">{restoreProgress}%</span>
+              </div>
+              <div className="h-4 bg-neutral-200 rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full rounded-full transition-all duration-300",
+                    restoreResult?.success === false ? "bg-red-500" : "bg-gradient-to-r from-orange-500 to-primary-500"
+                  )}
+                  style={{ width: `${restoreProgress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Current Step Message */}
+            <div className="bg-neutral-50 rounded-xl p-4">
+              <p className="text-center text-neutral-700 font-medium">{restoreMessage}</p>
+            </div>
+
+            {/* Steps Progress */}
+            <div className="space-y-3">
+              {RESTORE_STEPS.map((step) => (
+                <div key={step.id} className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold transition-colors",
+                    restoreStep > step.id 
+                      ? "bg-green-500 text-white" 
+                      : restoreStep === step.id 
+                        ? "bg-orange-500 text-white animate-pulse" 
+                        : "bg-neutral-200 text-neutral-500"
+                  )}>
+                    {restoreStep > step.id ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      step.id
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className={cn(
+                      "font-medium text-sm",
+                      restoreStep >= step.id ? "text-neutral-900" : "text-neutral-400"
+                    )}>
+                      {step.label}
+                    </p>
+                    <p className={cn(
+                      "text-xs",
+                      restoreStep >= step.id ? "text-neutral-600" : "text-neutral-400"
+                    )}>
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Result Message */}
+            {restoreResult && (
+              <div className={cn(
+                "rounded-xl p-4 text-center",
+                restoreResult.success ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+              )}>
+                <p className="font-medium">{restoreResult.message}</p>
+              </div>
+            )}
+
+            {/* Close Button (only show when complete) */}
+            {restoreResult && (
+              <button
+                onClick={closeRestoreModal}
+                className="w-full py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium"
+              >
+                بستن
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -295,12 +484,26 @@ export default function AdminBackupsPage() {
                   <tr key={backup.filename} className="hover:bg-neutral-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className={cn(
+                          "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                          backup.filename.includes('full') ? "bg-green-100" : "bg-blue-100"
+                        )}>
+                          <svg className={cn(
+                            "w-5 h-5",
+                            backup.filename.includes('full') ? "text-green-600" : "text-blue-600"
+                          )} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                           </svg>
                         </div>
-                        <span className="font-mono text-sm text-neutral-700" dir="ltr">{backup.filename}</span>
+                        <div>
+                          <span className="font-mono text-sm text-neutral-700" dir="ltr">{backup.filename}</span>
+                          {backup.filename.includes('full') && (
+                            <span className="block text-xs text-green-600 font-medium">✅ بکاپ کامل</span>
+                          )}
+                          {backup.filename.includes('before_restore') && (
+                            <span className="block text-xs text-orange-600 font-medium">🔒 بکاپ امنیتی</span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-neutral-600">
@@ -451,6 +654,7 @@ export default function AdminBackupsPage() {
               <li>می‌توانید در هر زمان به صورت دستی بکاپ بگیرید</li>
               <li>فرمت‌های مجاز برای آپلود: .sql.gz, .gz, .sql</li>
               <li>حداکثر حجم فایل آپلود: 500 مگابایت</li>
+              <li className="text-green-600 font-medium">✅ بکاپ‌های "full" شامل تمام داده‌ها از جمله کشورها و شهرها هستند</li>
             </ul>
           </div>
         </div>
