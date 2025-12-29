@@ -231,7 +231,7 @@ export default function AdminSettingsPage() {
                       onClick={handleSaveLimit}
                       disabled={saving}
                       className={cn(
-                        "px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm",
+                        "px-3 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-800 transition-colors text-sm",
                         saving && "opacity-50 cursor-not-allowed"
                       )}
                     >

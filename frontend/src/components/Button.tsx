@@ -24,11 +24,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'font-medium', // Medium (500) برای دکمه‌ها
           
-          // Variant styles
+          // Variant styles - using darker colors for better contrast
           {
-            'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500': variant === 'primary',
+            'bg-primary-700 text-white hover:bg-primary-800 focus:ring-primary-600': variant === 'primary',
             'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 focus:ring-neutral-400': variant === 'secondary',
-            'bg-transparent text-neutral-700 hover:bg-neutral-100 focus:ring-neutral-400': variant === 'ghost',
+            'bg-transparent text-neutral-800 hover:bg-neutral-100 focus:ring-neutral-400': variant === 'ghost',
           },
           
           // Size styles

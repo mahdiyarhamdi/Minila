@@ -177,7 +177,7 @@ export default function AdminLayout({
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-700">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary-700 rounded-lg flex items-center justify-center">
               <span className="text-sm font-bold">M</span>
             </div>
             <span className="font-bold">پنل مدیریت</span>
@@ -204,7 +204,7 @@ export default function AdminLayout({
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative",
                   active
-                    ? "bg-primary-600 text-white"
+                    ? "bg-primary-700 text-white"
                     : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
                 )}
               >

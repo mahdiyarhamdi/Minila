@@ -139,7 +139,7 @@ export default function HeroSection() {
               </div>
 
               {/* CTA */}
-              <Button variant="secondary" size="lg" className="w-full group-hover:shadow-lg transition-shadow bg-sand-500 hover:bg-sand-600 text-white border-sand-500">
+              <Button variant="secondary" size="lg" className="w-full group-hover:shadow-lg transition-shadow bg-sand-700 hover:bg-sand-800 text-white border-sand-700">
                 {t('landing.hero.sender.cta')}
               </Button>
             </div>

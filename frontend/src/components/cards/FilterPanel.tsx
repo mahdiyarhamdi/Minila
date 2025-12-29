@@ -634,7 +634,7 @@ export default function FilterPanel({ onFilterChange, initialFilters }: FilterPa
           </svg>
           <span>{t('cards.filters.title')}</span>
           {activeFilterCount > 0 && (
-            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-primary-600 text-white text-xs font-bold rounded-full">
+            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-primary-700 text-white text-xs font-bold rounded-full">
               {activeFilterCount}
             </span>
           )}

@@ -123,7 +123,7 @@ export default function AdminLogsPage() {
             className={cn(
               "px-3 py-1.5 text-sm rounded-lg transition-colors",
               !filterEventType
-                ? "bg-primary-600 text-white"
+                ? "bg-primary-700 text-white"
                 : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
             )}
           >
@@ -139,7 +139,7 @@ export default function AdminLogsPage() {
               className={cn(
                 "px-3 py-1.5 text-sm rounded-lg transition-colors",
                 filterEventType === type
-                  ? "bg-primary-600 text-white"
+                  ? "bg-primary-700 text-white"
                   : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
               )}
             >

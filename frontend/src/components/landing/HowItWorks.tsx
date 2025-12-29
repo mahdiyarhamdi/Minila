@@ -48,21 +48,21 @@ export default function HowItWorks() {
         return {
           bg: 'bg-primary-100',
           text: 'text-primary-600',
-          badge: 'bg-primary-600',
+          badge: 'bg-primary-700',
           hint: 'bg-primary-50 text-primary-800',
         }
       case 'sand':
         return {
           bg: 'bg-sand-100',
           text: 'text-sand-600',
-          badge: 'bg-sand-600',
+          badge: 'bg-sand-700',
           hint: 'bg-sand-50 text-sand-800',
         }
       case 'green':
         return {
           bg: 'bg-green-100',
           text: 'text-green-600',
-          badge: 'bg-green-600',
+          badge: 'bg-green-700',
           hint: 'bg-green-50 text-green-800',
         }
       default:

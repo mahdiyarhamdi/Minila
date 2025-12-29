@@ -321,7 +321,7 @@ export default function AdminUsersPage() {
                   "px-4 py-2 text-white rounded-lg transition-colors",
                   actionModal.user.is_active
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-green-600 hover:bg-green-700",
+                    : "bg-green-700 hover:bg-green-800",
                   actionLoading && "opacity-50 cursor-not-allowed"
                 )}
               >

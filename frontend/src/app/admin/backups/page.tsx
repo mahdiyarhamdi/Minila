@@ -367,7 +367,7 @@ export default function AdminBackupsPage() {
             {restoreResult && (
               <button
                 onClick={closeRestoreModal}
-                className="w-full py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium"
+                className="w-full py-3 bg-primary-700 text-white rounded-xl hover:bg-primary-800 transition-colors font-medium"
               >
                 بستن
               </button>
@@ -395,7 +395,7 @@ export default function AdminBackupsPage() {
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors",
+              "flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors",
               uploading && "opacity-50 cursor-not-allowed"
             )}
           >
@@ -419,7 +419,7 @@ export default function AdminBackupsPage() {
             onClick={handleCreateBackup}
             disabled={creating}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors",
+              "flex items-center gap-2 px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-800 transition-colors",
               creating && "opacity-50 cursor-not-allowed"
             )}
           >
