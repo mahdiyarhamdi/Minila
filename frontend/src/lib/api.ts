@@ -843,6 +843,35 @@ class APIService {
     return response.data
   }
 
+  /**
+   * آپلود فایل بکاپ (ادمین)
+   */
+  async uploadAdminBackup(file: File): Promise<AdminBackupUploadResponse> {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await this.client.post<AdminBackupUploadResponse>(
+      '/api/v1/admin/backups/upload',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return response.data
+  }
+
+  /**
+   * بازگردانی بکاپ (ادمین)
+   */
+  async restoreAdminBackup(filename: string): Promise<AdminBackupRestoreResponse> {
+    const response = await this.client.post<AdminBackupRestoreResponse>(
+      `/api/v1/admin/backups/${filename}/restore`
+    )
+    return response.data
+  }
+
   // ==================== Reports ====================
 
   /**
@@ -1133,6 +1162,19 @@ export interface AdminBackupCreateResponse {
   success: boolean
   filename?: string
   message: string
+}
+
+export interface AdminBackupUploadResponse {
+  success: boolean
+  filename: string
+  size_mb: number
+  message: string
+}
+
+export interface AdminBackupRestoreResponse {
+  success: boolean
+  message: string
+  tables_restored?: number
 }
 
 // Alert Types

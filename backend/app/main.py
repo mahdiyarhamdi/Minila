@@ -6,8 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from .core.config import get_settings
 from .core.rate_limit import init_rate_limiter
-from .core.database import close_db
+from .core.database import close_db, get_async_session
 from .utils.logger import logger
+from .utils.seed import run_startup_checks
 
 settings = get_settings()
 
@@ -22,6 +23,14 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up Minila API...")
     init_rate_limiter(settings.REDIS_URL)
     logger.info("Rate limiter initialized")
+    
+    # Run startup health checks and ensure admin exists
+    try:
+        async for db in get_async_session():
+            await run_startup_checks(db)
+            break
+    except Exception as e:
+        logger.error(f"Startup checks failed: {e}")
     
     yield
     

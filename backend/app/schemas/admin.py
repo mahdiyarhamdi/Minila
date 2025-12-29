@@ -423,5 +423,22 @@ class BackupCreateResponse(BaseModel):
     message: str = Field(..., description="پیام")
 
 
+class BackupRestoreResponse(BaseModel):
+    """پاسخ بازگردانی بکاپ."""
+    
+    success: bool = Field(..., description="آیا بازگردانی موفق بود")
+    message: str = Field(..., description="پیام")
+    tables_restored: Optional[int] = Field(None, description="تعداد جداول بازگردانده شده")
+
+
+class BackupUploadResponse(BaseModel):
+    """پاسخ آپلود بکاپ."""
+    
+    success: bool = Field(..., description="آیا آپلود موفق بود")
+    filename: str = Field(..., description="نام فایل ذخیره شده")
+    size_mb: float = Field(..., description="حجم فایل به مگابایت")
+    message: str = Field(..., description="پیام")
+
+
 
 

@@ -1,7 +1,7 @@
 """Admin panel API router."""
 from datetime import datetime
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, status
 from fastapi.responses import FileResponse
 
 from ..deps import DBSession, AdminUser
@@ -25,6 +25,8 @@ from ...schemas.admin import (
     PaginatedLogAdmin,
     BackupList,
     BackupCreateResponse,
+    BackupRestoreResponse,
+    BackupUploadResponse,
 )
 from ...schemas.common import MessageResponse
 from ...schemas.alert import AlertList, AlertStats, AlertOut
@@ -532,6 +534,48 @@ async def create_backup(
 ) -> BackupCreateResponse:
     """ایجاد بکاپ جدید."""
     return await admin_service.create_backup(admin["user_id"])
+
+
+@router.post(
+    "/backups/upload",
+    response_model=BackupUploadResponse,
+    summary="آپلود بکاپ",
+    description="آپلود فایل بکاپ برای بازگردانی آینده"
+)
+async def upload_backup(
+    admin: AdminUser,
+    file: UploadFile = File(..., description="فایل بکاپ (.sql.gz یا .sql)")
+) -> BackupUploadResponse:
+    """آپلود فایل بکاپ."""
+    # بررسی حجم فایل (حداکثر 500MB)
+    content = await file.read()
+    max_size = 500 * 1024 * 1024  # 500MB
+    
+    if len(content) > max_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="حجم فایل نباید بیشتر از 500 مگابایت باشد"
+        )
+    
+    return await admin_service.upload_backup(
+        file_content=content,
+        original_filename=file.filename or "backup.sql.gz",
+        admin_user_id=admin["user_id"]
+    )
+
+
+@router.post(
+    "/backups/{filename}/restore",
+    response_model=BackupRestoreResponse,
+    summary="بازگردانی بکاپ",
+    description="بازگردانی دیتابیس از فایل بکاپ. ⚠️ این عملیات داده‌های فعلی را جایگزین می‌کند!"
+)
+async def restore_backup(
+    filename: str,
+    admin: AdminUser,
+) -> BackupRestoreResponse:
+    """بازگردانی دیتابیس از بکاپ."""
+    return await admin_service.restore_backup(filename, admin["user_id"])
 
 
 # ==================== Alerts ====================

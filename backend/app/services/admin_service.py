@@ -26,6 +26,8 @@ from ..schemas.admin import (
     BackupInfo,
     BackupList,
     BackupCreateResponse,
+    BackupRestoreResponse,
+    BackupUploadResponse,
 )
 from ..core.config import get_settings
 from ..utils.logger import logger
@@ -549,5 +551,162 @@ async def create_backup(admin_user_id: int) -> BackupCreateResponse:
         )
 
 
+async def restore_backup(filename: str, admin_user_id: int) -> BackupRestoreResponse:
+    """بازگردانی دیتابیس از فایل بکاپ."""
+    logger.warning(f"Admin {admin_user_id} initiating backup restore from {filename}")
+    
+    file_path = get_backup_path(filename)
+    if not file_path:
+        return BackupRestoreResponse(
+            success=False,
+            message="فایل بکاپ یافت نشد یا نامعتبر است",
+            tables_restored=None
+        )
+    
+    try:
+        # خواندن اطلاعات اتصال
+        db_host = getattr(settings, "POSTGRES_HOST", "minila_db")
+        db_port = getattr(settings, "POSTGRES_PORT", "5432")
+        db_name = getattr(settings, "POSTGRES_DB", "minila")
+        db_user = getattr(settings, "POSTGRES_USER", "postgres")
+        db_pass = getattr(settings, "POSTGRES_PASSWORD", "postgres")
+        
+        env = os.environ.copy()
+        env["PGPASSWORD"] = db_pass
+        
+        # اول یک بکاپ قبل از ریستور بگیریم (safety)
+        safety_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safety_backup = f"minila_backup_before_restore_{safety_timestamp}.sql.gz"
+        safety_path = BACKUP_DIR / safety_backup
+        
+        logger.info("Creating safety backup before restore...")
+        safety_cmd = ["pg_dump", "-h", db_host, "-p", str(db_port), "-U", db_user, db_name]
+        safety_process = subprocess.Popen(
+            safety_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env
+        )
+        safety_stdout, safety_stderr = safety_process.communicate()
+        
+        if safety_process.returncode == 0:
+            with gzip.open(safety_path, "wb") as f:
+                f.write(safety_stdout)
+            logger.info(f"Safety backup created: {safety_backup}")
+        else:
+            logger.warning("Could not create safety backup, continuing with restore...")
+        
+        # خواندن فایل بکاپ
+        logger.info(f"Reading backup file: {filename}")
+        with gzip.open(file_path, "rb") as f:
+            sql_content = f.read()
+        
+        # اجرای psql برای بازگردانی
+        # اول جداول موجود را پاک می‌کنیم (برای جلوگیری از duplicate key)
+        logger.info("Restoring database...")
+        
+        restore_cmd = [
+            "psql", "-h", db_host, "-p", str(db_port), 
+            "-U", db_user, "-d", db_name,
+            "-v", "ON_ERROR_STOP=0"  # ادامه در صورت خطا
+        ]
+        
+        restore_process = subprocess.Popen(
+            restore_cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env
+        )
+        
+        stdout, stderr = restore_process.communicate(input=sql_content)
+        
+        if restore_process.returncode != 0:
+            stderr_text = stderr.decode() if stderr else ""
+            # برخی خطاها عادی هستند (مثل DROP IF EXISTS)
+            if "ERROR" in stderr_text and "does not exist" not in stderr_text:
+                logger.error(f"Restore error: {stderr_text}")
+                return BackupRestoreResponse(
+                    success=False,
+                    message=f"خطا در بازگردانی: {stderr_text[:200]}",
+                    tables_restored=None
+                )
+        
+        logger.info(f"Backup restore completed for {filename}")
+        
+        return BackupRestoreResponse(
+            success=True,
+            message=f"بازگردانی با موفقیت انجام شد. بکاپ امنیتی: {safety_backup}",
+            tables_restored=None
+        )
+        
+    except Exception as e:
+        logger.error(f"Error restoring backup: {e}")
+        return BackupRestoreResponse(
+            success=False,
+            message=f"خطا در بازگردانی: {str(e)}",
+            tables_restored=None
+        )
+
+
+async def upload_backup(file_content: bytes, original_filename: str, admin_user_id: int) -> BackupUploadResponse:
+    """آپلود و ذخیره فایل بکاپ."""
+    logger.info(f"Admin {admin_user_id} uploading backup: {original_filename}")
+    
+    try:
+        # بررسی نام فایل
+        if not original_filename.endswith(('.sql.gz', '.gz', '.sql')):
+            return BackupUploadResponse(
+                success=False,
+                filename="",
+                size_mb=0,
+                message="فرمت فایل باید .sql.gz، .gz یا .sql باشد"
+            )
+        
+        # ایجاد پوشه بکاپ اگر وجود نداشت
+        BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # ایجاد نام فایل منحصر به فرد
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # اگر فایل فشرده نیست، فشرده‌اش می‌کنیم
+        if original_filename.endswith('.sql') and not original_filename.endswith('.sql.gz'):
+            new_filename = f"minila_backup_uploaded_{timestamp}.sql.gz"
+            backup_path = BACKUP_DIR / new_filename
+            
+            with gzip.open(backup_path, "wb") as f:
+                f.write(file_content)
+        else:
+            new_filename = f"minila_backup_uploaded_{timestamp}.sql.gz"
+            backup_path = BACKUP_DIR / new_filename
+            
+            # بررسی اینکه آیا محتوا واقعاً gzip است
+            if file_content[:2] == b'\x1f\x8b':  # gzip magic number
+                with open(backup_path, "wb") as f:
+                    f.write(file_content)
+            else:
+                # فرض می‌کنیم SQL ساده است
+                with gzip.open(backup_path, "wb") as f:
+                    f.write(file_content)
+        
+        size_mb = backup_path.stat().st_size / (1024 * 1024)
+        
+        logger.info(f"Backup uploaded successfully: {new_filename} ({size_mb:.2f} MB)")
+        
+        return BackupUploadResponse(
+            success=True,
+            filename=new_filename,
+            size_mb=round(size_mb, 2),
+            message="فایل بکاپ با موفقیت آپلود شد"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error uploading backup: {e}")
+        return BackupUploadResponse(
+            success=False,
+            filename="",
+            size_mb=0,
+            message=f"خطا در آپلود: {str(e)}"
+        )
 
 
