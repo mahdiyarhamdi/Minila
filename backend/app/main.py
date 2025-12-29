@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from .core.config import get_settings
 from .core.rate_limit import init_rate_limiter
-from .core.database import close_db, get_async_session
+from .core.database import close_db, get_db_session
 from .utils.logger import logger
 from .utils.seed import run_startup_checks
 
@@ -26,9 +26,8 @@ async def lifespan(app: FastAPI):
     
     # Run startup health checks and ensure admin exists
     try:
-        async for db in get_async_session():
+        async with get_db_session() as db:
             await run_startup_checks(db)
-            break
     except Exception as e:
         logger.error(f"Startup checks failed: {e}")
     
