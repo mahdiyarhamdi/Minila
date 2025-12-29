@@ -232,7 +232,7 @@ export default function Autocomplete({
                 className={`
                   w-full px-4 py-2.5 text-start transition-colors
                   ${index === selectedIndex
-                    ? 'bg-primary-50 text-primary-700'
+                    ? 'bg-primary-50 text-primary-800'
                     : 'hover:bg-neutral-50 text-neutral-900'
                   }
                   ${index > 0 ? 'border-t border-neutral-100' : ''}

@@ -76,10 +76,12 @@ export default function LanguageSelector({ className, variant = 'desktop' }: Lan
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-neutral-100 transition-colors"
-        aria-label="Select language"
+        aria-label={`${currentLanguage.nativeName} - Change language`}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
       >
         {/* Globe Icon */}
-        <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -87,7 +89,7 @@ export default function LanguageSelector({ className, variant = 'desktop' }: Lan
             d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
           />
         </svg>
-        <span className="text-sm font-medium text-neutral-700 hidden sm:inline">
+        <span className="text-sm font-medium text-neutral-800 hidden sm:inline">
           {currentLanguage.nativeName}
         </span>
         <svg

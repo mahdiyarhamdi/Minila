@@ -88,7 +88,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="py-6 border-t border-neutral-800 flex justify-center items-center">
-          <p className="text-neutral-500 text-sm font-light text-center">
+          <p className="text-neutral-400 text-sm font-light text-center">
             {t('landing.footer.copyright')}
           </p>
         </div>

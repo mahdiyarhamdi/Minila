@@ -79,22 +79,24 @@ export default function CardsCarousel() {
               <button
                 onClick={() => scroll('left')}
                 disabled={!canScrollLeft}
+                aria-label={t('common.previous')}
                 className={`absolute ltr:-left-4 rtl:-right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-medium flex items-center justify-center transition-opacity ${
                   canScrollLeft ? 'opacity-100 hover:bg-neutral-50' : 'opacity-0 pointer-events-none'
                 }`}
               >
-                <svg className="w-5 h-5 text-neutral-700 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-neutral-700 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <button
                 onClick={() => scroll('right')}
                 disabled={!canScrollRight}
+                aria-label={t('common.next')}
                 className={`absolute ltr:-right-4 rtl:-left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-medium flex items-center justify-center transition-opacity ${
                   canScrollRight ? 'opacity-100 hover:bg-neutral-50' : 'opacity-0 pointer-events-none'
                 }`}
               >
-                <svg className="w-5 h-5 text-neutral-700 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-neutral-700 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>

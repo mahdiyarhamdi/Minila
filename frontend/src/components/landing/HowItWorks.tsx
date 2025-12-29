@@ -49,28 +49,28 @@ export default function HowItWorks() {
           bg: 'bg-primary-100',
           text: 'text-primary-600',
           badge: 'bg-primary-600',
-          hint: 'bg-primary-50 text-primary-700',
+          hint: 'bg-primary-50 text-primary-800',
         }
       case 'sand':
         return {
           bg: 'bg-sand-100',
           text: 'text-sand-600',
           badge: 'bg-sand-600',
-          hint: 'bg-sand-50 text-sand-700',
+          hint: 'bg-sand-50 text-sand-800',
         }
       case 'green':
         return {
           bg: 'bg-green-100',
           text: 'text-green-600',
           badge: 'bg-green-600',
-          hint: 'bg-green-50 text-green-700',
+          hint: 'bg-green-50 text-green-800',
         }
       default:
         return {
           bg: 'bg-neutral-100',
           text: 'text-neutral-600',
           badge: 'bg-neutral-600',
-          hint: 'bg-neutral-50 text-neutral-700',
+          hint: 'bg-neutral-50 text-neutral-800',
         }
     }
   }

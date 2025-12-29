@@ -93,7 +93,7 @@ export default function HeroSection() {
               </h2>
 
               {/* Solution */}
-              <div className="flex items-start gap-2 mb-6 text-sm text-primary-700 bg-primary-50 rounded-xl p-3">
+              <div className="flex items-start gap-2 mb-6 text-sm text-primary-800 bg-primary-50 rounded-xl p-3">
                 <svg className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -131,7 +131,7 @@ export default function HeroSection() {
               </h2>
 
               {/* Solution */}
-              <div className="flex items-start gap-2 mb-6 text-sm text-sand-700 bg-sand-50 rounded-xl p-3">
+              <div className="flex items-start gap-2 mb-6 text-sm text-sand-800 bg-sand-50 rounded-xl p-3">
                 <svg className="w-5 h-5 text-sand-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
