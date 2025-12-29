@@ -604,6 +604,20 @@ async def restore_backup(filename: str, admin_user_id: int) -> BackupRestoreResp
         # حذف خط \restrict که باعث hang شدن psql می‌شود
         sql_content = sql_content.replace(b"\\restrict ", b"-- restrict ")
         
+        # ابتدا تمام کانکشن‌های دیگر به دیتابیس را ببندیم تا lock نداشته باشیم
+        logger.info("Terminating other database connections...")
+        terminate_cmd = [
+            "psql", "-h", db_host, "-p", str(db_port),
+            "-U", db_user, "-d", "postgres",  # به دیتابیس postgres وصل شو، نه minila
+            "-X", "-c",
+            f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{db_name}' AND pid <> pg_backend_pid();"
+        ]
+        terminate_process = subprocess.run(terminate_cmd, env=env, capture_output=True, text=True)
+        if terminate_process.returncode == 0:
+            logger.info("All other connections terminated")
+        else:
+            logger.warning(f"Could not terminate connections: {terminate_process.stderr}")
+        
         # اجرای psql برای بازگردانی
         logger.info("Restoring database...")
         
