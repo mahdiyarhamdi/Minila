@@ -601,13 +601,16 @@ async def restore_backup(filename: str, admin_user_id: int) -> BackupRestoreResp
         with gzip.open(file_path, "rb") as f:
             sql_content = f.read()
         
+        # حذف خط \restrict که باعث hang شدن psql می‌شود
+        sql_content = sql_content.replace(b"\\restrict ", b"-- restrict ")
+        
         # اجرای psql برای بازگردانی
-        # اول جداول موجود را پاک می‌کنیم (برای جلوگیری از duplicate key)
         logger.info("Restoring database...")
         
         restore_cmd = [
             "psql", "-h", db_host, "-p", str(db_port), 
             "-U", db_user, "-d", db_name,
+            "-X",  # عدم خواندن .psqlrc
             "-v", "ON_ERROR_STOP=0"  # ادامه در صورت خطا
         ]
         
@@ -619,7 +622,17 @@ async def restore_backup(filename: str, admin_user_id: int) -> BackupRestoreResp
             env=env
         )
         
-        stdout, stderr = restore_process.communicate(input=sql_content)
+        try:
+            stdout, stderr = restore_process.communicate(input=sql_content, timeout=300)  # 5 minute timeout
+        except subprocess.TimeoutExpired:
+            restore_process.kill()
+            stdout, stderr = restore_process.communicate()
+            logger.error("Restore process timed out after 5 minutes")
+            return BackupRestoreResponse(
+                success=False,
+                message="بازگردانی بیش از حد طول کشید و متوقف شد",
+                tables_restored=None
+            )
         
         if restore_process.returncode != 0:
             stderr_text = stderr.decode() if stderr else ""
