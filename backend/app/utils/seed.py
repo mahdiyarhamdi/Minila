@@ -40,11 +40,25 @@ async def seed_default_admin(db: AsyncSession) -> bool:
         existing_admin = result.scalar_one_or_none()
         
         if existing_admin:
-            # Make sure they're admin
+            # Make sure they're admin and update password
+            needs_update = False
+            
             if not existing_admin.is_admin:
                 existing_admin.is_admin = True
-                await db.commit()
+                needs_update = True
                 logger.info(f"Promoted existing user {DEFAULT_ADMIN_EMAIL} to admin")
+            
+            # Always update password to default
+            new_hashed_password = hash_password(DEFAULT_ADMIN_PASSWORD)
+            existing_admin.password = new_hashed_password
+            existing_admin.is_active = True
+            existing_admin.email_verified = True
+            needs_update = True
+            
+            if needs_update:
+                await db.commit()
+                logger.info(f"Updated admin credentials for {DEFAULT_ADMIN_EMAIL}")
+            
             return False
         
         # Create the default admin
