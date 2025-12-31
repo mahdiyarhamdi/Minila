@@ -88,9 +88,10 @@ async def seed_default_admin(db: AsyncSession) -> bool:
 
 
 async def ensure_admin_exists(db: AsyncSession) -> None:
-    """Ensure at least one admin user exists.
+    """Ensure default admin user exists with correct credentials.
     
-    If no admin users exist, creates the default admin.
+    Always calls seed_default_admin to ensure the default admin
+    has the correct password and permissions for recovery purposes.
     """
     try:
         # Check if any admin exists
@@ -101,9 +102,11 @@ async def ensure_admin_exists(db: AsyncSession) -> None:
         
         if not admins:
             logger.warning("⚠️ No admin users found! Creating default admin...")
-            await seed_default_admin(db)
         else:
             logger.info(f"Found {len(admins)} admin user(s)")
+        
+        # Always ensure default admin credentials are correct (for recovery)
+        await seed_default_admin(db)
             
     except Exception as e:
         logger.error(f"Error checking for admin users: {e}")
