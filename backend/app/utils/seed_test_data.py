@@ -10,7 +10,7 @@ from ..models.community import Community
 from ..models.membership import Membership
 from ..models.card import Card, CardCommunity
 from ..models.location import Country, City
-from ..models.access import Role
+from ..models.role import Role
 from ..core.security import hash_password
 from .logger import logger
 
