@@ -669,3 +669,26 @@ async def mark_all_alerts_as_read(
     count = await alert_service.mark_all_as_read(db)
     return MessageResponse(message=f"{count} هشدار به عنوان خوانده شده علامت‌گذاری شد")
 
+
+# ==================== Seed Test Data ====================
+
+@router.post(
+    "/seed-test-data",
+    response_model=MessageResponse,
+    summary="ایجاد داده‌های تستی",
+    description="ایجاد کاربران، کامیونیتی‌ها و کارت‌های تستی برای دمو"
+)
+async def seed_test_data(
+    db: DBSession,
+    admin: AdminUser,
+) -> MessageResponse:
+    """ایجاد داده‌های تستی."""
+    from ...utils.seed_test_data import seed_all_test_data
+    
+    result = await seed_all_test_data(db)
+    
+    return MessageResponse(
+        message=f"داده‌های تستی ایجاد شد: {result['users_created']} کاربر، "
+                f"{result['communities_created']} کامیونیتی، {result['cards_created']} کارت"
+    )
+
