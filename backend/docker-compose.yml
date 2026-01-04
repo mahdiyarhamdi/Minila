@@ -12,6 +12,8 @@ services:
       POSTGRES_DB: minila
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-user.sh:/docker-entrypoint-initdb.d/init-user.sh:ro
+      - ./docker/sync-password.sh:/sync-password.sh:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -29,6 +31,17 @@ services:
           memory: 256M
     # Prevent OOM killer from killing PostgreSQL
     oom_score_adj: -500
+    # Run postgres with password sync on every start
+    command: >
+      bash -c "
+        docker-entrypoint.sh postgres &
+        PID=$$!
+        sleep 5
+        until pg_isready -U postgres; do sleep 1; done
+        psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" || true
+        echo 'Password synchronized'
+        wait $$PID
+      "
 
   # Redis Cache & Rate Limiting
   redis:
