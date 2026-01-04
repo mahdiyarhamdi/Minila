@@ -131,10 +131,10 @@ async def get_or_create_cities(db: AsyncSession) -> dict:
     return cities
 
 
-async def get_admin_role(db: AsyncSession) -> Optional[Role]:
-    """Get the admin role."""
+async def get_owner_role(db: AsyncSession) -> Optional[Role]:
+    """Get the owner role (highest level in community)."""
     result = await db.execute(
-        select(Role).where(Role.name == "admin")
+        select(Role).where(Role.name == "owner")
     )
     return result.scalar_one_or_none()
 
@@ -212,9 +212,9 @@ async def seed_test_communities(db: AsyncSession, owner: User) -> list[Community
 async def add_admins_to_communities(
     db: AsyncSession, 
     communities: list[Community],
-    admin_role: Role
+    owner_role: Role
 ) -> None:
-    """Add all admin users as admins of all communities."""
+    """Add all admin users as owners of all communities."""
     # Get all admin users
     result = await db.execute(
         select(User).where(User.is_admin == True)
@@ -233,19 +233,19 @@ async def add_admins_to_communities(
             existing = result.scalar_one_or_none()
             
             if existing:
-                # Update to admin role if not already
-                if existing.role_id != admin_role.id:
-                    existing.role_id = admin_role.id
+                # Update to owner role if not already
+                if existing.role_id != owner_role.id:
+                    existing.role_id = owner_role.id
                 continue
             
             membership = Membership(
                 user_id=admin.id,
                 community_id=community.id,
-                role_id=admin_role.id,
+                role_id=owner_role.id,
                 is_active=True
             )
             db.add(membership)
-            logger.info(f"Added admin {admin.email} to community {community.name}")
+            logger.info(f"Added admin {admin.email} as owner of community {community.name}")
     
     await db.flush()
 
@@ -389,10 +389,10 @@ async def seed_all_test_data(db: AsyncSession) -> dict:
     
     try:
         # Get roles
-        admin_role = await get_admin_role(db)
+        owner_role = await get_owner_role(db)
         member_role = await get_member_role(db)
         
-        if not admin_role or not member_role:
+        if not owner_role or not member_role:
             logger.error("Roles not found. Please run migrations first.")
             return result
         
@@ -425,8 +425,8 @@ async def seed_all_test_data(db: AsyncSession) -> dict:
         logger.info(f"✅ Communities ready: {len(communities)}")
         
         # Add admins to all communities
-        await add_admins_to_communities(db, communities, admin_role)
-        logger.info("✅ Admins added to all communities")
+        await add_admins_to_communities(db, communities, owner_role)
+        logger.info("✅ Admins added to all communities as owners")
         
         # Add users to communities
         await add_users_to_communities(db, users, communities, member_role)
