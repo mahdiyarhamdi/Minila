@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, KeyboardEvent, ClipboardEvent } from 'react'
+import { convertToEnglishNumbers } from '@/lib/utils'
 
 interface OTPInputProps {
   length?: number
@@ -38,8 +39,9 @@ export default function OTPInput({
   }
 
   const handleChange = (index: number, inputValue: string) => {
-    // Only allow single digit
-    const digit = inputValue.replace(/\D/g, '').slice(-1)
+    // Convert Persian/Arabic numbers to English, then only allow single digit
+    const converted = convertToEnglishNumbers(inputValue)
+    const digit = converted.replace(/\D/g, '').slice(-1)
     
     const newValues = [...localValues]
     newValues[index] = digit
@@ -81,7 +83,9 @@ export default function OTPInput({
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault()
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length)
+    // Convert Persian/Arabic numbers to English before processing
+    const converted = convertToEnglishNumbers(e.clipboardData.getData('text'))
+    const pastedData = converted.replace(/\D/g, '').slice(0, length)
     
     if (pastedData) {
       const newValues = Array(length).fill('')
