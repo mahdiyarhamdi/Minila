@@ -1,12 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Button from '@/components/Button'
-import Input from '@/components/Input'
+import OTPInput from '@/components/OTPInput'
 import Card from '@/components/Card'
 import LanguageSelector from '@/components/LanguageSelector'
 import Logo from '@/components/Logo'
@@ -15,22 +12,17 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useTranslation } from '@/hooks/useTranslation'
 import { translateError } from '@/lib/errorTranslation'
 
-type OTPFormData = { otp_code: string }
-
 export default function VerifyEmailPage() {
   const router = useRouter()
   const { login } = useAuth()
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
+  const [otpCode, setOtpCode] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
-
-  // Schema برای validation
-  const otpSchema = z.object({
-    otp_code: z.string().length(6, t('auth.validation.otpLength')),
-  })
 
   useEffect(() => {
     const emailParam = searchParams.get('email')
@@ -42,27 +34,29 @@ export default function VerifyEmailPage() {
     }
   }, [searchParams, router])
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<OTPFormData>({
-    resolver: zodResolver(otpSchema),
-  })
-
   // تایید OTP
-  const onSubmit = async (data: OTPFormData) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (otpCode.length !== 6) {
+      setError(t('auth.validation.otpLength'))
+      return
+    }
+
     try {
       setError('')
+      setIsSubmitting(true)
       const tokens = await apiService.verifyEmail({
         email,
-        otp_code: data.otp_code,
+        otp_code: otpCode,
       })
       await login(tokens.access_token, tokens.refresh_token)
       router.push('/dashboard')
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || ''
       setError(translateError(errorMsg, t, t('errors.generic')))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -113,35 +107,23 @@ export default function VerifyEmailPage() {
           {t('auth.otp.subtitle', { email })}
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input
-            {...register('otp_code')}
+        <form onSubmit={onSubmit} className="space-y-6">
+          <OTPInput
             label={t('auth.otp.codeLabel')}
-            type="text"
-            inputMode="numeric"
-            placeholder=""
-            maxLength={6}
-            error={errors.otp_code?.message}
-            dir="ltr"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            data-form-type="other"
-            data-lpignore="true"
-            data-1p-ignore="true"
-            className="text-center text-2xl tracking-widest"
+            value={otpCode}
+            onChange={setOtpCode}
+            disabled={isSubmitting}
           />
 
           {error && (
             <div className="p-3 rounded-xl bg-red-50 border border-red-200">
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-red-600 text-center">{error}</p>
             </div>
           )}
 
           {resendMessage && (
             <div className="p-3 rounded-xl bg-primary-50 border border-primary-200">
-              <p className="text-sm text-primary-600">{resendMessage}</p>
+              <p className="text-sm text-primary-600 text-center">{resendMessage}</p>
             </div>
           )}
 
@@ -151,6 +133,7 @@ export default function VerifyEmailPage() {
             size="lg"
             className="w-full"
             isLoading={isSubmitting}
+            disabled={otpCode.length !== 6}
           >
             {t('auth.otp.submitButton')}
           </Button>

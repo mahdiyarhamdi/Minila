@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
+import OTPInput from '@/components/OTPInput'
 import Card from '@/components/Card'
 import LanguageSelector from '@/components/LanguageSelector'
 import Logo from '@/components/Logo'
@@ -22,6 +23,8 @@ export default function LoginPage() {
   const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password')
   const [step, setStep] = useState<'form' | 'otp'>('form')
   const [email, setEmail] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+  const [isSubmittingOTP, setIsSubmittingOTP] = useState(false)
   const [error, setError] = useState('')
 
   // Schemas with translated messages
@@ -34,13 +37,8 @@ export default function LoginPage() {
     password: z.string().min(8, t('auth.validation.passwordMin')),
   })
 
-  const otpSchema = z.object({
-    otp_code: z.string().length(6, t('auth.validation.otpLength')),
-  })
-
   type EmailFormData = z.infer<typeof emailSchema>
   type PasswordFormData = z.infer<typeof passwordSchema>
-  type OTPFormData = z.infer<typeof otpSchema>
 
   // فرم ورود با password
   const {
@@ -58,15 +56,6 @@ export default function LoginPage() {
     formState: { errors: errorsEmail, isSubmitting: isSubmittingEmail },
   } = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
-  })
-
-  // فرم OTP
-  const {
-    register: registerOTP,
-    handleSubmit: handleSubmitOTP,
-    formState: { errors: errorsOTP, isSubmitting: isSubmittingOTP },
-  } = useForm<OTPFormData>({
-    resolver: zodResolver(otpSchema),
   })
 
   // ورود با password
@@ -106,12 +95,20 @@ export default function LoginPage() {
   }
 
   // تایید OTP
-  const onSubmitOTP = async (data: OTPFormData) => {
+  const onSubmitOTP = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (otpCode.length !== 6) {
+      setError(t('auth.validation.otpLength'))
+      return
+    }
+
     try {
       setError('')
+      setIsSubmittingOTP(true)
       const tokens = await apiService.verifyOTP({
         email,
-        otp_code: data.otp_code,
+        otp_code: otpCode,
       })
       await login(tokens.access_token, tokens.refresh_token)
       
@@ -125,6 +122,8 @@ export default function LoginPage() {
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || ''
       setError(translateError(errorMsg, t, t('errors.generic')))
+    } finally {
+      setIsSubmittingOTP(false)
     }
   }
 
@@ -147,7 +146,7 @@ export default function LoginPage() {
           <>
             <div className="mb-6">
               <button
-                onClick={() => setStep('form')}
+                onClick={() => { setStep('form'); setOtpCode(''); setError(''); }}
                 className="text-neutral-600 hover:text-neutral-900 text-sm flex items-center gap-1"
               >
                 <svg className="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,29 +161,17 @@ export default function LoginPage() {
               {t('auth.otp.subtitle', { email })}
             </p>
 
-            <form onSubmit={handleSubmitOTP(onSubmitOTP)} className="space-y-4">
-              <Input
-                {...registerOTP('otp_code')}
+            <form onSubmit={onSubmitOTP} className="space-y-6">
+              <OTPInput
                 label={t('auth.otp.codeLabel')}
-                type="text"
-                inputMode="numeric"
-                placeholder=""
-                maxLength={6}
-                error={errorsOTP.otp_code?.message}
-                dir="ltr"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                data-form-type="other"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                className="text-center text-2xl tracking-widest"
+                value={otpCode}
+                onChange={setOtpCode}
+                disabled={isSubmittingOTP}
               />
 
               {error && (
                 <div className="p-3 rounded-xl bg-red-50 border border-red-200">
-                  <p className="text-sm text-red-600">{error}</p>
+                  <p className="text-sm text-red-600 text-center">{error}</p>
                 </div>
               )}
 
@@ -194,6 +181,7 @@ export default function LoginPage() {
                 size="lg"
                 className="w-full"
                 isLoading={isSubmittingOTP}
+                disabled={otpCode.length !== 6}
               >
                 {t('auth.otp.submitButton')}
               </Button>
